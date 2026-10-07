@@ -309,35 +309,53 @@ button.pl { appearance: none; border: 0; background: none; padding: 0; text-alig
 button.nl { appearance: none; border: 0; background: none; padding: 0; font: inherit; font-size: 0.82rem; font-weight: 600; color: var(--accent); cursor: pointer; }
 .plan-l { font-size: 0.86rem; color: var(--muted); line-height: 1.6; }
 .plan-l button.pl { color: var(--accent); font-weight: 600; text-decoration-color: color-mix(in srgb, var(--accent) 35%, transparent); }
-/* pytania do Claude'a o notatkę */
-.ask-fab { position: fixed; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 30; appearance: none; border: 0; display: inline-flex; align-items: center; gap: 8px; background: var(--accent); color: var(--surface); font-weight: 700; font-size: 0.95rem; padding: 12px 18px; border-radius: 99px; cursor: pointer; box-shadow: 0 6px 20px rgb(0 0 0 / 0.2); }
+/* pytania do Claude'a: wspólne dla Nauki i Notatek, odpowiedzi składane jak notatki */
+html.ask-open { overflow: hidden; }
+.ask-fab { position: fixed; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 30; appearance: none; border: 0; display: inline-flex; align-items: center; gap: 8px; background: var(--ink); color: var(--bg); font-weight: 700; font-size: 0.95rem; padding: 12px 18px 12px 15px; border-radius: 99px; cursor: pointer; box-shadow: 0 8px 24px rgb(0 0 0 / 0.22); }
 .ask-fab svg { width: 19px; height: 19px; }
 .ask-sel { position: fixed; z-index: 31; appearance: none; border: 0; background: var(--ink); color: var(--bg); font-weight: 600; font-size: 0.88rem; padding: 8px 12px; border-radius: 10px; cursor: pointer; box-shadow: 0 4px 14px rgb(0 0 0 / 0.25); white-space: nowrap; }
-.ask { position: fixed; z-index: 40; left: 0; right: 0; bottom: 0; margin: 0 auto; width: 100%; max-width: 680px; height: min(78vh, 760px); background: var(--surface); border: 1px solid var(--line); border-radius: 18px 18px 0 0; box-shadow: 0 -10px 40px rgb(0 0 0 / 0.22); display: flex; flex-direction: column; padding-bottom: env(safe-area-inset-bottom, 0px); }
-.ask-h { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--line); }
-.ask-h .t { flex: 1; min-width: 0; display: grid; }
-.ask-h small { color: var(--muted); font-size: 0.78rem; }
-.ask-h b { font-size: 1rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.ask-h button { appearance: none; border: 1px solid var(--line); background: var(--surface); font-weight: 600; font-size: 0.88rem; padding: 6px 11px; border-radius: 10px; cursor: pointer; }
-.ask-log { flex: 1; overflow-y: auto; padding: 14px 16px; display: grid; align-content: start; gap: 12px; overscroll-behavior: contain; }
-.ask-empty { color: var(--muted); font-size: 0.92rem; }
-.ask .msg { max-width: 92%; padding: 10px 12px; border-radius: 14px; font-size: 0.96rem; line-height: 1.55; overflow-wrap: anywhere; }
-.ask .msg.u { justify-self: end; background: var(--accent-soft); border-bottom-right-radius: 4px; white-space: pre-wrap; }
-.ask .msg.u .q { display: block; border-left: 3px solid var(--accent); padding-left: 8px; margin-bottom: 6px; color: var(--muted); font-size: 0.85rem; max-height: 6em; overflow: hidden; }
-.ask .msg.a { justify-self: start; background: var(--bg); border-bottom-left-radius: 4px; }
-.ask .msg.a.md { font-size: 1rem; gap: 8px; }
-.ask .msg.a.err { color: var(--hot); }
-.ask .msg.wait { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 0.9rem; }
-.ask-quote { margin: 0 16px; padding: 8px 10px; border-left: 3px solid var(--accent); background: var(--bg); border-radius: 0 8px 8px 0; display: flex; gap: 8px; align-items: flex-start; font-size: 0.86rem; color: var(--muted); }
-.ask-quote span { flex: 1; max-height: 4.5em; overflow: hidden; }
+.ask-back { position: fixed; inset: 0; z-index: 39; background: rgb(0 0 0 / 0.32); }
+.ask { position: fixed; z-index: 40; left: 0; right: 0; bottom: 0; margin: 0 auto; width: 100%; max-width: 680px; height: min(86vh, 820px); background: var(--bg); border-radius: 20px 20px 0 0; box-shadow: 0 -12px 40px rgb(0 0 0 / 0.25); display: flex; flex-direction: column; overflow: hidden; }
+@media (prefers-reduced-motion: no-preference) { .ask:not([hidden]) { animation: sheetin .28s cubic-bezier(.2, .9, .3, 1); } .ask-back:not([hidden]) { animation: fadein .2s ease-out; } }
+@keyframes sheetin { from { transform: translateY(40px); opacity: 0.6; } to { transform: none; opacity: 1; } }
+@keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
+.ask-grip { width: 38px; height: 4px; border-radius: 99px; background: var(--line); margin: 8px auto 0; flex: none; }
+.ask-h { display: flex; align-items: flex-start; gap: 10px; padding: 8px 16px 12px; border-bottom: 1px solid var(--line); }
+.ask-h .t { flex: 1; min-width: 0; display: grid; gap: 3px; }
+.ask-h b { font-size: 1.08rem; font-weight: 700; }
+.ask-h .ctx { font-size: 0.84rem; color: var(--muted); display: flex; gap: 6px; align-items: baseline; min-width: 0; }
+.ask-h .ctx::before { content: ""; flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); transform: translateY(-1px); }
+.ask-h .ctx span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ask-h .x { appearance: none; border: 0; background: var(--surface); width: 34px; height: 34px; border-radius: 50%; font-size: 1.35rem; line-height: 1; color: var(--muted); cursor: pointer; flex: none; }
+.ask-log { flex: 1; overflow-y: auto; padding: 18px 16px 8px; display: grid; align-content: start; gap: 18px; overscroll-behavior: contain; }
+.ask-hello { display: grid; gap: 8px; color: var(--muted); font-size: 0.95rem; line-height: 1.55; padding: 4px 2px; }
+.ask-hello b { color: var(--ink); font-size: 1.02rem; }
+.qa-u { justify-self: end; max-width: 86%; background: var(--surface); border: 1px solid var(--line); border-radius: 16px 16px 4px 16px; padding: 9px 13px; font-size: 0.97rem; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
+.qa-u .q { display: block; border-left: 2px solid var(--accent); padding-left: 8px; margin-bottom: 6px; color: var(--muted); font-size: 0.85rem; max-height: 5.2em; overflow: hidden; white-space: normal; }
+.qa-a { display: grid; gap: 6px; }
+.qa-a .who { font-family: var(--font); font-size: 0.72rem; font-weight: 800; letter-spacing: 0.09em; text-transform: uppercase; color: var(--accent); }
+.qa-a .md { font-size: 1.02rem; gap: 10px; }
+.qa-a.err .md { color: var(--hot); font-family: var(--font); font-size: 0.92rem; }
+.qa-a .acts { display: flex; gap: 14px; }
+.qa-a .acts button { appearance: none; border: 0; background: none; padding: 0; font-size: 0.82rem; font-weight: 600; color: var(--muted); cursor: pointer; }
+.qa-wait { display: grid; gap: 8px; }
+.qa-wait .wt { font-size: 0.9rem; color: var(--muted); }
+.qa-wait .bar { height: 3px; border-radius: 99px; background: var(--line); overflow: hidden; }
+.qa-wait .bar i { display: block; height: 100%; width: 4%; background: var(--accent); border-radius: 99px; transition: width 1s linear; }
+.ask-foot { border-top: 1px solid var(--line); background: var(--bg); padding-bottom: env(safe-area-inset-bottom, 0px); }
+.ask-quote { margin: 10px 16px 0; padding: 7px 10px; border-left: 3px solid var(--accent); background: var(--surface); border-radius: 0 8px 8px 0; display: flex; gap: 8px; align-items: flex-start; font-size: 0.86rem; color: var(--muted); }
+.ask-quote span { flex: 1; max-height: 4.4em; overflow: hidden; }
 .ask-quote button { appearance: none; border: 0; background: none; color: var(--muted); font-size: 1.1rem; line-height: 1; cursor: pointer; }
-.ask-chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 16px 0; }
+.ask-chips { display: flex; gap: 6px; padding: 10px 16px 0; overflow-x: auto; scrollbar-width: none; }
+.ask-chips::-webkit-scrollbar { display: none; }
 .ask-chips:empty { display: none; }
-.ask-chips button { appearance: none; border: 1px solid var(--line); background: var(--surface); color: var(--accent); font-weight: 600; font-size: 0.82rem; padding: 5px 10px; border-radius: 99px; cursor: pointer; }
+.ask-chips button { flex: none; appearance: none; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font-weight: 600; font-size: 0.84rem; padding: 7px 12px; border-radius: 99px; cursor: pointer; white-space: nowrap; max-width: 80vw; overflow: hidden; text-overflow: ellipsis; }
 .ask-form { display: flex; gap: 8px; padding: 10px 16px 12px; align-items: flex-end; }
-.ask-form textarea { flex: 1; resize: none; font: inherit; font-size: 1rem; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 9px 11px; max-height: 140px; min-height: 44px; }
-.ask-form button { appearance: none; border: 0; background: var(--accent); color: var(--surface); font-weight: 700; padding: 11px 14px; border-radius: 12px; cursor: pointer; }
-.ask-form button:disabled { opacity: 0.5; }
+.ask-form textarea { flex: 1; resize: none; font: inherit; font-size: 1rem; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 22px; padding: 10px 16px; max-height: 140px; min-height: 44px; line-height: 1.4; }
+.ask-form textarea:focus { outline: 2px solid var(--accent); outline-offset: 0; }
+.ask-form button { appearance: none; border: 0; flex: none; width: 44px; height: 44px; border-radius: 50%; background: var(--accent); color: var(--surface); display: grid; place-items: center; cursor: pointer; }
+.ask-form button svg { width: 20px; height: 20px; }
+.ask-form button:disabled { opacity: 0.4; cursor: default; }
 /* podgląd zdjęcia: zawsze ciemne tło, w obu motywach */
 .lb { position: fixed; inset: 0; z-index: 50; background: rgb(8 10 9 / 0.95); display: flex; flex-direction: column; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
 .lb .lbar { display: flex; gap: 8px; justify-content: space-between; padding: 10px 16px; }
@@ -378,12 +396,16 @@ button.nl { appearance: none; border: 0; background: none; padding: 0; font: inh
 </main>
 <button class="ask-fab" id="ask-fab" type="button" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8.5 8.5 0 0 1-12.4 7.6L4 21l1.4-4.6A8.5 8.5 0 1 1 21 12z"/><path d="M9.5 9.5a2.5 2.5 0 0 1 4.8 1c0 1.7-2.3 2-2.3 3.5M12 17h.01"/></svg>Zapytaj</button>
 <button class="ask-sel" id="ask-sel" type="button" hidden>Zapytaj o to</button>
+<div class="ask-back" id="ask-back" hidden></div>
 <div class="ask" id="ask" role="dialog" aria-labelledby="ask-title" hidden>
-  <div class="ask-h"><div class="t"><small>Pytanie do Claude'a o notatkę</small><b id="ask-title"></b></div><button type="button" id="ask-x">Zamknij</button></div>
+  <div class="ask-grip" aria-hidden="true"></div>
+  <div class="ask-h"><div class="t"><b id="ask-title">Zapytaj Claude'a</b><span class="ctx" id="ask-ctx"></span></div><button type="button" class="x" id="ask-x" aria-label="Zamknij">×</button></div>
   <div class="ask-log" id="ask-log" aria-live="polite"></div>
-  <div class="ask-quote" id="ask-quote" hidden><span id="ask-quote-t"></span><button type="button" id="ask-quote-x" aria-label="Usuń zaznaczenie">×</button></div>
-  <div class="ask-chips" id="ask-chips"></div>
-  <form class="ask-form" id="ask-form"><textarea id="ask-in" rows="1" placeholder="Np. dlaczego wybieramy δ = ε/2?" aria-label="Pytanie"></textarea><button type="submit">Wyślij</button></form>
+  <div class="ask-foot">
+    <div class="ask-quote" id="ask-quote" hidden><span id="ask-quote-t"></span><button type="button" id="ask-quote-x" aria-label="Usuń zaznaczenie">×</button></div>
+    <div class="ask-chips" id="ask-chips"></div>
+    <form class="ask-form" id="ask-form"><textarea id="ask-in" rows="1" placeholder="Zapytaj o cokolwiek…" aria-label="Pytanie"></textarea><button type="submit" aria-label="Wyślij"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5.5 11.5L12 5l6.5 6.5"/></svg></button></form>
+  </div>
 </div>
 <div class="lb" id="lb" role="dialog" aria-label="Zdjęcie z zajęć" hidden>
   <div class="lbar"><button type="button" id="lb-x">Zamknij</button><button type="button" class="del" id="lb-del">Usuń zdjęcie</button></div>
@@ -782,7 +804,7 @@ button.nl { appearance: none; border: 0; background: none; padding: 0; font: inh
       if (naukaObs) naukaObs.disconnect();
       if (window.ResizeObserver) { naukaObs = new ResizeObserver(set); naukaObs.observe(d.body); }
       d.addEventListener("change", function (e) { if (!applying && e.target.matches && e.target.matches("input.tick")) onTick(); });  // faza bąbelkowa: strona już zsynchronizowała duplikaty
-      applyProgress(); linkSig = ""; linkNauka();
+      applyProgress(); linkSig = ""; linkNauka(); hookNaukaSel(d); updateAskFab();
     } catch (e) { fr.style.height = "85vh"; }
   }
 
@@ -1267,10 +1289,11 @@ button.nl { appearance: none; border: 0; background: none; padding: 0; font: inh
     next.disabled = !left; task.querySelector(".s-all").hidden = !left;
   });
 
-  /* --- pytania do Claude'a o notatkę: asks/<id>.json → GitHub Actions (pytania.yml) → answers/<id>.json --- */
-  var askFab = $("ask-fab"), askSel = $("ask-sel"), askBox = $("ask"), askLog = $("ask-log"), askIn = $("ask-in"), askForm = $("ask-form");
-  var askQuote = $("ask-quote"), askQuoteT = $("ask-quote-t"), askTitle = $("ask-title"), askChips = $("ask-chips");
-  var CHAT_LS = "notatki-chat-v1", chats = {}, askKey = null, askPend = null, askTimer = null, selInfo = null;
+  /* --- pytania do Claude'a: asks/<id>.json → GitHub Actions (pytania.yml, tools/answer.py) → answers/<id>.json ---
+     W notatce Claude widzi tę notatkę i jej zdjęcia (plus UPeL i plan tego przedmiotu); w Nauce cały plan, UPeL, notatki i temat na ekranie. */
+  var askFab = $("ask-fab"), askSel = $("ask-sel"), askBox = $("ask"), askBack = $("ask-back"), askLog = $("ask-log"), askIn = $("ask-in"), askForm = $("ask-form");
+  var askQuote = $("ask-quote"), askQuoteT = $("ask-quote-t"), askCtxEl = $("ask-ctx"), askChips = $("ask-chips");
+  var CHAT_LS = "notatki-chat-v1", chats = {}, ctxA = null, askPend = null, askTimer = null, selInfo = null;
   try { chats = JSON.parse(localStorage.getItem(CHAT_LS) || "{}") || {}; } catch (e) { chats = {}; }
   function saveChats() { try { localStorage.setItem(CHAT_LS, JSON.stringify(chats)); } catch (e) {} }
   function visibleNoteKey() {  // notatka, która zajmuje najwięcej ekranu
@@ -1282,42 +1305,75 @@ button.nl { appearance: none; border: 0; background: none; padding: 0; font: inh
     });
     return best;
   }
-  function updateAskFab() { askFab.hidden = !!VISIT || !askBox.hidden || !(tab === "notatki" && view.k === "folder" && document.querySelector(".day[data-key] .md")); }
-  function askBusy() { return (chats[askKey] || []).some(function (m) { return !m.a; }); }
-  function waitText(m) { var sec = Math.round((Date.now() - m.t0) / 1000); return "Claude czyta notatkę… " + clock(sec) + (sec < 30 ? " (zwykle ok. pół minuty)" : ""); }
-  function openAsk(key, quote) {
-    if (!key) return;
-    askKey = key; askPend = quote || null;
-    var n = (INDEX.notes || {})[key]; askTitle.textContent = n ? n.title : "Notatka";
-    askQuote.hidden = !askPend; askQuoteT.textContent = askPend || "";
-    askBox.hidden = false; askFab.hidden = true; askSel.hidden = true; renderAsk();
+  function visibleTopic() {  // temat z Nauki najbliżej środka ekranu
+    var d = naukaDoc(), fr = paneK.querySelector("iframe"); if (!d || !fr) return null;
+    var off = fr.getBoundingClientRect().top, mid = innerHeight * 0.45, best = null, bd = 1e9;
+    d.querySelectorAll(".topic").forEach(function (t) {
+      var r = t.getBoundingClientRect(), y = off + r.top; if (y < 60 || y > innerHeight) return;
+      var dist = Math.abs(y - mid); if (dist < bd) { bd = dist; best = normTopic(t.textContent); }
+    });
+    return best;
   }
-  function closeAsk() { askBox.hidden = true; updateAskFab(); }
+  function noteCtx(key) {
+    var n = (INDEX.notes || {})[key]; if (!n) return null;
+    var f = F(n.folder) || { course: n.folder, kind: "" };
+    return { key: key, where: "notatka", note: key, label: "notatkę „" + n.title + "” · " + fname(f) + ", " + KIND_L[f.kind] + " " + shortDate(n.day), wait: "Claude czyta notatkę" };
+  }
+  function naukaCtx(focus) {
+    return { key: "nauka", where: "nauka", focus: focus || null, label: "Twój plan, UPeL i notatki" + (focus ? " · temat: " + focus : ""), wait: "Claude przegląda Twój plan" };
+  }
+  function currentCtx() { return tab === "nauka" ? naukaCtx(visibleTopic()) : tab === "notatki" && view.k === "folder" ? noteCtx(visibleNoteKey()) : null; }
+  function updateAskFab() { askFab.hidden = !!VISIT || !askBox.hidden || !(tab === "nauka" ? !!naukaDoc() : tab === "notatki" && view.k === "folder" && document.querySelector(".day[data-key] .md")); }
+  function askBusy() { return ctxA && (chats[ctxA.key] || []).some(function (m) { return !m.a; }); }
+  function openAsk(ctx, quote) {
+    if (!ctx) return;
+    ctxA = ctx; askPend = quote || null;
+    askCtxEl.textContent = ""; askCtxEl.appendChild(el("span", { text: "Widzi " + ctx.label }));
+    askQuote.hidden = !askPend; askQuoteT.textContent = askPend || "";
+    askBox.hidden = false; askBack.hidden = false; askFab.hidden = true; askSel.hidden = true;
+    document.documentElement.classList.add("ask-open"); renderAsk();
+  }
+  function closeAsk() { askBox.hidden = true; askBack.hidden = true; document.documentElement.classList.remove("ask-open"); updateAskFab(); }
+  function chipsFor(ctx, hasMsgs) {
+    var q = ctx.where === "notatka"
+      ? (askPend ? ["Wytłumacz to prościej", "Dlaczego tak jest?", "Pokaż to na przykładzie"] : ["Nie rozumiem…", "Daj mi podobne zadanie", "Co z tego może być na kolokwium?", "Wytłumacz najtrudniejszą rzecz z tej notatki"])
+      : (askPend ? ["Wytłumacz to prościej", "Jak się tego nauczyć?", "Daj mi zadanie z tego"] : (ctx.focus ? ["Wytłumacz: " + ctx.focus] : []).concat(["Od czego zacząć dziś?", "Co muszę oddać na UPeL-u?", "Na co się przygotować na jutro?"]));
+    return hasMsgs && !askPend ? q.slice(0, 2) : q;
+  }
   function renderAsk() {
     askLog.textContent = "";
-    var list = chats[askKey] || [];
-    if (!list.length) askLog.appendChild(el("p", { class: "ask-empty", text: "Zapytaj o cokolwiek z tej notatki, np. dlaczego coś wychodzi tak, a nie inaczej. Możesz też zaznaczyć fragment notatki i dotknąć „Zapytaj o to”. Claude widzi całą notatkę i przepis zdjęć z zajęć." }));
+    var list = chats[ctxA.key] || [];
+    if (!list.length) askLog.appendChild(el("div", { class: "ask-hello" }, [
+      el("b", { text: ctxA.where === "notatka" ? "Pytaj o tę notatkę" : "Pytaj o naukę i plan" }),
+      el("span", { text: ctxA.where === "notatka"
+        ? "Claude zna całą notatkę, zdjęcia, z których powstała, terminy z UPeL-a i plan tego przedmiotu. Możesz też zaznaczyć fragment notatki i dotknąć „Zapytaj o to”. Odpowiedź przychodzi po ok. pół minuty."
+        : "Claude zna Twój plan na jutro, zadania z UPeL-a, plan tygodnia, listy tematów i wszystkie notatki. Pytaj też o rzeczy, których jeszcze nie było – powie, że to wykracza poza zajęcia. Odpowiedź przychodzi po ok. pół minuty." })
+    ]));
     list.forEach(function (m) {
-      var u = el("div", { class: "msg u" }); if (m.quote) u.appendChild(el("span", { class: "q", text: m.quote })); u.appendChild(document.createTextNode(m.q)); askLog.appendChild(u);
-      if (m.a) askLog.appendChild(el("div", { class: "msg a" + (m.err ? " err" : " md"), html: m.err ? esc(m.a) : md(m.a, true) }));
-      else askLog.appendChild(el("div", { class: "msg a wait", "data-wait": m.id }, [el("span", { class: "spin" }), el("span", { class: "wt", text: waitText(m) })]));
+      var u = el("div", { class: "qa-u" }); if (m.quote) u.appendChild(el("span", { class: "q", text: m.quote })); u.appendChild(document.createTextNode(m.q)); askLog.appendChild(u);
+      if (m.a) {
+        var copy = btn("", "Kopiuj", function () { try { navigator.clipboard.writeText(m.a).then(function () { copy.textContent = "Skopiowane"; }, function () {}); } catch (e) {} });
+        askLog.appendChild(el("div", { class: "qa-a" + (m.err ? " err" : "") }, [el("span", { class: "who", text: "Claude" }), el("div", { class: "md", html: m.err ? esc(m.a) : md(m.a, true) }), m.err ? null : el("div", { class: "acts" }, [copy])]));
+      } else askLog.appendChild(el("div", { class: "qa-a qa-wait", "data-wait": m.id }, [el("span", { class: "who", text: "Claude" }), el("span", { class: "wt", text: waitText(m) }), el("span", { class: "bar" }, [el("i", { style: "width:" + waitPct(m) + "%" })])]));
     });
-    askChips.textContent = "";
-    if (!askBusy()) (askPend ? ["Wytłumacz to prościej", "Dlaczego tak jest?", "Pokaż to na przykładzie"] : list.length ? [] : ["Co jest najtrudniejsze w tej notatce?", "Daj mi jeszcze jedno zadanie"]).forEach(function (q) {
-      askChips.appendChild(btn("", q, function () { sendAsk(q); }));
+    askChips.textContent = ""; askChips.scrollLeft = 0;
+    if (!askBusy()) chipsFor(ctxA, list.length).forEach(function (q) {
+      askChips.appendChild(btn("", q, function () { if (/…$/.test(q)) { askIn.value = q.replace(/…$/, " "); askIn.focus(); grow(); } else sendAsk(q); }));
     });
-    askForm.querySelector("button").disabled = askBusy();
+    askForm.querySelector("button").disabled = !!askBusy();
     askLog.scrollTop = askLog.scrollHeight;
   }
+  function waitText(m) { var sec = Math.round((Date.now() - m.t0) / 1000); return (m.wait || "Claude myśli") + "… " + clock(sec); }
+  function waitPct(m) { var sec = (Date.now() - m.t0) / 1000; return Math.min(94, Math.round(100 * (1 - Math.exp(-sec / 22)))); }
   function sendAsk(text) {
-    text = (text || "").trim(); if (!text || !askKey || askBusy()) return;
-    var list = chats[askKey] || (chats[askKey] = []);
+    text = (text || "").trim(); if (!text || !ctxA || askBusy()) return;
+    var list = chats[ctxA.key] || (chats[ctxA.key] = []);
     var hist = list.filter(function (m) { return m.a && !m.err; }).slice(-4).map(function (m) { return { q: (m.quote ? "[o fragmencie: " + m.quote.slice(0, 300) + "] " : "") + m.q, a: m.a.slice(0, 3000) }; });
     var id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-    var m = { id: id, q: text, quote: askPend, t0: Date.now() };
-    list.push(m); askPend = null; askQuote.hidden = true; askIn.value = ""; askIn.style.height = ""; saveChats(); renderAsk();
-    var json = JSON.stringify({ id: id, note: askKey, question: text, quote: m.quote || null, history: hist });
-    api("contents/asks/" + id + ".json", { method: "PUT", body: { message: "Pytanie: " + askKey, content: btoa(unescape(encodeURIComponent(json))), branch: BRANCH } })
+    var m = { id: id, q: text, quote: askPend, t0: Date.now(), wait: ctxA.wait };
+    list.push(m); askPend = null; askQuote.hidden = true; askIn.value = ""; grow(); saveChats(); renderAsk();
+    var json = JSON.stringify({ id: id, note: ctxA.note || null, ctx: { where: ctxA.where, focus: ctxA.focus || null }, question: text, quote: m.quote || null, history: hist });
+    api("contents/asks/" + id + ".json", { method: "PUT", body: { message: "Pytanie: " + (ctxA.note || "nauka"), content: btoa(unescape(encodeURIComponent(json))), branch: BRANCH } })
       .then(function () { pollAsk(); }, function (e) {
         m.a = e && e.status === 403 ? "Klucz ma tylko odczyt, więc pytanie nie poszło." : "Nie udało się wysłać pytania. Sprawdź internet i spróbuj jeszcze raz."; m.err = true; saveChats(); renderAsk();
       });
@@ -1326,7 +1382,7 @@ button.nl { appearance: none; border: 0; background: none; padding: 0; font: inh
     clearTimeout(askTimer);
     var pend = [];
     Object.keys(chats).forEach(function (k) { chats[k].forEach(function (m) { if (!m.a) pend.push(m); }); });
-    if (!pend.length || !TOKEN) return;
+    if (!pend.length || !TOKEN || VISIT) return;
     Promise.all(pend.map(function (m) {
       return api("contents/answers/" + m.id + ".json?ref=" + BRANCH, { raw: true }).then(function (t) { var x = JSON.parse(t); m.a = x.answer; m.err = !!x.error; }, function () {
         if (Date.now() - m.t0 > 5 * 60000) { m.a = "Nie ma odpowiedzi po 5 minutach. Zapytaj jeszcze raz."; m.err = true; }
@@ -1334,34 +1390,56 @@ button.nl { appearance: none; border: 0; background: none; padding: 0; font: inh
     })).then(function () { saveChats(); if (!askBox.hidden) renderAsk(); askTimer = setTimeout(pollAsk, 4000); });
   }
   setInterval(function () {
-    if (askBox.hidden) return;
-    askLog.querySelectorAll("[data-wait]").forEach(function (w) { var m = (chats[askKey] || []).filter(function (x) { return x.id === w.getAttribute("data-wait"); })[0]; if (m) w.querySelector(".wt").textContent = waitText(m); });
+    if (askBox.hidden || !ctxA) return;
+    askLog.querySelectorAll("[data-wait]").forEach(function (w) {
+      var m = (chats[ctxA.key] || []).filter(function (x) { return x.id === w.getAttribute("data-wait"); })[0]; if (!m) return;
+      w.querySelector(".wt").textContent = waitText(m); w.querySelector(".bar i").style.width = waitPct(m) + "%";
+    });
   }, 1000);
-  askFab.addEventListener("click", function () { openAsk(visibleNoteKey()); });
+  function grow() { askIn.style.height = "auto"; askIn.style.height = Math.min(140, askIn.scrollHeight) + "px"; }
+  askFab.addEventListener("click", function () { openAsk(currentCtx()); });
   $("ask-x").addEventListener("click", closeAsk);
+  askBack.addEventListener("click", closeAsk);
   $("ask-quote-x").addEventListener("click", function () { askPend = null; askQuote.hidden = true; renderAsk(); });
   askForm.addEventListener("submit", function (e) { e.preventDefault(); sendAsk(askIn.value || (askPend ? "Wytłumacz to prościej" : "")); });
-  askIn.addEventListener("input", function () { askIn.style.height = "auto"; askIn.style.height = Math.min(140, askIn.scrollHeight) + "px"; });
+  askIn.addEventListener("input", grow);
+  askIn.addEventListener("keydown", function (e) { if (e.key === "Enter" && !e.shiftKey && !e.isComposing && matchMedia("(pointer: fine)").matches) { e.preventDefault(); askForm.requestSubmit(); } });
   document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !askBox.hidden) closeAsk(); });
-  // zaznaczenie w notatce → „Zapytaj o to”
+  // zaznaczenie tekstu (w notatce albo w Nauce) → „Zapytaj o to”
+  function placeSel(s, rect, info) {
+    if (!info || VISIT) { askSel.hidden = true; selInfo = null; return; }
+    selInfo = info; askSel.hidden = false;
+    var w = askSel.offsetWidth || 120, h = askSel.offsetHeight || 34, top = rect.bottom + 12;
+    if (top + h > innerHeight - 70) top = Math.max(70, rect.top - h - 12);
+    askSel.style.top = top + "px"; askSel.style.left = Math.min(Math.max(8, rect.left + rect.width / 2 - w / 2), innerWidth - w - 8) + "px";
+  }
   var selT = null;
-  document.addEventListener("selectionchange", function () {
+  function onSel(doc, offY) {
     clearTimeout(selT);
     selT = setTimeout(function () {
-      var s = window.getSelection(), text = s && s.rangeCount ? s.toString().replace(/\s+/g, " ").trim() : "";
+      var s = doc.getSelection(), text = s && s.rangeCount ? s.toString().replace(/\s+/g, " ").trim() : "";
       var node = s && s.anchorNode && (s.anchorNode.nodeType === 1 ? s.anchorNode : s.anchorNode.parentElement);
-      var card = node && node.closest && node.closest(".day[data-key]");
-      if (text.length < 2 || !card || !node.closest(".md") || !askBox.hidden) { askSel.hidden = true; selInfo = null; return; }
-      selInfo = { key: card.getAttribute("data-key"), text: text.slice(0, 2000) };
-      var r = s.getRangeAt(0).getBoundingClientRect();
-      askSel.hidden = false;
-      var w = askSel.offsetWidth || 120, h = askSel.offsetHeight || 34, top = r.bottom + 12;
-      if (top + h > innerHeight - 70) top = Math.max(70, r.top - h - 12);
-      askSel.style.top = top + "px"; askSel.style.left = Math.min(Math.max(8, r.left + r.width / 2 - w / 2), innerWidth - w - 8) + "px";
+      if (text.length < 2 || !node || !askBox.hidden) return placeSel(s, null, null);
+      var r = s.getRangeAt(0).getBoundingClientRect(), rect = { top: r.top + offY(), bottom: r.bottom + offY(), left: r.left, width: r.width };
+      if (doc === document) {
+        var card = node.closest && node.closest(".day[data-key]");
+        return placeSel(s, rect, card && node.closest(".md") ? { ctx: noteCtx(card.getAttribute("data-key")), text: text.slice(0, 2000) } : null);
+      }
+      var t = node.closest && node.closest(".it"), tp = t && t.querySelector(".topic");
+      placeSel(s, rect, { ctx: naukaCtx(tp ? normTopic(tp.textContent) : visibleTopic()), text: text.slice(0, 2000) });
     }, 250);
-  });
+  }
+  document.addEventListener("selectionchange", function () { onSel(document, function () { return 0; }); });
   askSel.addEventListener("mousedown", function (e) { e.preventDefault(); });
-  askSel.addEventListener("click", function () { if (!selInfo) return; var x = selInfo; try { window.getSelection().removeAllRanges(); } catch (e) {} openAsk(x.key, x.text); });
+  askSel.addEventListener("click", function () {
+    if (!selInfo) return; var x = selInfo;
+    try { window.getSelection().removeAllRanges(); var d = naukaDoc(); if (d) d.getSelection().removeAllRanges(); } catch (e) {}
+    openAsk(x.ctx, x.text);
+  });
+  function hookNaukaSel(d) {  // wywoływane po wczytaniu ramki z Nauką
+    if (!d || d._askSel) return; d._askSel = true;
+    d.addEventListener("selectionchange", function () { var fr = paneK.querySelector("iframe"); onSel(d, function () { return fr ? fr.getBoundingClientRect().top : 0; }); });
+  }
   pollAsk();
 
   /* --- podgląd zdjęcia --- */
