@@ -470,7 +470,7 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
       });
     }).then(function () { e.state = "sent"; e.file = null; e.pct = 1; render(); setTimeout(refresh, 2500); }, function (err) {
       e.state = "error";
-      e.err = err && err.code === "decode" ? "Nie da się odczytać tego pliku. Zrób zdjęcie jeszcze raz." : err && err.code === "auth" ? "Klucz do repozytorium nie działa." : err && err.code === "net" ? "Brak internetu. Zdjęcie czeka w telefonie, dotknij, żeby wysłać jeszcze raz." : "Nie udało się wysłać zdjęcia (" + (err && err.status || "?") + "). Dotknij, żeby spróbować jeszcze raz.";
+      e.err = err && err.code === "decode" ? "Nie da się odczytać tego pliku. Zrób zdjęcie jeszcze raz." : err && err.code === "auth" ? "Klucz do repozytorium nie działa." : err && err.code === "net" ? "Brak internetu. Zdjęcie czeka w telefonie, dotknij, żeby wysłać jeszcze raz." : err && err.status === 403 ? "Klucz ma tylko odczyt. Potrzebny nowy klucz z uprawnieniem Contents: Read and write." : "Nie udało się wysłać zdjęcia (" + (err && err.status || "?") + "). Dotknij, żeby spróbować jeszcze raz.";
       render();
     });
   }
