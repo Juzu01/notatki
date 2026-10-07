@@ -1391,7 +1391,7 @@ html.ask-open { overflow: hidden; }
       return api("contents/answers/" + m.id + ".json?ref=" + BRANCH, { raw: true }).then(function (t) { var x = JSON.parse(t); m.a = x.answer; m.err = !!x.error; }, function () {
         if (Date.now() - m.t0 > 5 * 60000) { m.a = "Nie ma odpowiedzi po 5 minutach. Zapytaj jeszcze raz."; m.err = true; }
       });
-    })).then(function () { saveChats(); if (!askBox.hidden) renderAsk(); askTimer = setTimeout(pollAsk, 4000); });
+    })).then(function () { saveChats(); if (!askBox.hidden) renderAsk(); askTimer = setTimeout(pollAsk, 2000); });
   }
   setInterval(function () {
     if (askBox.hidden || !ctxA) return;
