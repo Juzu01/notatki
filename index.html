@@ -67,6 +67,8 @@ main { max-width: 680px; margin: 0 auto; padding-inline: 16px; padding-block: 18
 .pane { display: grid; gap: 26px; }
 /* Nauka: ta sama strona co SimpleAGH na claude.ai (nauka.html z prywatnego repo), wysokość dopasowana do treści */
 #pane-nauka { display: block; margin: -18px -16px 0; }
+#keybox-slot:empty { display: none; }
+#keybox-slot + #pane-nauka { margin-top: 0; }
 #pane-nauka iframe { display: block; width: 100%; height: 80vh; border: 0; background: var(--bg); }
 #pane-nauka .hint { padding: 18px 16px; }
 
@@ -136,6 +138,8 @@ main { max-width: 680px; margin: 0 auto; padding-inline: 16px; padding-block: 18
 .time { display: block; color: var(--faint); font-size: 0.8rem; }
 .calm { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 0.92rem; background: var(--surface); border: 1px dashed var(--line); border-radius: var(--r); padding: 14px 16px; }
 .calm svg { width: 20px; height: 20px; color: var(--accent); flex: none; }
+.keybox { flex-wrap: wrap; border-style: solid; }
+.acts { display: flex; flex-wrap: wrap; gap: 8px; }
 .runerr { color: var(--hot); font-size: 0.9rem; }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -247,6 +251,7 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
   </div>
 </div></header>
 <main>
+  <div id="keybox-slot"></div>
   <section class="pane" id="pane-nauka" role="tabpanel" aria-labelledby="tab-nauka" hidden><p class="hint">Wczytuję…</p></section>
   <section class="pane" id="pane-aparat" role="tabpanel" aria-labelledby="tab-aparat">
     <div id="shoot"></div>
@@ -289,7 +294,9 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
   var TOKEN = "";
   try { TOKEN = localStorage.getItem(LS) || ""; } catch (e) {}
   var m = /[#&]t=([A-Za-z0-9_]+)/.exec(location.hash);
-  if (m) { TOKEN = m[1]; try { localStorage.setItem(LS, TOKEN); } catch (e) {} history.replaceState(null, "", location.pathname); }
+  // ikonka na ekranie początkowym iPhone'a ma osobną pamięć niż Safari: w Safari klucz zostaje w adresie, żeby „Do ekranu początkowego” zabrało go do ikonki
+  var STANDALONE = navigator.standalone === true || (window.matchMedia && matchMedia("(display-mode: standalone)").matches);
+  if (m) { TOKEN = m[1]; try { localStorage.setItem(LS, TOKEN); } catch (e) {} if (STANDALONE) history.replaceState(null, "", location.pathname); }
   var startTab = /^#(nauka|aparat|notatki)$/.exec(location.hash);   // link z SimpleAGH otwiera konkretną zakładkę
   function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
@@ -540,6 +547,7 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
       paneN.textContent = ""; paneN.appendChild(el("p", { class: "hint", text: msg }));
       return;
     }
+    var kb = $("keybox-slot"); if (kb && !kb.firstChild) { var k = keyBox(); if (k) kb.appendChild(k); }
     if (tab === "aparat") { drawShoot(); drawFlow(); drawChart(); }
     else if (tab === "notatki") drawNotes();
   }
@@ -585,8 +593,20 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
     paneS.appendChild(el("div", { class: "setup" }, [
       el("p", { text: authErr ? "Klucz do repozytorium z notatkami nie działa (wygasł albo jest zły). Wklej nowy." : "Ta strona zapisuje zdjęcia w Twoim prywatnym repozytorium z notatkami. Potrzebuje do niego klucza; zostaje tylko w tym telefonie." }),
       el("ol", {}, [el("li", { text: "Na laptopie uruchom: ~/SimpleAGH/tools/notes_qr.sh i zeskanuj kod aparatem telefonu." }), el("li", { text: "Albo wklej klucz tutaj." })]),
-      inp, el("div", {}, [save])
+      inp, el("div", { class: "acts" }, [save, navigator.clipboard && navigator.clipboard.readText ? btn("go alt", "Wklej ze schowka", function () {
+        navigator.clipboard.readText().then(function (t) { t = (t || "").trim(); if (/^github_pat_\w+$/.test(t)) { inp.value = t; save.click(); } else inp.value = t; }, function () { inp.focus(); });
+      }) : null])
     ]));
+    if (STANDALONE) paneS.appendChild(el("p", { class: "hint", text: "Masz już klucz w Safari? Otwórz tę stronę w Safari, dotknij „Skopiuj klucz” na górze strony i wróć tutaj do „Wklej ze schowka”." }));
+  }
+  function keyBox() {  // w Safari (nie w ikonce): jak przenieść klucz do ikonki na ekranie początkowym
+    if (STANDALONE || !TOKEN) return null;
+    var hasKeyInUrl = /[#&]t=/.test(location.hash), copyB = btn("go alt", "Skopiuj klucz", function () {
+      try { navigator.clipboard.writeText(TOKEN).then(function () { copyB.textContent = "Skopiowany"; }, function () { copyB.textContent = "Nie udało się"; }); } catch (e) { copyB.textContent = "Nie udało się"; }
+    });
+    return el("div", { class: "calm keybox" }, [el("span", { text: hasKeyInUrl
+      ? "Ikonka na ekranie początkowym: dodaj ją teraz z tej strony (Udostępnij → „Do ekranu początkowego”), wtedy klucz przejdzie do niej sam. Starą ikonkę bez klucza usuń."
+      : "Ikonka na ekranie początkowym prosi o klucz? Skopiuj go tutaj, otwórz ikonkę i dotknij „Wklej ze schowka”." }), copyB]);
   }
 
   /* --- Aparat: wybór zajęć i spust --- */
