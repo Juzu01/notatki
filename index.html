@@ -281,6 +281,33 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
 .setup ol { margin: 0; padding-left: 1.2rem; display: grid; gap: 6px; color: var(--muted); font-size: 0.92rem; }
 
 
+
+/* karta „Dziś” nad Nauką i linijka planu w notatce */
+.today { margin: 18px 16px 4px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 14px 16px; display: grid; gap: 14px; }
+.today h2 { font-size: 1.2rem; font-weight: 700; }
+.today .tg { display: grid; gap: 6px; }
+.today h3 { font-size: 0.78rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.today .tl { list-style: none; margin: 0; padding: 0; display: grid; }
+.today .tl > li { display: grid; gap: 4px; padding: 10px 0; border-top: 1px solid var(--line); }
+.today .tl > li:first-child { border-top: 0; padding-top: 2px; }
+.today .tt { font-size: 0.9rem; color: var(--muted); display: block; position: relative; padding-left: 15px; }
+.today .tt::before { content: ""; position: absolute; left: 0; top: 0.5em; width: 8px; height: 8px; border-radius: 50%; background: var(--cc); }
+.today .tt b { color: var(--ink); font-weight: 600; }
+.today .tn { font-weight: 600; }
+.today .ta { display: flex; flex-wrap: wrap; gap: 6px; }
+.today .ta button { appearance: none; border: 1px solid var(--line); background: var(--surface); color: var(--accent); font-weight: 600; font-size: 0.84rem; padding: 5px 11px; border-radius: 99px; cursor: pointer; }
+.today .tp { display: grid; gap: 3px; }
+.today .tp { padding-left: 15px; }
+.today .tpi { display: block; position: relative; padding-left: 16px; font-size: 0.92rem; line-height: 1.45; }
+.today .tpi::before { content: "○"; position: absolute; left: 0; top: 0.05em; color: var(--faint); font-size: 0.8em; }
+.today .tpi.done::before { content: "●"; color: var(--accent); }
+.today .tpi button.nl { margin-left: 6px; white-space: nowrap; }
+.today .due { font-size: 0.88rem; color: var(--hot); padding-left: 15px; }
+.today .due a { color: var(--hot); font-weight: 600; }
+button.pl { appearance: none; border: 0; background: none; padding: 0; text-align: left; font: inherit; color: inherit; cursor: pointer; text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 3px; }
+button.nl { appearance: none; border: 0; background: none; padding: 0; font: inherit; font-size: 0.82rem; font-weight: 600; color: var(--accent); cursor: pointer; }
+.plan-l { font-size: 0.86rem; color: var(--muted); line-height: 1.6; }
+.plan-l button.pl { color: var(--accent); font-weight: 600; text-decoration-color: color-mix(in srgb, var(--accent) 35%, transparent); }
 /* pytania do Claude'a o notatkę */
 .ask-fab { position: fixed; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 30; appearance: none; border: 0; display: inline-flex; align-items: center; gap: 8px; background: var(--accent); color: var(--surface); font-weight: 700; font-size: 0.95rem; padding: 12px 18px; border-radius: 99px; cursor: pointer; box-shadow: 0 6px 20px rgb(0 0 0 / 0.2); }
 .ask-fab svg { width: 19px; height: 19px; }
@@ -684,7 +711,7 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
     var setup = !TOKEN || authErr;
     paneS.hidden = !setup; paneK.hidden = setup || tab !== "nauka"; paneA.hidden = setup || tab !== "aparat"; paneN.hidden = setup || tab !== "notatki";
     if (setup) return drawSetup();
-    if (tab === "nauka") loadNauka();
+    if (tab === "nauka") { loadNauka(); linkNauka(); }
     var busyN = items().filter(function (it) { return /^(upload|queued|reading)$/.test(it.stage); }).length;
     cnt.hidden = !busyN; cnt.textContent = busyN;
     if (!CFG) {
@@ -713,7 +740,7 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
       var doc = /^\s*<!doctype/i.test(html) ? html.replace(/<body[^>]*>/i, function (b) { return b + hide; })
         : '<!doctype html><html lang="pl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0}</style></head><body>' + hide + html + "</body></html>";
       var fr = paneK.querySelector("iframe");
-      if (!fr) { paneK.textContent = ""; fr = el("iframe", { title: "Nauka" }); fr.addEventListener("load", fitNauka); paneK.appendChild(fr); }
+      if (!fr) { paneK.textContent = ""; paneK.appendChild(el("section", { class: "today", id: "today", hidden: "" })); fr = el("iframe", { title: "Nauka" }); fr.addEventListener("load", fitNauka); paneK.appendChild(fr); }
       fr.srcdoc = doc;
     }).catch(function () {
       if (!paneK.querySelector("iframe")) { paneK.textContent = ""; paneK.appendChild(el("p", { class: "hint", text: "Nie udało się wczytać strony do nauki. Spróbuję jeszcze raz za chwilę." })); }
@@ -727,10 +754,111 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
       if (naukaObs) naukaObs.disconnect();
       if (window.ResizeObserver) { naukaObs = new ResizeObserver(set); naukaObs.observe(d.body); }
       d.addEventListener("change", function (e) { if (!applying && e.target.matches && e.target.matches("input.tick")) onTick(); });  // faza bąbelkowa: strona już zsynchronizowała duplikaty
-      applyProgress();
+      applyProgress(); linkSig = ""; linkNauka();
     } catch (e) { fr.style.height = "85vh"; }
   }
 
+
+  /* --- notatki ↔ plan nauki: linki przy tematach w Nauce, karta „Dziś” nad nią --- */
+  var linkSig = "";
+  function normTopic(t) { return String(t || "").replace(/\s·\s\d+\s*min$/, "").replace(/\s+/g, " ").trim(); }
+  function topicNotes() {  // temat (dokładne brzmienie z Nauki) → notatki, w których był (najnowsza pierwsza)
+    var m = {};
+    Object.keys(INDEX.notes || {}).forEach(function (k) {
+      var n = INDEX.notes[k];
+      (n.topics || []).forEach(function (t) { var x = normTopic(t.t); (m[x] = m[x] || []).push({ folder: n.folder, day: n.day, s: t.s }); });
+    });
+    Object.keys(m).forEach(function (x) { m[x].sort(function (a, b) { return a.day < b.day ? 1 : -1; }); });
+    return m;
+  }
+  function shortDate(iso) { var d = new Date(iso + "T12:00"); return ["nd", "pn", "wt", "śr", "cz", "pt", "sb"][d.getDay()] + " " + d.getDate() + "." + pad(d.getMonth() + 1); }
+  function naukaDoc() { var fr = paneK.querySelector("iframe"); try { return fr && fr.contentDocument && fr.contentDocument.getElementById("study-data") ? fr.contentDocument : null; } catch (e) { return null; } }
+  function naukaData(id) { var d = naukaDoc(); try { return d ? JSON.parse(d.getElementById(id).textContent) : null; } catch (e) { return null; } }
+  function linkNauka() {
+    var d = naukaDoc(); if (!d || !CFG) return;
+    var sig = (idxSha || "") + "|" + (naukaSha || "") + "|" + isoDay(new Date());
+    if (sig === linkSig) return; linkSig = sig;
+    if (!d.getElementById("ntl-style")) {
+      var st = d.createElement("style"); st.id = "ntl-style";
+      st.textContent = ".ntls{display:flex;flex-wrap:wrap;gap:6px}.ntl{appearance:none;border:0;font:600 .8rem/1.3 var(--font);color:var(--accent);background:var(--accent-soft);border-radius:99px;padding:3px 10px;cursor:pointer}.flash{animation:flash 1.8s ease-out}@keyframes flash{0%,45%{background:var(--accent-soft)}100%{background:transparent}}";
+      d.head.appendChild(st);
+    }
+    d.querySelectorAll(".ntls").forEach(function (x) { x.remove(); });
+    var map = topicNotes();
+    d.querySelectorAll(".topic").forEach(function (t) {
+      var hits = map[normTopic(t.textContent)]; if (!hits) return;
+      var row = d.createElement("div"); row.className = "ntls";
+      hits.slice(0, 3).forEach(function (h) {
+        var b = d.createElement("button"); b.type = "button"; b.className = "ntl"; b.textContent = "z zajęć: " + shortDate(h.day) + " ↗";
+        b.addEventListener("click", function () { openNote(h.folder, h.day, h.s); });
+        row.appendChild(b);
+      });
+      t.parentNode.insertBefore(row, t.nextSibling);
+    });
+    drawToday(map);
+  }
+  function goToTopic(topic) {
+    setTab("nauka");
+    var tries = 0;
+    (function find() {
+      var d = naukaDoc(), fr = paneK.querySelector("iframe");
+      var t = d && Array.prototype.filter.call(d.querySelectorAll(".topic"), function (x) { return normTopic(x.textContent) === normTopic(topic); })[0];
+      if (!t) { if (tries++ < 24) setTimeout(find, 250); return; }
+      var row = t.closest(".it") || t, det = row.closest("details"); if (det && !det.open) det.open = true;
+      window.scrollTo(0, fr.getBoundingClientRect().top + scrollY + row.getBoundingClientRect().top - 150);
+      row.classList.remove("flash"); void row.offsetWidth; row.classList.add("flash");
+    })();
+  }
+  function drawToday(map) {
+    var box = $("today"); if (!box || !CFG) return;
+    var study = naukaData("study-data") || [], todo = naukaData("todo-data") || [], now = new Date(), today = isoDay(now);
+    box.textContent = "";
+    var parts = [];
+    // po zajęciach: notatki z ostatnich 3 dni
+    var recent = Object.keys(INDEX.notes || {}).map(function (k) { return INDEX.notes[k]; })
+      .filter(function (n) { return n.day <= today && Date.parse(today) - Date.parse(n.day) <= 3 * 864e5; })
+      .sort(function (a, b) { return a.day < b.day ? 1 : -1; });
+    if (recent.length) {
+      var ul = el("ul", { class: "tl" });
+      recent.forEach(function (n) {
+        var f = F(n.folder) || { course: n.folder, kind: "" }, tasks = (n.md.match(/^\s*\*\*Zadanie\s+\d+/gm) || []).length;
+        ul.appendChild(el("li", { style: fcolor(f) }, [
+          el("span", { class: "tt" }, [el("b", { text: fname(f) }), " · " + KIND_L[f.kind] + " · " + shortDate(n.day)]),
+          el("span", { class: "tn", text: n.title }),
+          el("span", { class: "ta" }, [btn("", "Przeczytaj notatkę", function () { openNote(n.folder, n.day); }), tasks ? btn("", "Zadania (" + tasks + ")", function () { openNote(n.folder, n.day, "Zadania"); }) : null])
+        ]));
+      });
+      parts.push(el("div", { class: "tg" }, [el("h3", { text: "Powtórz po zajęciach" }), ul]));
+    }
+    // najbliższy dzień z zajęciami: tematy z planu (czy już były w notatkach) i terminy z UPeL-a
+    for (var i = 1; i <= 7; i++) {
+      var dt = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i), dk = DK[dt.getDay()];
+      var cls = (CFG.schedule || []).filter(function (x) { return x.day === dk && F(x.folder); }).sort(function (a, b) { return mins(a.start) - mins(b.start); });
+      if (!cls.length) continue;
+      var end = isoDay(dt), ul2 = el("ul", { class: "tl" }), seen = {};
+      cls.forEach(function (x) {
+        var f = F(x.folder), c = study.filter(function (s) { return s.course_key === f.course; })[0];
+        var li = el("li", { style: fcolor(f) }, [el("span", { class: "tt" }, [el("b", { text: fname(f) }), " · " + KIND_L[f.kind] + " · " + x.start])]);
+        if (!seen[f.course]) {
+          seen[f.course] = 1;
+          var tops = ((c && c.now) || []).slice(0, 3);
+          if (tops.length) li.appendChild(el("span", { class: "tp" }, tops.map(function (e) {
+            var hit = (map[normTopic(e.topic)] || [])[0];
+            return el("span", { class: "tpi" + (hit ? " done" : "") }, [btn("pl", e.topic, function () { goToTopic(e.topic); }), hit ? btn("nl", "było " + shortDate(hit.day) + " ↗", function () { openNote(hit.folder, hit.day, hit.s); }) : null]);
+          })));
+          todo.filter(function (t) { return t.course_key === f.course && t.status === "do zrobienia" && t.due && t.due.slice(0, 10) >= today && t.due.slice(0, 10) <= end; }).forEach(function (t) {
+            li.appendChild(el("span", { class: "due" }, ["Oddaj: ", el("a", { href: t.url, target: "_blank", rel: "noopener", text: t.title }), " – do " + shortDate(t.due.slice(0, 10)) + ", " + t.due.slice(11, 16)]));
+          });
+        }
+        ul2.appendChild(li);
+      });
+      var label = i === 1 ? "Jutro" : DAY_L[dt.getDay()].charAt(0).toUpperCase() + DAY_L[dt.getDay()].slice(1);
+      parts.push(el("div", { class: "tg" }, [el("h3", { text: label + " na zajęciach" }), ul2]));
+      break;
+    }
+    box.hidden = !parts.length;
+    if (parts.length) { box.appendChild(el("h2", { text: "Dziś" })); parts.forEach(function (x) { box.appendChild(x); }); }
+  }
   /* --- odhaczenia z Nauki: progress.json w prywatnym repo, wspólne dla Safari, ikonki i każdego urządzenia --- */
   var PROG = null, progSha = null, applying = false, progTimer = null, progBusy = false, progAgain = false;
   function tickDoc() { var fr = paneK.querySelector("iframe"); try { return fr && fr.contentDocument && fr.contentDocument.querySelector("input.tick") ? fr.contentDocument : null; } catch (e) { return null; } }
@@ -1008,9 +1136,11 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
   }
 
   /* --- Notatki: foldery i dni --- */
-  function openNote(folder, day) {
+  function openNote(folder, day, section) {
     view = { k: "folder", f: folder }; openDays[folder + "/" + day] = true; setTab("notatki");
-    var c = document.getElementById("day-" + folder + "-" + day); if (c) c.scrollIntoView({ block: "start" });
+    var c = document.getElementById("day-" + folder + "-" + day);
+    var h = section && c && Array.prototype.filter.call(c.querySelectorAll(".md h4"), function (x) { return x.textContent.trim() === section; })[0];
+    if (h || c) (h || c).scrollIntoView({ block: "start" });
   }
   function drawNotes() {
     paneN.textContent = "";
@@ -1047,6 +1177,9 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
       var open = key in openDays ? openDays[key] : di === 0;
       ps.sort(function (x, y) { return x.name < y.name ? -1 : 1; });
       var card = el("div", { class: "card day", id: "day-" + f.id + "-" + d, "data-key": key }, [el("div", { class: "dh" }, [el("small", { text: dayLabel(d) }), el("h3", { text: note ? note.title : "Nowa notatka" })])]);
+      if (note && (note.topics || []).length) card.appendChild(el("p", { class: "plan-l" }, ["W planie nauki: "].concat((note.topics || []).map(function (t, i) {
+        return el("span", {}, [i ? " · " : null, btn("pl", t.t, function () { goToTopic(t.t); })]);
+      }))));
       card._ps = ps;
       if (ps.length) {
         var strip = el("div", { class: "strip" });
