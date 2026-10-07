@@ -1,0 +1,487 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Notatki">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#f3f5f3" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0f1311" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="icon" href="icon.png">
+<title>Notatki z zajęć</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Notatki z zajęć (SimpleAGH): zdjęcie tablicy z telefonu → prywatne repo na GitHubie → Claude Code w GitHub Actions robi notatkę.
+   Jedna kolumna jak SimpleAGH: na górze dzisiejsze zajęcia z przyciskiem aparatu, niżej wszystkie foldery; w folderze notatki po dniach. */
+:root {
+  --bg: #f3f5f3; --surface: #ffffff; --ink: #18211c; --muted: #5c6962; --faint: #89958e; --line: #e1e7e3;
+  --accent: #0b6b45; --accent-soft: #e2f1e9; --hot: #b42318;
+  --c-ma: #3b6fd8; --c-ha: #7b55d0; --c-dm: #0f8a7e; --c-lcs: #b8860b; --c-ics: #cc4b73; --c-unix: #3f8f34; --c-pl1: #d65a26;
+  --font: "Figtree", system-ui, -apple-system, "Segoe UI", Roboto, Arial, "Noto Sans Math", sans-serif;
+  --r: 16px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1311; --surface: #171d1a; --ink: #e5ebe7; --muted: #9daaa3; --faint: #6f7c75; --line: #27312c;
+    --accent: #52c48f; --accent-soft: #19322a; --hot: #ff8a7d;
+    --c-ma: #7ba3f5; --c-ha: #a98cf0; --c-dm: #42c2b4; --c-lcs: #e0b54a; --c-ics: #ee82a5; --c-unix: #82cc6e; --c-pl1: #ff9663;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1311; --surface: #171d1a; --ink: #e5ebe7; --muted: #9daaa3; --faint: #6f7c75; --line: #27312c;
+  --accent: #52c48f; --accent-soft: #19322a; --hot: #ff8a7d;
+  --c-ma: #7ba3f5; --c-ha: #a98cf0; --c-dm: #42c2b4; --c-lcs: #e0b54a; --c-ics: #ee82a5; --c-unix: #82cc6e; --c-pl1: #ff9663;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 16px; line-height: 1.5; font-variant-numeric: tabular-nums; }
+h1, h2, h3, h4, h5, h6 { margin: 0; line-height: 1.25; text-wrap: balance; }
+p { margin: 0; }
+a { color: var(--accent); }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+
+.bar { position: sticky; top: 0; z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line); padding: calc(10px + env(safe-area-inset-top, 0px)) 16px 10px; }
+.bar .in { max-width: 680px; margin: 0 auto; display: flex; align-items: center; gap: 10px; min-height: 40px; }
+.bar .tt { flex: 1; min-width: 0; display: grid; }
+.bar .tt small { color: var(--accent); font-weight: 700; font-size: 0.8rem; }
+.bar .tt b { font-size: 1.1rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bar .tt span { color: var(--muted); font-size: 0.86rem; }
+.bar button { appearance: none; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font-weight: 600; font-size: 0.9rem; padding: 7px 12px; border-radius: 10px; cursor: pointer; white-space: nowrap; }
+main { max-width: 680px; margin: 0 auto; padding-inline: 16px; padding-block: 18px calc(48px + env(safe-area-inset-bottom, 0px)); display: grid; gap: 26px; }
+
+.sec { display: grid; gap: 10px; }
+.sec h2 { font-size: 1.2rem; font-weight: 700; }
+.sub { color: var(--muted); font-size: 0.92rem; margin-top: -4px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 4px 16px; }
+.go { display: inline-flex; align-items: center; justify-content: center; gap: 6px; appearance: none; border: 0; cursor: pointer; background: var(--accent); color: var(--surface); text-decoration: none; font-weight: 600; font-size: 0.92rem; padding: 8px 14px; border-radius: 10px; white-space: nowrap; }
+.go.alt { background: var(--accent-soft); color: var(--accent); }
+.go.big { padding: 12px 18px; font-size: 1rem; }
+.go svg { width: 18px; height: 18px; flex: none; }
+.acts { display: flex; flex-wrap: wrap; gap: 8px; }
+.hint { color: var(--muted); font-size: 0.9rem; }
+
+.row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; align-items: center; padding: 12px 0; border-top: 1px solid var(--line); }
+.card > .row:first-child { border-top: 0; }
+button.row { appearance: none; width: 100%; text-align: left; background: none; border-width: 1px 0 0; border-style: solid; border-color: var(--line); cursor: pointer; }
+.card > button.row:first-child { border-top: 0; }
+.row .nm { display: grid; gap: 2px; min-width: 0; }
+.row .nm b { font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.row .nm b::before { content: ""; flex: none; width: 9px; height: 9px; border-radius: 50%; background: var(--cc); }
+.row .nm span { color: var(--muted); font-size: 0.9rem; }
+.row .lv { color: var(--accent); font-weight: 700; }
+.row.now { margin-inline: -10px; padding-inline: 10px; border-radius: 10px; background: var(--accent-soft); }
+.row .chev { color: var(--faint); font-size: 1.3rem; line-height: 1; }
+
+.state { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; font-size: 0.92rem; color: var(--accent); font-weight: 600; border: 1px solid var(--accent); background: var(--accent-soft); border-radius: 12px; padding: 10px 14px; }
+.state.err { color: var(--hot); border-color: var(--hot); background: var(--surface); }
+.state.wait { color: var(--muted); border-color: var(--line); background: var(--surface); }
+.spin { width: 13px; height: 13px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; display: inline-block; flex: none; }
+@media (prefers-reduced-motion: no-preference) { .spin { animation: spin .8s linear infinite; } }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.day { padding: 14px 16px; display: grid; gap: 12px; }
+.day .dh { display: grid; gap: 2px; }
+.day .dh small { color: var(--muted); font-size: 0.86rem; }
+.day .dh h3 { font-size: 1.15rem; font-weight: 700; }
+.strip { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; }
+.th { position: relative; flex: none; width: 68px; height: 68px; padding: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--bg); cursor: pointer; display: grid; place-items: center; color: var(--faint); }
+.th img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.th.pend img { opacity: 0.55; }
+.th .bd { position: absolute; right: 4px; bottom: 4px; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 99px; background: var(--surface); color: var(--muted); font-size: 0.72rem; font-weight: 700; display: grid; place-items: center; }
+.th .bd.err { color: var(--hot); }
+.st { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; font-size: 0.9rem; color: var(--muted); }
+.st.err { color: var(--hot); }
+.tools { display: flex; flex-wrap: wrap; gap: 6px; }
+.tools button, .st button { appearance: none; border: 1px solid var(--line); background: var(--surface); color: var(--accent); font-weight: 600; font-size: 0.85rem; padding: 5px 11px; border-radius: 99px; cursor: pointer; }
+.more { appearance: none; border: 0; background: none; padding: 0; color: var(--accent); font-weight: 600; cursor: pointer; justify-self: start; }
+
+.md { font-size: 0.97rem; line-height: 1.6; min-width: 0; overflow-wrap: anywhere; display: grid; gap: 10px; }
+.md h4 { font-size: 1.02rem; margin-top: 8px; }
+.md h5, .md h6 { font-size: 0.95rem; margin-top: 4px; }
+.md ul, .md ol { margin: 0; padding-left: 1.25rem; display: grid; gap: 4px; }
+.md code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.86em; background: var(--bg); border: 1px solid var(--line); border-radius: 5px; padding: 0 4px; }
+.md pre { margin: 0; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; overflow-x: auto; }
+.md pre code { border: 0; padding: 0; background: none; font-size: 0.84rem; }
+.tw { overflow-x: auto; }
+.md table { border-collapse: collapse; font-size: 0.9rem; }
+.md th, .md td { border: 1px solid var(--line); padding: 4px 10px; text-align: center; }
+.md th { background: var(--bg); }
+
+.setup { display: grid; gap: 12px; }
+.setup input { font: inherit; font-size: 0.95rem; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 11px 12px; width: 100%; }
+.setup ol { margin: 0; padding-left: 1.2rem; display: grid; gap: 6px; color: var(--muted); font-size: 0.92rem; }
+
+/* podgląd zdjęcia: zawsze ciemne tło, w obu motywach */
+.lb { position: fixed; inset: 0; z-index: 50; background: rgb(8 10 9 / 0.95); display: flex; flex-direction: column; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+.lb .lbar { display: flex; gap: 8px; justify-content: space-between; padding: 10px 16px; }
+.lb .lbar button { appearance: none; border: 1px solid rgb(255 255 255 / 0.25); background: rgb(255 255 255 / 0.08); color: #fff; font-weight: 600; padding: 8px 14px; border-radius: 10px; cursor: pointer; }
+.lb .lbar button.del { color: #ffb4ab; }
+.lb .pic { flex: 1; min-height: 0; overflow: auto; display: grid; place-items: center; color: #fff; }
+.lb img { max-width: 100%; max-height: 100%; cursor: zoom-in; }
+.lb.zoom .pic { place-items: start; }
+.lb.zoom img { max-width: none; max-height: none; width: 230%; cursor: zoom-out; }
+.file { position: fixed; left: -200px; top: 0; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+</style>
+</head>
+<body>
+<header class="bar"><div class="in">
+  <button type="button" id="back" hidden>‹ Wszystkie</button>
+  <div class="tt"><small>SimpleAGH</small><b id="title">Notatki z zajęć</b><span id="sub" hidden></span></div>
+</div></header>
+<main id="main"><p class="hint">Wczytuję…</p></main>
+<div class="lb" id="lb" role="dialog" aria-label="Zdjęcie z zajęć" hidden>
+  <div class="lbar"><button type="button" id="lb-x">Zamknij</button><button type="button" class="del" id="lb-del">Usuń zdjęcie</button></div>
+  <div class="pic"><img id="lb-img" alt="Zdjęcie z zajęć"></div>
+</div>
+<input type="file" class="file" id="cam" accept="image/*" capture="environment" tabindex="-1" aria-hidden="true">
+<input type="file" class="file" id="gal" accept="image/*" multiple tabindex="-1" aria-hidden="true">
+<script>
+(function () {
+  "use strict";
+  var OWNER = "Juzu01", REPO = "simpleagh-notatki", BRANCH = "main", LS = "notatki-token";
+  var KIND_L = { wyklad: "wykład", cwiczenia: "ćwiczenia", lab: "laboratorium" };
+  var DAY_L = ["niedziela", "poniedziałek", "wtorek", "środa", "czwartek", "piątek", "sobota"];
+  var MON_G = ["stycznia", "lutego", "marca", "kwietnia", "maja", "czerwca", "lipca", "sierpnia", "września", "października", "listopada", "grudnia"];
+  var DK = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  var PHOTO = /^photos\/([A-Za-z0-9_-]+)\/(\d{4}-\d{2}-\d{2})\/([A-Za-z0-9_-]+)\.jpg$/;
+  var CAM_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8.5A2.5 2.5 0 0 1 5.5 6h1.6l1.4-2h7l1.4 2h1.6A2.5 2.5 0 0 1 21 8.5v9a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17.5z"/><circle cx="12" cy="13" r="3.6"/></svg>';
+  var $ = function (id) { return document.getElementById(id); };
+  var main = $("main"), titleEl = $("title"), subEl = $("sub"), back = $("back"), cam = $("cam"), gal = $("gal");
+  var lb = $("lb"), lbImg = $("lb-img"), lbDel = $("lb-del");
+
+  /* klucz: z kodu QR (#t=...) albo wklejony; trzymany tylko w tym telefonie */
+  var TOKEN = "";
+  try { TOKEN = localStorage.getItem(LS) || ""; } catch (e) {}
+  var m = /[#&]t=([A-Za-z0-9_]+)/.exec(location.hash);
+  if (m) { TOKEN = m[1]; try { localStorage.setItem(LS, TOKEN); } catch (e) {} history.replaceState(null, "", location.pathname); }
+
+  var CFG = null, INDEX = { notes: {} }, TREE = null, RUN = null, idxSha = null, cfgSha = null;
+  var local = [], chain = Promise.resolve(), blobs = {}, view = { k: "home" }, target = null, openDays = {}, lbPath = null, wantDel = false, timer = null, authErr = false, netErr = false;
+
+  function el(tag, attrs, kids) {
+    var e = document.createElement(tag);
+    if (attrs) for (var k in attrs) {
+      if (attrs[k] == null) continue;
+      if (k === "class") e.className = attrs[k];
+      else if (k === "text") e.textContent = attrs[k];
+      else if (k === "html") e.innerHTML = attrs[k];
+      else e.setAttribute(k, attrs[k]);
+    }
+    (kids || []).forEach(function (c) { if (c != null) e.appendChild(typeof c === "string" ? document.createTextNode(c) : c); });
+    return e;
+  }
+  function btn(cls, text, fn, kids) { var b = el("button", { class: cls, type: "button", text: kids ? null : text }, kids); b.addEventListener("click", fn); return b; }
+  function camBtn(cls, text, fn) { var b = btn(cls, null, fn, [el("span", { html: CAM_SVG }).firstChild, text]); return b; }
+  function pad(n) { return String(n).padStart(2, "0"); }
+  function isoDay(d) { return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
+  function dayLabel(iso) { var d = new Date(iso + "T12:00"); return DAY_L[d.getDay()] + ", " + d.getDate() + " " + MON_G[d.getMonth()]; }
+  function mins(t) { var p = t.split(":"); return (+p[0]) * 60 + (+p[1]); }
+  function nNotes(n) { return n === 1 ? "1 notatka" : n + (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? " notatki" : " notatek"); }
+  function F(id) { return (CFG.folders || []).filter(function (f) { return f.id === id; })[0]; }
+  function fname(f) { return (CFG.names || {})[f.course] || f.course; }
+  function fcolor(f) { return "--cc:var(--c-" + ((CFG.colors || {})[f.course] || "pl1") + ")"; }
+
+  /* --- GitHub --- */
+  function api(path, o) {
+    o = o || {};
+    var h = { Authorization: "Bearer " + TOKEN, "X-GitHub-Api-Version": "2022-11-28", Accept: o.raw ? "application/vnd.github.raw+json" : "application/vnd.github+json" };
+    if (o.body) h["Content-Type"] = "application/json";
+    return fetch("https://api.github.com/repos/" + OWNER + "/" + REPO + "/" + path, { method: o.method || "GET", headers: h, body: o.body ? JSON.stringify(o.body) : undefined, cache: "no-store" })
+      .then(function (r) {
+        if (r.status === 401) throw { code: "auth" };
+        if (!r.ok) throw { code: "http", status: r.status };
+        return o.raw === "blob" ? r.blob() : o.raw ? r.text() : r.json();
+      }, function () { throw { code: "net" }; });
+  }
+  function rawJson(path) { return api("contents/" + path + "?ref=" + BRANCH, { raw: true }).then(JSON.parse); }
+
+  function refresh() {
+    clearTimeout(timer);
+    if (!TOKEN) { draw(); return Promise.resolve(); }
+    return api("git/trees/" + BRANCH + "?recursive=1").then(function (t) {
+      var tree = {};
+      (t.tree || []).forEach(function (x) { if (x.type === "blob") tree[x.path] = x.sha; });
+      TREE = tree; authErr = false; netErr = false;
+      var jobs = [];
+      if (tree["folders.json"] !== cfgSha) jobs.push(rawJson("folders.json").then(function (c) { CFG = c; cfgSha = tree["folders.json"]; }));
+      if (tree["index.json"] !== idxSha) jobs.push(rawJson("index.json").then(function (x) { INDEX = x || { notes: {} }; idxSha = tree["index.json"]; }));
+      jobs.push(api("actions/runs?per_page=3").then(function (r) { RUN = (r.workflow_runs || [])[0] || null; }, function () { RUN = null; }));
+      return Promise.all(jobs);
+    }).then(function () {
+      local = local.filter(function (e) { return !(e.state === "sent" && TREE[e.path]); });
+    }, function (e) {
+      if (e && e.code === "auth") authErr = true; else netErr = true;
+    }).then(function () { draw(); later(); });
+  }
+  function busy() { return RUN && (RUN.status === "queued" || RUN.status === "in_progress" || RUN.status === "waiting" || RUN.status === "pending"); }
+  function later() {  // odświeżaj, póki coś się dzieje
+    var any = busy() || local.some(function (e) { return e.state !== "error"; }) || photos().some(function (p) { return p.status === "pending"; });
+    if (any || netErr) timer = setTimeout(refresh, netErr ? 20000 : 12000);
+  }
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) refresh(); });
+
+  /* --- zdjęcia w repo --- */
+  function photos() {
+    var out = [];
+    if (!TREE) return out;
+    Object.keys(TREE).forEach(function (p) {
+      var mm = PHOTO.exec(p); if (!mm) return;
+      var base = mm[1] + "/" + mm[2] + "/" + mm[3];
+      var status = TREE["boards/" + base + ".txt"] ? "done" : TREE["boards/" + base + ".failed"] ? "failed" : "pending";
+      out.push({ path: p, folder: mm[1], day: mm[2], name: mm[3], status: status, thumb: TREE["thumbs/" + base + ".jpg"] ? "thumbs/" + base + ".jpg" : null });
+    });
+    return out.sort(function (a, b) { return a.name < b.name ? -1 : 1; });
+  }
+  function blobUrl(path) {
+    if (blobs[path]) return Promise.resolve(blobs[path]);
+    return api("contents/" + path + "?ref=" + BRANCH, { raw: "blob" }).then(function (b) { return (blobs[path] = URL.createObjectURL(b)); });
+  }
+
+  /* --- dodawanie zdjęć --- */
+  function decode(file) {
+    return new Promise(function (res, rej) {
+      var u = URL.createObjectURL(file), im = new Image();
+      im.onload = function () { res(im); }; im.onerror = function () { rej({ code: "decode" }); }; im.src = u;
+    });
+  }
+  function toJpeg(im, maxSide, q) {
+    var w = im.naturalWidth, h = im.naturalHeight, k = Math.min(1, maxSide / Math.max(w, h));
+    var c = document.createElement("canvas"); c.width = Math.round(w * k); c.height = Math.round(h * k);
+    c.getContext("2d").drawImage(im, 0, 0, c.width, c.height);
+    return new Promise(function (res, rej) { c.toBlob(function (b) { if (b) res(b); else rej({ code: "decode" }); }, "image/jpeg", q); });
+  }
+  function b64(blob) {
+    return new Promise(function (res, rej) { var r = new FileReader(); r.onload = function () { res(String(r.result).split(",")[1]); }; r.onerror = function () { rej({ code: "decode" }); }; r.readAsDataURL(blob); });
+  }
+  function when(f) {  // zdjęcie z galerii trafia do dnia, w którym je zrobiono (do 2 tygodni wstecz)
+    var now = new Date(), t = f.lastModified ? new Date(f.lastModified) : now;
+    if (isNaN(t) || t > now || now - t > 14 * 864e5) t = now;
+    return t;
+  }
+  function addFiles(files, fid) {
+    Array.prototype.slice.call(files || []).forEach(function (f) {
+      var t = when(f), day = isoDay(t), name = pad(t.getHours()) + pad(t.getMinutes()) + pad(t.getSeconds()) + "-" + Math.random().toString(36).slice(2, 6);
+      var e = { folder: fid, day: day, name: name, path: "photos/" + fid + "/" + day + "/" + name + ".jpg", url: URL.createObjectURL(f), file: f, state: "prep" };
+      local.push(e);
+      chain = chain.then(function () { return upload(e); });
+    });
+    draw();
+  }
+  function upload(e) {
+    e.state = "prep"; e.err = null; draw();
+    return decode(e.file).then(function (im) { return toJpeg(im, 2800, 0.86); }).then(b64).then(function (data) {
+      e.state = "upload"; draw();
+      var body = { message: "Zdjęcie: " + e.folder + " " + e.day, content: data, branch: BRANCH };
+      return api("contents/" + e.path, { method: "PUT", body: body }).catch(function (err) {
+        if (err && err.status === 409) return new Promise(function (r) { setTimeout(r, 1500); }).then(function () { return api("contents/" + e.path, { method: "PUT", body: body }); });
+        throw err;
+      });
+    }).then(function () { e.state = "sent"; e.file = null; draw(); setTimeout(refresh, 2500); }, function (err) {
+      e.state = "error";
+      e.err = err && err.code === "decode" ? "Nie da się odczytać tego pliku. Zrób zdjęcie jeszcze raz." : err && err.code === "auth" ? "Klucz do repozytorium nie działa." : err && err.code === "net" ? "Brak internetu. Zdjęcie czeka w telefonie, kliknij „Wyślij jeszcze raz”." : "Nie udało się wysłać zdjęcia (" + (err && err.status || "?") + ").";
+      draw();
+    });
+  }
+  function delPhoto(p) {
+    return api("contents/" + p.path, { method: "DELETE", body: { message: "Usunięte zdjęcie: " + p.folder + " " + p.day, sha: TREE[p.path], branch: BRANCH } }).then(refresh, function () { refresh(); });
+  }
+  function redo(folder, day) {
+    var path = "redo/" + folder + "/" + day, body = { message: "Notatka od nowa: " + folder + " " + day, content: btoa(new Date().toISOString()), branch: BRANCH };
+    if (TREE[path]) body.sha = TREE[path];
+    return api("contents/" + path, { method: "PUT", body: body }).then(function () { setTimeout(refresh, 2500); }, function () { refresh(); });
+  }
+
+  /* --- prosty, bezpieczny markdown (z tabelami) --- */
+  function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;"); }
+  function inline(s) {
+    return s.replace(/`([^`]+)`/g, "<code>$1</code>")
+      .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+      .replace(/(^|[\s(])\*([^*\s][^*]*)\*/g, "$1<em>$2</em>");
+  }
+  function md(src) {
+    var out = [], blocks = esc(src).split(/```/);
+    blocks.forEach(function (b, i) {
+      if (i % 2 === 1) { out.push("<pre><code>" + b.replace(/^[a-z+#]*\n/, "") + "</code></pre>"); return; }
+      var lines = b.split("\n"), list = null, para = [], tbl = null;
+      function flushP() { if (para.length) { out.push("<p>" + inline(para.join("<br>")) + "</p>"); para = []; } }
+      function flushL() { if (list) { out.push("<" + list.t + ">" + list.items.map(function (x) { return "<li>" + inline(x) + "</li>"; }).join("") + "</" + list.t + ">"); list = null; } }
+      function flushT() {
+        if (!tbl) return;
+        out.push('<div class="tw"><table>' + tbl.map(function (r, ri) { var t = ri ? "td" : "th"; return "<tr>" + r.map(function (x) { return "<" + t + ">" + inline(x) + "</" + t + ">"; }).join("") + "</tr>"; }).join("") + "</table></div>");
+        tbl = null;
+      }
+      lines.forEach(function (ln) {
+        var mm;
+        if (/^\s*\|/.test(ln)) {
+          flushP(); flushL();
+          var cells = ln.trim().replace(/^\|/, "").replace(/\|$/, "").split("|").map(function (x) { return x.trim(); });
+          if (!cells.every(function (x) { return /^:?-{2,}:?$/.test(x); })) (tbl = tbl || []).push(cells);
+          return;
+        }
+        flushT();
+        if (!ln.trim()) { flushP(); flushL(); return; }
+        if ((mm = /^\s*(#{1,4})\s+(.*)$/.exec(ln))) { flushP(); flushL(); var h = "h" + Math.max(4, Math.min(6, mm[1].length + 2)); out.push("<" + h + ">" + inline(mm[2]) + "</" + h + ">"); return; }
+        if ((mm = /^\s*[-*•]\s+(.*)$/.exec(ln))) { flushP(); if (!list || list.t !== "ul") { flushL(); list = { t: "ul", items: [] }; } list.items.push(mm[1]); return; }
+        if ((mm = /^\s*\d+[.)]\s+(.*)$/.exec(ln))) { flushP(); if (!list || list.t !== "ol") { flushL(); list = { t: "ol", items: [] }; } list.items.push(mm[1]); return; }
+        flushL(); para.push(ln);
+      });
+      flushP(); flushL(); flushT();
+    });
+    return out.join("");
+  }
+  function noTitle(t) { return t.replace(/^\s*#\s+.*(\n|$)/, ""); }
+
+  /* --- wyświetlanie --- */
+  function head(t, sub, showBack) { titleEl.textContent = t; subEl.textContent = sub || ""; subEl.hidden = !sub; back.hidden = !showBack; }
+  function draw() {
+    main.textContent = "";
+    if (!TOKEN || authErr) return drawSetup();
+    if (!CFG) { head("Notatki z zajęć"); main.appendChild(el("p", { class: "hint", text: netErr ? "Brak połączenia z GitHubem. Spróbuję jeszcze raz za chwilę." : "Wczytuję…" })); return; }
+    var f = view.k === "folder" && F(view.f);
+    if (f) drawFolder(f); else drawHome();
+  }
+  function stateLine(folder) {
+    var ps = photos().filter(function (p) { return !folder || p.folder === folder; });
+    var pend = ps.filter(function (p) { return p.status === "pending"; }).length;
+    var up = local.filter(function (e) { return (!folder || e.folder === folder) && (e.state === "prep" || e.state === "upload"); }).length;
+    if (up) return el("div", { class: "state" }, [el("span", { class: "spin" }), "Wysyłam " + (up === 1 ? "zdjęcie" : up + " zdjęcia") + "…"]);
+    if (busy()) return el("div", { class: "state" }, [el("span", { class: "spin" }), "Claude robi notatki. Zwykle 2–4 minuty na zdjęcie, możesz zamknąć stronę."]);
+    if (!pend) return null;
+    if (RUN && RUN.conclusion === "failure") return el("div", { class: "state err" }, ["Ostatnie robienie notatek się nie udało.", el("a", { href: RUN.html_url, target: "_blank", rel: "noopener", text: "Szczegóły ↗" })]);
+    return el("div", { class: "state wait" }, [el("span", { class: "spin" }), "Zdjęcie czeka, aż Claude zacznie (do minuty)…"]);
+  }
+  function drawSetup() {
+    head("Notatki z zajęć");
+    var inp = el("input", { type: "password", id: "tok", placeholder: "github_pat_…", autocomplete: "off", autocapitalize: "off", spellcheck: "false", "aria-label": "Klucz do repozytorium" });
+    var save = btn("go big", "Zapisz klucz", function () {
+      var v = inp.value.trim(); if (!v) return;
+      TOKEN = v; authErr = false; try { localStorage.setItem(LS, v); } catch (e) {}
+      main.textContent = ""; main.appendChild(el("p", { class: "hint", text: "Sprawdzam klucz…" })); refresh();
+    });
+    main.appendChild(el("section", { class: "setup" }, [
+      el("p", { text: authErr ? "Klucz do repozytorium z notatkami nie działa (wygasł albo jest zły). Wklej nowy." : "Ta strona zapisuje zdjęcia w Twoim prywatnym repozytorium z notatkami. Potrzebuje do niego klucza; zostaje tylko w tym telefonie." }),
+      el("ol", {}, [el("li", { text: "Na laptopie uruchom: ~/SimpleAGH/tools/notes_qr.sh i zeskanuj kod aparatem telefonu." }), el("li", { text: "Albo wklej klucz tutaj." })]),
+      inp, el("div", { class: "acts" }, [save])
+    ]));
+  }
+  function snap(fid) { cam.click(); target = fid; view = { k: "folder", f: fid }; draw(); window.scrollTo(0, 0); }
+  function drawHome() {
+    head("Notatki z zajęć", null, false);
+    var sl = stateLine(); if (sl) main.appendChild(sl);
+    var now = new Date(), tk = DK[now.getDay()], nm = now.getHours() * 60 + now.getMinutes();
+    var today = (CFG.schedule || []).filter(function (x) { return x.day === tk && F(x.folder); }).sort(function (a, b) { return mins(a.start) - mins(b.start); });
+    if (today.length) {
+      var card = el("div", { class: "card" });
+      today.forEach(function (x) {
+        var f = F(x.folder), on = nm >= mins(x.start) - 15 && nm <= mins(x.end) + 30;
+        var lv = !on ? null : nm > mins(x.end) ? "przed chwilą · " : "teraz · ";
+        card.appendChild(el("div", { class: "row" + (on ? " now" : ""), style: fcolor(f) }, [
+          el("div", { class: "nm" }, [el("b", { text: fname(f) }), el("span", {}, [lv ? el("span", { class: "lv", text: lv }) : null, x.start + "–" + x.end + " · " + KIND_L[f.kind]])]),
+          camBtn("go", "Zdjęcie", function () { snap(f.id); })
+        ]));
+      });
+      main.appendChild(el("section", { class: "sec" }, [el("h2", { text: "Dziś" }), el("p", { class: "sub", text: "Zrób zdjęcie tablicy, a Claude zrobi z niego notatkę." }), card]));
+    }
+    var all = el("div", { class: "card" });
+    (CFG.folders || []).forEach(function (f) {
+      var n = Object.keys(INDEX.notes || {}).filter(function (k) { return INDEX.notes[k].folder === f.id; }).length;
+      all.appendChild(btn("row", null, function () { view = { k: "folder", f: f.id }; draw(); window.scrollTo(0, 0); }, [
+        el("span", { class: "nm", style: fcolor(f) }, [el("b", { text: fname(f) }), el("span", { text: KIND_L[f.kind] + (n ? " · " + nNotes(n) : "") })]),
+        el("span", { class: "chev", "aria-hidden": "true", text: "›" })
+      ]));
+    });
+    main.appendChild(el("section", { class: "sec" }, [el("h2", { text: "Wszystkie zajęcia" }), all]));
+  }
+  function drawFolder(f) {
+    head(fname(f), KIND_L[f.kind], true);
+    var sl = stateLine(f.id); if (sl) main.appendChild(sl);
+    main.appendChild(el("div", { class: "acts" }, [
+      camBtn("go big", "Zrób zdjęcie", function () { cam.click(); target = f.id; }),
+      btn("go big alt", "Z galerii", function () { gal.click(); target = f.id; })
+    ]));
+    var byDay = {};
+    function D(d) { return byDay[d] || (byDay[d] = []); }
+    Object.keys(INDEX.notes || {}).forEach(function (k) { if (INDEX.notes[k].folder === f.id) D(INDEX.notes[k].day); });
+    photos().forEach(function (p) { if (p.folder === f.id) D(p.day).push(p); });
+    local.forEach(function (e) { if (e.folder === f.id && !(TREE && TREE[e.path])) D(e.day).push({ path: e.path, name: e.name, local: e, status: "local" }); });
+    var days = Object.keys(byDay).sort().reverse();
+    if (!days.length) {
+      main.appendChild(el("p", { class: "hint", text: "Jeszcze nie ma notatek. Na zajęciach zrób zdjęcie tablicy. Zdjęcia z jednego dnia trafiają do jednej notatki, a Claude dopisuje do niej każde kolejne." }));
+      return;
+    }
+    days.forEach(function (d, di) {
+      var key = f.id + "/" + d, note = (INDEX.notes || {})[key], ps = byDay[d].sort(function (a, b) { return a.name < b.name ? -1 : 1; });
+      var open = key in openDays ? openDays[key] : di === 0;
+      var card = el("div", { class: "card day" }, [el("div", { class: "dh" }, [el("small", { text: dayLabel(d) }), el("h3", { text: note ? note.title : "Nowa notatka" })])]);
+      if (ps.length) {
+        var strip = el("div", { class: "strip" });
+        ps.forEach(function (p, i) {
+          var pend = p.status !== "done", bad = p.status === "failed" || (p.local && p.local.state === "error");
+          var th = btn("th" + (pend ? " pend" : ""), null, function () { if (!p.local) openLb(p); }, [el("span", { text: "…" })]);
+          th.setAttribute("aria-label", "Zdjęcie " + (i + 1));
+          if (pend) th.appendChild(el("span", { class: "bd" + (bad ? " err" : ""), text: bad ? "!" : "…" }));
+          var src = p.local ? Promise.resolve(p.local.url) : p.thumb ? blobUrl(p.thumb) : null;
+          if (src) src.then(function (u) { th.replaceChild(el("img", { src: u, alt: "" }), th.firstChild); }, function () {});
+          strip.appendChild(th);
+        });
+        card.appendChild(strip);
+        ps.forEach(function (p, i) {
+          var t = null, err = false, again = null;
+          if (p.local) {
+            t = { prep: "Przygotowuję zdjęcie…", upload: "Wysyłam zdjęcie…", sent: "Wysłane." }[p.local.state];
+            if (p.local.state === "error") { t = p.local.err; err = true; if (p.local.file) again = btn("", "Wyślij jeszcze raz", function () { chain = chain.then(function () { return upload(p.local); }); }); }
+          } else if (p.status === "failed") { t = "Claude nie odczytał tego zdjęcia. Zrób je jeszcze raz."; err = true; }
+          if (t) card.appendChild(el("div", { class: "st" + (err ? " err" : "") }, [el("span", { text: (ps.length > 1 ? "Zdjęcie " + (i + 1) + ": " : "") + t }), again]));
+        });
+      }
+      if (note) {
+        if (open) {
+          card.appendChild(el("div", { class: "md", html: md(noTitle(note.md || "")) }));
+          var copyB = btn("", "Kopiuj", function () {
+            try { navigator.clipboard.writeText(note.md).then(function () { copyB.textContent = "Skopiowane"; }, function () { copyB.textContent = "Nie udało się"; }); } catch (e) { copyB.textContent = "Nie udało się"; }
+          });
+          var redoB = btn("", "Zrób od nowa", function () { redoB.disabled = true; redoB.textContent = "Zlecone"; redo(f.id, d); });
+          card.appendChild(el("div", { class: "tools" }, [copyB, redoB, di ? btn("", "Zwiń", function () { openDays[key] = false; draw(); }) : null]));
+        } else card.appendChild(btn("more", "Pokaż notatkę", function () { openDays[key] = true; draw(); }));
+      }
+      main.appendChild(card);
+    });
+  }
+
+  /* --- podgląd zdjęcia --- */
+  function openLb(p) {
+    lbPath = p; wantDel = false; lbDel.textContent = "Usuń zdjęcie";
+    lbImg.removeAttribute("src"); lb.classList.remove("zoom"); lb.hidden = false;
+    blobUrl(p.path).then(function (u) { if (lbPath === p) lbImg.src = u; }, function () {});
+  }
+  function closeLb() { lb.hidden = true; lbPath = null; }
+  $("lb-x").addEventListener("click", closeLb);
+  lbImg.addEventListener("click", function () { lb.classList.toggle("zoom"); });
+  lbDel.addEventListener("click", function () {
+    if (!lbPath) return;
+    if (!wantDel) { wantDel = true; lbDel.textContent = "Na pewno? Kliknij jeszcze raz"; return; }
+    var p = lbPath; closeLb(); delPhoto(p);
+  });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !lb.hidden) closeLb(); });
+  back.addEventListener("click", function () { view = { k: "home" }; draw(); window.scrollTo(0, 0); });
+  [cam, gal].forEach(function (inp) {
+    inp.addEventListener("change", function () { if (inp.files && inp.files.length && target) addFiles(inp.files, target); inp.value = ""; });
+  });
+  window.addEventListener("beforeunload", function (e) { if (local.some(function (x) { return x.state === "prep" || x.state === "upload"; })) { e.preventDefault(); e.returnValue = ""; } });
+
+  refresh();
+})();
+</script>
+</body>
+</html>
