@@ -58,13 +58,17 @@ button { font: inherit; color: inherit; }
 .top { display: flex; align-items: baseline; gap: 10px; }
 .brand { color: var(--accent); font-weight: 800; font-size: 0.82rem; letter-spacing: 0.02em; }
 .home { margin-left: auto; color: var(--muted); font-size: 0.85rem; font-weight: 600; text-decoration: none; }
-.tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 4px; }
-.tab { appearance: none; border: 0; background: none; border-radius: 10px; padding: 9px 10px; font-weight: 700; font-size: 0.98rem; color: var(--muted); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+.tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 4px; }
+.tab { appearance: none; border: 0; background: none; border-radius: 10px; padding: 9px 4px; font-weight: 700; font-size: 0.98rem; color: var(--muted); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
 .tab svg { width: 19px; height: 19px; flex: none; }
 .tab[aria-selected="true"] { background: var(--accent); color: var(--surface); }
 .tab .cnt { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 99px; background: var(--warn); color: var(--surface); font-size: 0.75rem; font-weight: 800; display: inline-grid; place-items: center; }
 main { max-width: 680px; margin: 0 auto; padding-inline: 16px; padding-block: 18px calc(48px + env(safe-area-inset-bottom, 0px)); display: grid; gap: 26px; }
 .pane { display: grid; gap: 26px; }
+/* Nauka: ta sama strona co SimpleAGH na claude.ai (nauka.html z prywatnego repo), wysokość dopasowana do treści */
+#pane-nauka { display: block; margin: -18px -16px 0; }
+#pane-nauka iframe { display: block; width: 100%; height: 80vh; border: 0; background: var(--bg); }
+#pane-nauka .hint { padding: 18px 16px; }
 
 .sec { display: grid; gap: 10px; }
 .sec-h { display: flex; align-items: baseline; gap: 10px; }
@@ -235,13 +239,15 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
 </head>
 <body>
 <header class="bar"><div class="in">
-  <div class="top"><span class="brand">SimpleAGH · notatki z zajęć</span><a class="home" href="https://claude.ai/artifact/GEHBVvxFZPSqFgtywBrXMj" target="_blank" rel="noopener">Nauka ↗</a></div>
+  <div class="top"><span class="brand">SimpleAGH</span></div>
   <div class="tabs" role="tablist" aria-label="Widok">
+    <button class="tab" type="button" role="tab" id="tab-nauka" aria-controls="pane-nauka" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5zM20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5z"/></svg>Nauka</button>
     <button class="tab" type="button" role="tab" id="tab-aparat" aria-controls="pane-aparat" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8.5A2.5 2.5 0 0 1 5.5 6h1.6l1.4-2h7l1.4 2h1.6A2.5 2.5 0 0 1 21 8.5v9a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17.5z"/><circle cx="12" cy="13" r="3.6"/></svg>Aparat<span class="cnt" id="cnt" hidden></span></button>
     <button class="tab" type="button" role="tab" id="tab-notatki" aria-controls="pane-notatki" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3h7l5 5v11.5A1.5 1.5 0 0 1 17.5 21h-10A1.5 1.5 0 0 1 6 19.5v-15A1.5 1.5 0 0 1 7.5 3z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg>Notatki</button>
   </div>
 </div></header>
 <main>
+  <section class="pane" id="pane-nauka" role="tabpanel" aria-labelledby="tab-nauka" hidden><p class="hint">Wczytuję…</p></section>
   <section class="pane" id="pane-aparat" role="tabpanel" aria-labelledby="tab-aparat">
     <div id="shoot"></div>
     <section class="sec" aria-live="polite">
@@ -275,7 +281,7 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
   var CAM_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8.5A2.5 2.5 0 0 1 5.5 6h1.6l1.4-2h7l1.4 2h1.6A2.5 2.5 0 0 1 21 8.5v9a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17.5z"/><circle cx="12" cy="13" r="3.6"/></svg>';
   var CHECK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
   var $ = function (id) { return document.getElementById(id); };
-  var paneA = $("pane-aparat"), paneN = $("pane-notatki"), paneS = $("pane-setup"), tabA = $("tab-aparat"), tabN = $("tab-notatki"), cnt = $("cnt");
+  var paneK = $("pane-nauka"), tabK = $("tab-nauka"), paneA = $("pane-aparat"), paneN = $("pane-notatki"), paneS = $("pane-setup"), tabA = $("tab-aparat"), tabN = $("tab-notatki"), cnt = $("cnt");
   var shootBox = $("shoot"), flowBox = $("flow"), flowAside = $("flow-aside"), chartBox = $("chart"), cam = $("cam"), gal = $("gal");
   var lb = $("lb"), lbImg = $("lb-img"), lbDel = $("lb-del");
 
@@ -284,12 +290,12 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
   try { TOKEN = localStorage.getItem(LS) || ""; } catch (e) {}
   var m = /[#&]t=([A-Za-z0-9_]+)/.exec(location.hash);
   if (m) { TOKEN = m[1]; try { localStorage.setItem(LS, TOKEN); } catch (e) {} history.replaceState(null, "", location.pathname); }
-  var startTab = /^#(aparat|notatki)$/.exec(location.hash);   // link z SimpleAGH otwiera konkretną zakładkę
+  var startTab = /^#(nauka|aparat|notatki)$/.exec(location.hash);   // link z SimpleAGH otwiera konkretną zakładkę
   function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
 
   var CFG = null, INDEX = { notes: {} }, TREE = null, RUN = null, JOB = null, RUNSET = {}, idxSha = null, cfgSha = null;
-  var local = [], chain = Promise.resolve(), blobs = {}, tab = startTab ? startTab[1] : lsGet(LS_T) === "notatki" ? "notatki" : "aparat";
+  var local = [], chain = Promise.resolve(), blobs = {}, tab = startTab ? startTab[1] : /^(nauka|aparat|notatki)$/.test(lsGet(LS_T) || "") ? lsGet(LS_T) : "nauka";
   var view = { k: "home" }, target = lsGet(LS_F), openDays = {}, lbPath = null, wantDel = false, timer = null, authErr = false, netErr = false;
   var range = "week", cards = {}, prevStage = {}, firstFlow = true;
 
@@ -512,17 +518,20 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
   /* --- zakładki --- */
   function setTab(t) {
     tab = t; lsSet(LS_T, t);
+    tabK.setAttribute("aria-selected", t === "nauka" ? "true" : "false");
     tabA.setAttribute("aria-selected", t === "aparat" ? "true" : "false");
     tabN.setAttribute("aria-selected", t === "notatki" ? "true" : "false");
     render(); window.scrollTo(0, 0);
   }
+  tabK.addEventListener("click", function () { setTab("nauka"); });
   tabA.addEventListener("click", function () { setTab("aparat"); });
   tabN.addEventListener("click", function () { view = { k: "home" }; setTab("notatki"); });
 
   function render() {
     var setup = !TOKEN || authErr;
-    paneS.hidden = !setup; paneA.hidden = setup || tab !== "aparat"; paneN.hidden = setup || tab !== "notatki";
+    paneS.hidden = !setup; paneK.hidden = setup || tab !== "nauka"; paneA.hidden = setup || tab !== "aparat"; paneN.hidden = setup || tab !== "notatki";
     if (setup) return drawSetup();
+    if (tab === "nauka") loadNauka();
     var busyN = items().filter(function (it) { return /^(upload|queued|reading)$/.test(it.stage); }).length;
     cnt.hidden = !busyN; cnt.textContent = busyN;
     if (!CFG) {
@@ -532,7 +541,37 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
       return;
     }
     if (tab === "aparat") { drawShoot(); drawFlow(); drawChart(); }
-    else drawNotes();
+    else if (tab === "notatki") drawNotes();
+  }
+
+  /* --- Nauka: strona SimpleAGH (nauka.html w prywatnym repo, wgrywa ją ~/SimpleAGH/tools/nauka_sync.sh po każdym przebudowaniu) --- */
+  var naukaSha = null, naukaBusy = false, naukaObs = null;
+  function loadNauka() {
+    if (!TREE || naukaBusy) return;
+    var sha = TREE["nauka.html"];
+    if (!sha) { if (!paneK.querySelector("iframe")) { paneK.textContent = ""; paneK.appendChild(el("p", { class: "hint", text: "Strona do nauki jeszcze nie jest wgrana." })); } return; }
+    if (sha === naukaSha) return;
+    naukaBusy = true;
+    api("contents/nauka.html?ref=" + BRANCH, { raw: true }).then(function (html) {
+      naukaSha = sha;
+      var hide = "<style>nav.tabs,header.top>.brand{display:none!important}</style>";   // zakładki SimpleAGH są tu niepotrzebne – są u góry tej strony
+      var doc = /^\s*<!doctype/i.test(html) ? html.replace(/<body[^>]*>/i, function (b) { return b + hide; })
+        : '<!doctype html><html lang="pl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0}</style></head><body>' + hide + html + "</body></html>";
+      var fr = paneK.querySelector("iframe");
+      if (!fr) { paneK.textContent = ""; fr = el("iframe", { title: "Nauka" }); fr.addEventListener("load", fitNauka); paneK.appendChild(fr); }
+      fr.srcdoc = doc;
+    }).catch(function () {
+      if (!paneK.querySelector("iframe")) { paneK.textContent = ""; paneK.appendChild(el("p", { class: "hint", text: "Nie udało się wczytać strony do nauki. Spróbuję jeszcze raz za chwilę." })); }
+    }).then(function () { naukaBusy = false; });
+  }
+  function fitNauka() {  // ramka ma wysokość treści, przewija się cała strona (na iPhonie płynniej niż przewijanie w ramce)
+    var fr = paneK.querySelector("iframe"); if (!fr) return;
+    try {
+      var d = fr.contentDocument, set = function () { fr.style.height = Math.max(d.documentElement.scrollHeight, d.body.scrollHeight) + "px"; };
+      set(); setTimeout(set, 600);
+      if (naukaObs) naukaObs.disconnect();
+      if (window.ResizeObserver) { naukaObs = new ResizeObserver(set); naukaObs.observe(d.body); }
+    } catch (e) { fr.style.height = "85vh"; }
   }
 
   function drawSetup() {
