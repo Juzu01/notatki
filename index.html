@@ -22,7 +22,7 @@
    i Notatki (foldery przedmiot + forma zajęć, w folderze notatki po dniach). Kolory i krój jak SimpleAGH. */
 :root {
   --bg: #f3f5f3; --surface: #ffffff; --ink: #18211c; --muted: #5c6962; --faint: #89958e; --line: #e1e7e3;
-  --accent: #0b6b45; --accent-soft: #e2f1e9; --hot: #b42318; --warn: #b26a00; --warn-soft: #fbefdc;
+  --accent: #0b6b45; --accent-soft: #e2f1e9; --hot: #b42318; --warn: #b26a00; --warn-soft: #fbefdc; --k-thm: #6a46c8; --k-ex: #2b62c9; --hl: #ffe680;
   --c-ma: #3b6fd8; --c-ha: #7b55d0; --c-dm: #0f8a7e; --c-lcs: #b8860b; --c-ics: #cc4b73; --c-unix: #3f8f34; --c-pl1: #d65a26;
   --font: "Figtree", system-ui, -apple-system, "Segoe UI", Roboto, Arial, "Noto Sans Math", sans-serif;
   --r: 16px;
@@ -31,14 +31,14 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #0f1311; --surface: #171d1a; --ink: #e5ebe7; --muted: #9daaa3; --faint: #6f7c75; --line: #27312c;
-    --accent: #52c48f; --accent-soft: #19322a; --hot: #ff8a7d; --warn: #f0b44c; --warn-soft: #33281a;
+    --accent: #52c48f; --accent-soft: #19322a; --hot: #ff8a7d; --warn: #f0b44c; --warn-soft: #33281a; --k-thm: #b39af5; --k-ex: #82aaf7; --hl: rgb(240 190 70 / 0.35);
     --c-ma: #7ba3f5; --c-ha: #a98cf0; --c-dm: #42c2b4; --c-lcs: #e0b54a; --c-ics: #ee82a5; --c-unix: #82cc6e; --c-pl1: #ff9663;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --bg: #0f1311; --surface: #171d1a; --ink: #e5ebe7; --muted: #9daaa3; --faint: #6f7c75; --line: #27312c;
-  --accent: #52c48f; --accent-soft: #19322a; --hot: #ff8a7d; --warn: #f0b44c; --warn-soft: #33281a;
+  --accent: #52c48f; --accent-soft: #19322a; --hot: #ff8a7d; --warn: #f0b44c; --warn-soft: #33281a; --k-thm: #b39af5; --k-ex: #82aaf7; --hl: rgb(240 190 70 / 0.35);
   --c-ma: #7ba3f5; --c-ha: #a98cf0; --c-dm: #42c2b4; --c-lcs: #e0b54a; --c-ics: #ee82a5; --c-unix: #82cc6e; --c-pl1: #ff9663;
   color-scheme: dark;
 }
@@ -213,17 +213,60 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
 .more { appearance: none; border: 0; background: none; padding: 0; color: var(--accent); font-weight: 600; cursor: pointer; justify-self: start; }
 .wait { color: var(--warn); font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; gap: 8px; }
 
-.md { font-size: 0.97rem; line-height: 1.6; min-width: 0; overflow-wrap: anywhere; display: grid; gap: 10px; }
-.md h4 { font-size: 1.02rem; margin-top: 8px; }
-.md h5, .md h6 { font-size: 0.95rem; margin-top: 4px; }
-.md ul, .md ol { margin: 0; padding-left: 1.25rem; display: grid; gap: 4px; }
+.md { font-size: 1rem; line-height: 1.65; min-width: 0; overflow-wrap: anywhere; display: grid; gap: 12px; }
+.md p { max-width: 62ch; }
+.md h4 { font-size: 1.1rem; font-weight: 800; margin-top: 12px; padding-bottom: 6px; border-bottom: 2px solid var(--accent-soft); scroll-margin-top: 140px; }
+.md h5, .md h6 { font-size: 0.98rem; margin-top: 4px; }
+.md strong { font-weight: 700; }
+.md mark { background: var(--hl); color: inherit; border-radius: 4px; padding: 0 3px; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+.md ul, .md ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.md ul > li { position: relative; padding-left: 18px; }
+.md ul > li::before { content: ""; position: absolute; left: 4px; top: 0.66em; width: 6px; height: 6px; border-radius: 50%; background: var(--k, var(--accent)); }
+.md ol { counter-reset: st; }
+.md ol > li { counter-increment: st; display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 10px; align-items: start; }
+.md ol > li::before { content: counter(st); width: 24px; height: 24px; border-radius: 50%; background: var(--k, var(--accent)); color: var(--surface); font-size: 0.78rem; font-weight: 800; display: grid; place-items: center; margin-top: 1px; }
 .md code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.86em; background: var(--bg); border: 1px solid var(--line); border-radius: 5px; padding: 0 4px; }
-.md pre { margin: 0; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; overflow-x: auto; }
+.md pre { margin: 0; background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; overflow-x: auto; }
 .md pre code { border: 0; padding: 0; background: none; font-size: 0.84rem; }
 .tw { overflow-x: auto; }
-.md table { border-collapse: collapse; font-size: 0.9rem; }
-.md th, .md td { border: 1px solid var(--line); padding: 4px 10px; text-align: center; }
-.md th { background: var(--bg); }
+.md table { border-collapse: separate; border-spacing: 0; font-size: 0.92rem; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.md th, .md td { padding: 5px 12px; text-align: center; border-top: 1px solid var(--line); }
+.md th { background: var(--bg); border-top: 0; font-weight: 700; }
+.md td + td, .md th + th { border-left: 1px solid var(--line); }
+/* ramki */
+.md .call { --k: var(--accent); border-radius: 14px; padding: 10px 14px 12px; display: grid; gap: 6px; background: color-mix(in srgb, var(--k) 8%, var(--surface)); border: 1px solid color-mix(in srgb, var(--k) 26%, var(--line)); border-left: 4px solid var(--k); }
+.md .call .ch { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; }
+.md .call .cl { font-size: 0.7rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--k); }
+.md .call .ch b { font-weight: 700; font-size: 1rem; }
+.md .call .cb { display: grid; gap: 8px; }
+.md .call.def { --k: var(--accent); }
+.md .call.thm { --k: var(--k-thm); }
+.md .call.ex { --k: var(--k-ex); }
+.md .call.warn { --k: var(--warn); }
+.md .call.eq { --k: var(--muted); background: var(--surface); }
+.md .call.eq .cb { font-family: "STIX Two Text", "Cambria Math", ui-serif, Georgia, serif; font-size: 1.18rem; text-align: center; line-height: 1.7; }
+.md .call.eq .cb p { max-width: none; }
+.md .call.plain { --k: var(--faint); border-left-style: dashed; background: var(--surface); }
+.md .call.gist { --k: var(--accent); font-size: 1.04rem; background: var(--accent-soft); border-color: var(--accent-soft); }
+.md .call.mem { --k: var(--accent); border: 2px solid var(--accent); background: var(--surface); }
+.md .call.mem ul > li { padding-left: 24px; }
+.md .call.mem ul > li::before { content: "✓"; background: none; width: auto; height: auto; top: 0; left: 2px; color: var(--accent); font-weight: 800; }
+.md .call.task { --k: var(--k-ex); background: var(--surface); border-style: solid; }
+.md .call.task .sol { border-top: 1px dashed color-mix(in srgb, var(--k) 40%, var(--line)); padding-top: 10px; display: grid; gap: 8px; }
+.md .call.task .sol[hidden] { display: none; }
+.md .hid { display: none !important; }
+.md .shown { animation: stepin .35s ease-out both; }
+@keyframes stepin { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .md .shown { animation: none; } }
+.md .sbar { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 2px; }
+.md .sbar button { appearance: none; border: 0; border-radius: 10px; padding: 7px 12px; font-weight: 700; font-size: 0.86rem; cursor: pointer; background: var(--k); color: var(--surface); }
+.md .sbar button.s-all { background: color-mix(in srgb, var(--k) 12%, var(--surface)); color: var(--k); }
+.md .sbar button:disabled { opacity: 0.55; cursor: default; }
+.md .call.quote { --k: var(--line); background: none; border: 0; border-left: 3px solid var(--line); border-radius: 0; color: var(--muted); }
+.md .add { display: inline-block; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.03em; color: var(--muted); border: 1px dashed var(--faint); border-radius: 99px; padding: 0 6px; line-height: 1.5; vertical-align: 1px; white-space: nowrap; }
+.md .ill { color: var(--hot); font-style: italic; font-size: 0.9em; }
+.toc { display: flex; flex-wrap: wrap; gap: 6px; }
+.toc button { appearance: none; border: 1px solid var(--line); background: var(--bg); color: var(--ink); font-weight: 600; font-size: 0.8rem; padding: 4px 10px; border-radius: 99px; cursor: pointer; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 .setup { display: grid; gap: 12px; }
 .setup input { font: inherit; font-size: 0.95rem; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 11px 12px; width: 100%; }
@@ -483,42 +526,64 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
     return api("contents/" + path, { method: "PUT", body: body }).then(function () { setTimeout(refresh, 2500); }, function () { refresh(); });
   }
 
-  /* --- prosty, bezpieczny markdown (z tabelami) --- */
+  /* --- markdown notatek: ramki „> [!DEF] …”, zakreślacz ==…==, kroki z numerami, tabele; wszystko escapowane --- */
+  var CALL = { "DEF": ["def", "Definicja"], "TW": ["thm", "Twierdzenie"], "WZÓR": ["eq", "Wzór"], "WZOR": ["eq", "Wzór"], "PRZYKŁAD": ["ex", "Przykład"], "PRZYKLAD": ["ex", "Przykład"],
+    "ZADANIE": ["task", "Zadanie"], "UWAGA": ["warn", "Uwaga"], "PO LUDZKU": ["plain", "Po ludzku"], "SEDNO": ["gist", "W skrócie"], "ZAPAMIĘTAJ": ["mem", "Do zapamiętania"], "ZAPAMIETAJ": ["mem", "Do zapamiętania"] };
   function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;"); }
-  function inline(s) {
+  function inline(s) {  // s już escapowane
     return s.replace(/`([^`]+)`/g, "<code>$1</code>")
+      .replace(/==([^=]+)==/g, "<mark>$1</mark>")
       .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
-      .replace(/(^|[\s(])\*([^*\s][^*]*)\*/g, "$1<em>$2</em>");
+      .replace(/(^|[\s(])\*([^*\s][^*]*)\*/g, "$1<em>$2</em>")
+      .replace(/\s*\(uzupełnione\)/g, ' <span class="add" title="Tego nie było na tablicy – dopisał Claude">uzupełnione</span>')
+      .replace(/\[nieczytelne\]/g, '<span class="ill">nieczytelne</span>');
+  }
+  function plain(lines) {  // nagłówki, listy, tabele, akapity
+    var out = [], list = null, para = [], tbl = null;
+    function flushP() { if (para.length) { out.push("<p>" + inline(esc(para.join("\n")).replace(/\n/g, "<br>")) + "</p>"); para = []; } }
+    function flushL() { if (list) { out.push("<" + list.t + ">" + list.items.map(function (x) { return "<li><span>" + inline(esc(x)) + "</span></li>"; }).join("") + "</" + list.t + ">"); list = null; } }
+    function flushT() {
+      if (!tbl) return;
+      out.push('<div class="tw"><table>' + tbl.map(function (r, ri) { var t = ri ? "td" : "th"; return "<tr>" + r.map(function (x) { return "<" + t + ">" + inline(esc(x)) + "</" + t + ">"; }).join("") + "</tr>"; }).join("") + "</table></div>");
+      tbl = null;
+    }
+    lines.forEach(function (ln) {
+      var mm;
+      if (/^\s*\|/.test(ln)) {
+        flushP(); flushL();
+        var cells = ln.trim().replace(/^\|/, "").replace(/\|$/, "").split("|").map(function (x) { return x.trim(); });
+        if (!cells.every(function (x) { return /^:?-{2,}:?$/.test(x); })) (tbl = tbl || []).push(cells);
+        return;
+      }
+      flushT();
+      if (!ln.trim()) { flushP(); flushL(); return; }
+      if ((mm = /^\s*(#{1,4})\s+(.*)$/.exec(ln))) { flushP(); flushL(); var h = "h" + Math.max(4, Math.min(6, mm[1].length + 2)); out.push("<" + h + ">" + inline(esc(mm[2])) + "</" + h + ">"); return; }
+      if ((mm = /^\s*[-*•]\s+(.*)$/.exec(ln))) { flushP(); if (!list || list.t !== "ul") { flushL(); list = { t: "ul", items: [] }; } list.items.push(mm[1]); return; }
+      if ((mm = /^\s*\d+[.)]\s+(.*)$/.exec(ln))) { flushP(); if (!list || list.t !== "ol") { flushL(); list = { t: "ol", items: [] }; } list.items.push(mm[1]); return; }
+      flushL(); para.push(ln.trim());
+    });
+    flushP(); flushL(); flushT();
+    return out.join("");
+  }
+  function callout(q) {
+    var mm = /^\[!([^\]]+)\]\s*(.*)$/.exec((q[0] || "").trim()), type = ["quote", ""], title = "";
+    if (mm) { type = CALL[mm[1].trim().toUpperCase()] || ["plain", mm[1].trim()]; title = mm[2]; q = q.slice(1); }
+    var head = type[1] ? '<div class="ch"><span class="cl">' + esc(type[1]) + "</span>" + (title ? "<b>" + inline(esc(title)) + "</b>" : "") + "</div>" : "";
+    var cut = q.findIndex(function (x) { return /^\s*-{3,}\s*$/.test(x); });
+    if (type[0] === "task" && cut >= 0)  // zadanie: treść widać, rozwiązanie odsłania się krok po kroku
+      return '<div class="call task">' + head + '<div class="cb">' + md(q.slice(0, cut).join("\n")) + '</div><div class="sol" hidden>' + md(q.slice(cut + 1).join("\n")) +
+        '</div><div class="sbar"><button type="button" class="s-next">Pokaż pierwszy krok</button><button type="button" class="s-all">Całe rozwiązanie</button></div></div>';
+    return '<div class="call ' + type[0] + '">' + head + '<div class="cb">' + md(q.join("\n")) + "</div></div>";
   }
   function md(src) {
-    var out = [], blocks = esc(src).split(/```/);
-    blocks.forEach(function (b, i) {
-      if (i % 2 === 1) { out.push("<pre><code>" + b.replace(/^[a-z+#]*\n/, "") + "</code></pre>"); return; }
-      var lines = b.split("\n"), list = null, para = [], tbl = null;
-      function flushP() { if (para.length) { out.push("<p>" + inline(para.join("<br>")) + "</p>"); para = []; } }
-      function flushL() { if (list) { out.push("<" + list.t + ">" + list.items.map(function (x) { return "<li>" + inline(x) + "</li>"; }).join("") + "</" + list.t + ">"); list = null; } }
-      function flushT() {
-        if (!tbl) return;
-        out.push('<div class="tw"><table>' + tbl.map(function (r, ri) { var t = ri ? "td" : "th"; return "<tr>" + r.map(function (x) { return "<" + t + ">" + inline(x) + "</" + t + ">"; }).join("") + "</tr>"; }).join("") + "</table></div>");
-        tbl = null;
-      }
-      lines.forEach(function (ln) {
-        var mm;
-        if (/^\s*\|/.test(ln)) {
-          flushP(); flushL();
-          var cells = ln.trim().replace(/^\|/, "").replace(/\|$/, "").split("|").map(function (x) { return x.trim(); });
-          if (!cells.every(function (x) { return /^:?-{2,}:?$/.test(x); })) (tbl = tbl || []).push(cells);
-          return;
-        }
-        flushT();
-        if (!ln.trim()) { flushP(); flushL(); return; }
-        if ((mm = /^\s*(#{1,4})\s+(.*)$/.exec(ln))) { flushP(); flushL(); var h = "h" + Math.max(4, Math.min(6, mm[1].length + 2)); out.push("<" + h + ">" + inline(mm[2]) + "</" + h + ">"); return; }
-        if ((mm = /^\s*[-*•]\s+(.*)$/.exec(ln))) { flushP(); if (!list || list.t !== "ul") { flushL(); list = { t: "ul", items: [] }; } list.items.push(mm[1]); return; }
-        if ((mm = /^\s*\d+[.)]\s+(.*)$/.exec(ln))) { flushP(); if (!list || list.t !== "ol") { flushL(); list = { t: "ol", items: [] }; } list.items.push(mm[1]); return; }
-        flushL(); para.push(ln);
-      });
-      flushP(); flushL(); flushT();
-    });
+    var L = String(src || "").replace(/\r/g, "").split("\n"), out = [], buf = [], i = 0;
+    function flush() { if (buf.length) { out.push(plain(buf)); buf = []; } }
+    while (i < L.length) {
+      if (/^\s*```/.test(L[i])) { flush(); var code = []; i++; while (i < L.length && !/^\s*```/.test(L[i])) code.push(L[i++]); i++; out.push("<pre><code>" + esc(code.join("\n")) + "</code></pre>"); continue; }
+      if (/^\s*>/.test(L[i])) { flush(); var q = []; while (i < L.length && /^\s*>/.test(L[i])) q.push(L[i++].replace(/^\s*>\s?/, "")); out.push(callout(q)); continue; }
+      buf.push(L[i++]);
+    }
+    flush();
     return out.join("");
   }
   function noTitle(t) { return t.replace(/^\s*#\s+.*(\n|$)/, ""); }
@@ -914,7 +979,9 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
       }
       if (note) {
         if (open) {
-          card.appendChild(el("div", { class: "md", html: md(noTitle(note.md || "")) }));
+          var mdBox = el("div", { class: "md", html: md(noTitle(note.md || "")) }), hs = mdBox.querySelectorAll("h4");
+          if (hs.length >= 3) card.appendChild(el("div", { class: "toc", "aria-label": "Spis" }, Array.prototype.map.call(hs, function (h) { return btn("", h.textContent, function () { h.scrollIntoView({ behavior: "smooth", block: "start" }); }); })));
+          card.appendChild(mdBox);
           var copyB = btn("", "Kopiuj", function () {
             try { navigator.clipboard.writeText(note.md).then(function () { copyB.textContent = "Skopiowane"; }, function () { copyB.textContent = "Nie udało się"; }); } catch (e) { copyB.textContent = "Nie udało się"; }
           });
@@ -925,6 +992,26 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
       paneN.appendChild(card);
     });
   }
+
+  /* --- zadania „Sprawdź się”: kroki rozwiązania odsłaniane po jednym --- */
+  function solSteps(sol) {
+    var out = [];
+    Array.prototype.forEach.call(sol.children, function (c) {
+      if (c.tagName === "OL" || c.tagName === "UL") Array.prototype.forEach.call(c.children, function (li) { out.push(li); });
+      else out.push(c);
+    });
+    return out;
+  }
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest && e.target.closest(".s-next, .s-all"); if (!b) return;
+    var task = b.closest(".task"), sol = task.querySelector(".sol"), steps = solSteps(sol), next = task.querySelector(".s-next");
+    if (sol.hidden) { sol.hidden = false; steps.forEach(function (x) { x.classList.add("hid"); }); }
+    if (b.classList.contains("s-all")) steps.forEach(function (x) { x.classList.remove("hid"); });
+    else { var h = steps.filter(function (x) { return x.classList.contains("hid"); })[0]; if (h) { h.classList.remove("hid"); h.classList.add("shown"); } }
+    var left = steps.filter(function (x) { return x.classList.contains("hid"); }).length;
+    next.textContent = left ? "Następny krok (" + (steps.length - left) + "/" + steps.length + ")" : "Wszystkie kroki";
+    next.disabled = !left; task.querySelector(".s-all").hidden = !left;
+  });
 
   /* --- podgląd zdjęcia --- */
   function openLb(p) {
