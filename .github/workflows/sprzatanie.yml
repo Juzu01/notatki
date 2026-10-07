@@ -1,0 +1,26 @@
+# Codziennie kasuje wygasłe linki dla gości (goscie/<id>-<RRRRMMDD>.bin, data = koniec ważności).
+name: Sprzątanie linków dla gości
+on:
+  schedule:
+    - cron: "17 2 * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  sprzatanie:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Usuń wygasłe
+        run: |
+          today=$(date -u +%Y%m%d)
+          for f in goscie/*.bin; do
+            [ -e "$f" ] || continue
+            d=$(basename "$f" .bin); d=${d##*-}
+            if [ "$d" -lt "$today" ]; then git rm -q "$f"; echo "usunięty $f"; fi
+          done
+          git diff --cached --quiet && exit 0
+          git config user.name "notatki-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -q -m "Usunięte wygasłe linki dla gości"
+          git push -q

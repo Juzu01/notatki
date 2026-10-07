@@ -63,6 +63,7 @@ button { font: inherit; color: inherit; }
 .tab { appearance: none; border: 0; background: none; border-radius: 10px; padding: 9px 4px; font-weight: 700; font-size: 0.98rem; color: var(--muted); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
 .tab svg { width: 19px; height: 19px; flex: none; }
 .tab[aria-selected="true"] { background: var(--accent); color: var(--surface); }
+.visit .tabs { grid-template-columns: repeat(2, 1fr); }
 .tab .cnt { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 99px; background: var(--warn); color: var(--surface); font-size: 0.75rem; font-weight: 800; display: inline-grid; place-items: center; }
 main { max-width: 680px; margin: 0 auto; padding-inline: 16px; padding-block: 18px calc(48px + env(safe-area-inset-bottom, 0px)); display: grid; gap: 26px; }
 .pane { display: grid; gap: 26px; }
@@ -409,8 +410,11 @@ button.nl { appearance: none; border: 0; background: none; padding: 0; font: inh
 
   /* klucz: z kodu QR (#t=...) albo wklejony; zostaje tylko w tym telefonie */
   var TOKEN = "";
-  try { TOKEN = localStorage.getItem(LS) || ""; } catch (e) {}
-  var m = /[#&]t=([A-Za-z0-9_]+)/.exec(location.hash);
+  // link dla gościa (#g=<plik>.<klucz>): zaszyfrowana kopia notatek z goscie/, bez klucza do GitHuba, tylko do oglądania
+  var gm = /[#&]g=([0-9a-f]{12}-\d{8})\.([A-Za-z0-9_-]{20,})/.exec(location.hash), VISIT = gm ? { file: gm[1], key: gm[2] } : null, visitErr = null, visitReady = null;
+  if (!VISIT) try { TOKEN = localStorage.getItem(LS) || ""; } catch (e) {}
+  else TOKEN = "gosc";
+  var m = VISIT ? null : /[#&]t=([A-Za-z0-9_]+)/.exec(location.hash);
   // ikonka na ekranie początkowym iPhone'a ma osobną pamięć niż Safari: w Safari klucz zostaje w adresie, żeby „Do ekranu początkowego” zabrało go do ikonki
   var STANDALONE = navigator.standalone === true || (window.matchMedia && matchMedia("(display-mode: standalone)").matches);
   if (m) { TOKEN = m[1]; try { localStorage.setItem(LS, TOKEN); } catch (e) {} if (STANDALONE) history.replaceState(null, "", location.pathname); }
@@ -455,8 +459,31 @@ button.nl { appearance: none; border: 0; background: none; padding: 0; font: inh
     if (json) h["Content-Type"] = "application/json";
     return h;
   }
+  function b64bytes(s) { s = s.replace(/-/g, "+").replace(/_/g, "/"); while (s.length % 4) s += "="; var bin = atob(s), u = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u; }
+  if (VISIT) {
+    visitReady = fetch("goscie/" + VISIT.file + ".bin", { cache: "no-store" }).then(function (r) { if (!r.ok) throw { code: "gone" }; return r.arrayBuffer(); })
+      .then(function (buf) {
+        return crypto.subtle.importKey("raw", b64bytes(VISIT.key), "AES-GCM", false, ["decrypt"]).then(function (k) { return crypto.subtle.decrypt({ name: "AES-GCM", iv: new Uint8Array(buf, 0, 12) }, k, new Uint8Array(buf, 12)); });
+      })
+      .then(function (pt) { var B = JSON.parse(new TextDecoder().decode(pt)); if (Date.now() > Date.parse(B.expires)) throw { code: "expired" }; VISIT.expires = B.expires; return B; });
+    visitReady.catch(function (e) { visitErr = e && e.code === "expired" ? "Ten link już wygasł. Poproś o nowy." : e && e.code === "gone" ? "Ten link wygasł albo został usunięty. Poproś o nowy." : "Nie da się otworzyć tego linku – jest niepełny albo uszkodzony. Poproś o nowy."; render(); });
+  }
+  function visitApi(path, o) {
+    return visitReady.then(function (B) {
+      if ((o.method || "GET") !== "GET") throw { code: "http", status: 403 };
+      if (/^git\/trees\//.test(path)) return { tree: B.tree.concat(["folders.json", "index.json", "nauka.html"]).map(function (p) { return { path: p, type: "blob", sha: "g:" + p }; }) };
+      if (/^actions\//.test(path)) return { workflow_runs: [] };
+      var mm = /^contents\/([^?]+)/.exec(path), p = mm && decodeURIComponent(mm[1]);
+      if (p === "folders.json") return JSON.stringify(B.folders);
+      if (p === "index.json") return JSON.stringify(B.index);
+      if (p === "nauka.html") return B.nauka;
+      if (B.files[p] && o.raw === "blob") return new Blob([b64bytes(B.files[p])], { type: "image/jpeg" });
+      throw { code: "http", status: 404 };
+    });
+  }
   function api(path, o) {
     o = o || {};
+    if (VISIT) return visitApi(path, o);
     return fetch(API + path, { method: o.method || "GET", headers: headers(o.raw, !!o.body), body: o.body ? JSON.stringify(o.body) : undefined, cache: "no-store" })
       .then(function (r) {
         if (r.status === 401) throw { code: "auth" };
@@ -708,6 +735,7 @@ button.nl { appearance: none; border: 0; background: none; padding: 0; font: inh
   tabN.addEventListener("click", function () { view = { k: "home" }; setTab("notatki"); });
 
   function render() {
+    if (VISIT && visitErr) { paneS.hidden = false; paneK.hidden = paneA.hidden = paneN.hidden = true; paneS.textContent = ""; paneS.appendChild(el("p", { class: "hint", text: visitErr })); return; }
     var setup = !TOKEN || authErr;
     paneS.hidden = !setup; paneK.hidden = setup || tab !== "nauka"; paneA.hidden = setup || tab !== "aparat"; paneN.hidden = setup || tab !== "notatki";
     if (setup) return drawSetup();
@@ -884,6 +912,7 @@ button.nl { appearance: none; border: 0; background: none; padding: 0; font: inh
     clearTimeout(progTimer); progTimer = setTimeout(saveProgress, 1200);
   }
   function saveProgress() {
+    if (VISIT) return;   // gość odhacza tylko u siebie
     if (progBusy) { progAgain = true; return; }
     progBusy = true;
     var json = JSON.stringify(PROG, null, 0);
@@ -916,7 +945,7 @@ button.nl { appearance: none; border: 0; background: none; padding: 0; font: inh
     if (STANDALONE) paneS.appendChild(el("p", { class: "hint", text: "Masz już klucz w Safari? Otwórz tę stronę w Safari, dotknij „Skopiuj klucz” na górze strony i wróć tutaj do „Wklej ze schowka”." }));
   }
   function keyBox() {  // w Safari (nie w ikonce): jak przenieść klucz do ikonki na ekranie początkowym
-    if (STANDALONE || !TOKEN) return null;
+    if (VISIT || STANDALONE || !TOKEN) return null;
     var hasKeyInUrl = /[#&]t=/.test(location.hash), copyB = btn("go alt", "Skopiuj klucz", function () {
       try { navigator.clipboard.writeText(TOKEN).then(function () { copyB.textContent = "Skopiowany"; }, function () { copyB.textContent = "Nie udało się"; }); } catch (e) { copyB.textContent = "Nie udało się"; }
     });
@@ -1206,6 +1235,7 @@ button.nl { appearance: none; border: 0; background: none; padding: 0; font: inh
             try { navigator.clipboard.writeText(note.md).then(function () { copyB.textContent = "Skopiowane"; }, function () { copyB.textContent = "Nie udało się"; }); } catch (e) { copyB.textContent = "Nie udało się"; }
           });
           var redoB = btn("", "Zrób od nowa", function () { redoB.disabled = true; redoB.textContent = "Zlecone"; redo(f.id, d); });
+          if (VISIT) redoB = null;
           card.appendChild(el("div", { class: "tools" }, [copyB, redoB, di ? btn("", "Zwiń", function () { openDays[key] = false; render(); }) : null]));
         } else card.appendChild(btn("more", "Pokaż notatkę", function () { openDays[key] = true; render(); }));
       }
@@ -1252,7 +1282,7 @@ button.nl { appearance: none; border: 0; background: none; padding: 0; font: inh
     });
     return best;
   }
-  function updateAskFab() { askFab.hidden = !askBox.hidden || !(tab === "notatki" && view.k === "folder" && document.querySelector(".day[data-key] .md")); }
+  function updateAskFab() { askFab.hidden = !!VISIT || !askBox.hidden || !(tab === "notatki" && view.k === "folder" && document.querySelector(".day[data-key] .md")); }
   function askBusy() { return (chats[askKey] || []).some(function (m) { return !m.a; }); }
   function waitText(m) { var sec = Math.round((Date.now() - m.t0) / 1000); return "Claude czyta notatkę… " + clock(sec) + (sec < 30 ? " (zwykle ok. pół minuty)" : ""); }
   function openAsk(key, quote) {
@@ -1336,7 +1366,7 @@ button.nl { appearance: none; border: 0; background: none; padding: 0; font: inh
 
   /* --- podgląd zdjęcia --- */
   function openLb(p) {
-    lbPath = p; wantDel = false; lbDel.textContent = "Usuń zdjęcie"; lbDel.hidden = stage(p) === "reading";
+    lbPath = p; wantDel = false; lbDel.textContent = "Usuń zdjęcie"; lbDel.hidden = !!VISIT || stage(p) === "reading";
     lbImg.removeAttribute("src"); lb.classList.remove("zoom"); lb.hidden = false;
     blobUrl(p.path).then(function (u) { if (lbPath === p) lbImg.src = u; }, function () {});
   }
@@ -1354,6 +1384,11 @@ button.nl { appearance: none; border: 0; background: none; padding: 0; font: inh
   });
   window.addEventListener("beforeunload", function (e) { if (local.some(function (x) { return x.state === "prep" || x.state === "upload"; })) { e.preventDefault(); e.returnValue = ""; } });
 
+  if (VISIT) {
+    document.body.classList.add("visit"); tabA.hidden = true; if (tab === "aparat") tab = "nauka";
+    var br = document.querySelector(".top .brand"); br.textContent = "SimpleAGH · podgląd notatek";
+    visitReady.then(function () { var d = new Date(VISIT.expires); br.textContent = "SimpleAGH · podgląd do " + d.getDate() + "." + pad(d.getMonth() + 1); }, function () {});
+  }
   setTab(tab);
   refresh();
 })();
