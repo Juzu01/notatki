@@ -15,13 +15,14 @@
 <title>Notatki z zajęć</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap">
 <style>
 /* Notatki z zajęć (SimpleAGH): zdjęcie tablicy z telefonu → prywatne repo na GitHubie → Claude Code w GitHub Actions robi notatkę.
-   Jedna kolumna jak SimpleAGH: na górze dzisiejsze zajęcia z przyciskiem aparatu, niżej wszystkie foldery; w folderze notatki po dniach. */
+   Dwie zakładki u góry: Aparat (wybór zajęć, spust, każde zdjęcie na żywo: wysyłanie → kolejka → Claude czyta → gotowe, wykres zdjęć według przedmiotu)
+   i Notatki (foldery przedmiot + forma zajęć, w folderze notatki po dniach). Kolory i krój jak SimpleAGH. */
 :root {
   --bg: #f3f5f3; --surface: #ffffff; --ink: #18211c; --muted: #5c6962; --faint: #89958e; --line: #e1e7e3;
-  --accent: #0b6b45; --accent-soft: #e2f1e9; --hot: #b42318;
+  --accent: #0b6b45; --accent-soft: #e2f1e9; --hot: #b42318; --warn: #b26a00; --warn-soft: #fbefdc;
   --c-ma: #3b6fd8; --c-ha: #7b55d0; --c-dm: #0f8a7e; --c-lcs: #b8860b; --c-ics: #cc4b73; --c-unix: #3f8f34; --c-pl1: #d65a26;
   --font: "Figtree", system-ui, -apple-system, "Segoe UI", Roboto, Arial, "Noto Sans Math", sans-serif;
   --r: 16px;
@@ -30,14 +31,14 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #0f1311; --surface: #171d1a; --ink: #e5ebe7; --muted: #9daaa3; --faint: #6f7c75; --line: #27312c;
-    --accent: #52c48f; --accent-soft: #19322a; --hot: #ff8a7d;
+    --accent: #52c48f; --accent-soft: #19322a; --hot: #ff8a7d; --warn: #f0b44c; --warn-soft: #33281a;
     --c-ma: #7ba3f5; --c-ha: #a98cf0; --c-dm: #42c2b4; --c-lcs: #e0b54a; --c-ics: #ee82a5; --c-unix: #82cc6e; --c-pl1: #ff9663;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --bg: #0f1311; --surface: #171d1a; --ink: #e5ebe7; --muted: #9daaa3; --faint: #6f7c75; --line: #27312c;
-  --accent: #52c48f; --accent-soft: #19322a; --hot: #ff8a7d;
+  --accent: #52c48f; --accent-soft: #19322a; --hot: #ff8a7d; --warn: #f0b44c; --warn-soft: #33281a;
   --c-ma: #7ba3f5; --c-ha: #a98cf0; --c-dm: #42c2b4; --c-lcs: #e0b54a; --c-ics: #ee82a5; --c-unix: #82cc6e; --c-pl1: #ff9663;
   color-scheme: dark;
 }
@@ -51,46 +52,145 @@ a { color: var(--accent); }
 button { font: inherit; color: inherit; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
 
-.bar { position: sticky; top: 0; z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line); padding: calc(10px + env(safe-area-inset-top, 0px)) 16px 10px; }
-.bar .in { max-width: 680px; margin: 0 auto; display: flex; align-items: center; gap: 10px; min-height: 40px; }
-.bar .tt { flex: 1; min-width: 0; display: grid; }
-.bar .tt small { color: var(--accent); font-weight: 700; font-size: 0.8rem; }
-.bar .tt b { font-size: 1.1rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.bar .tt span { color: var(--muted); font-size: 0.86rem; }
-.bar button { appearance: none; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font-weight: 600; font-size: 0.9rem; padding: 7px 12px; border-radius: 10px; cursor: pointer; white-space: nowrap; }
+/* górny pasek z zakładkami */
+.bar { position: sticky; top: 0; z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line); padding: calc(8px + env(safe-area-inset-top, 0px)) 16px 10px; }
+.bar .in { max-width: 680px; margin: 0 auto; display: grid; gap: 8px; }
+.top { display: flex; align-items: baseline; gap: 10px; }
+.brand { color: var(--accent); font-weight: 800; font-size: 0.82rem; letter-spacing: 0.02em; }
+.home { margin-left: auto; color: var(--muted); font-size: 0.85rem; font-weight: 600; text-decoration: none; }
+.tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 4px; }
+.tab { appearance: none; border: 0; background: none; border-radius: 10px; padding: 9px 10px; font-weight: 700; font-size: 0.98rem; color: var(--muted); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+.tab svg { width: 19px; height: 19px; flex: none; }
+.tab[aria-selected="true"] { background: var(--accent); color: var(--surface); }
+.tab .cnt { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 99px; background: var(--warn); color: var(--surface); font-size: 0.75rem; font-weight: 800; display: inline-grid; place-items: center; }
 main { max-width: 680px; margin: 0 auto; padding-inline: 16px; padding-block: 18px calc(48px + env(safe-area-inset-bottom, 0px)); display: grid; gap: 26px; }
+.pane { display: grid; gap: 26px; }
 
 .sec { display: grid; gap: 10px; }
-.sec h2 { font-size: 1.2rem; font-weight: 700; }
+.sec-h { display: flex; align-items: baseline; gap: 10px; }
+.sec-h h2 { font-size: 1.2rem; font-weight: 700; }
+.sec-h .aside { margin-left: auto; color: var(--muted); font-size: 0.88rem; }
 .sub { color: var(--muted); font-size: 0.92rem; margin-top: -4px; }
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 4px 16px; }
 .go { display: inline-flex; align-items: center; justify-content: center; gap: 6px; appearance: none; border: 0; cursor: pointer; background: var(--accent); color: var(--surface); text-decoration: none; font-weight: 600; font-size: 0.92rem; padding: 8px 14px; border-radius: 10px; white-space: nowrap; }
 .go.alt { background: var(--accent-soft); color: var(--accent); }
-.go.big { padding: 12px 18px; font-size: 1rem; }
 .go svg { width: 18px; height: 18px; flex: none; }
-.acts { display: flex; flex-wrap: wrap; gap: 8px; }
 .hint { color: var(--muted); font-size: 0.9rem; }
 
+/* aparat: wybór zajęć + spust */
+.shoot { background: var(--surface); border: 1px solid var(--line); border-radius: 22px; padding: 16px; display: grid; gap: 14px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { appearance: none; border: 1.5px solid var(--line); background: var(--bg); color: var(--ink); border-radius: 12px; padding: 8px 12px; cursor: pointer; text-align: left; display: grid; gap: 1px; min-width: 0; }
+.chip b { font-weight: 700; font-size: 0.92rem; display: flex; align-items: center; gap: 7px; }
+.chip b::before { content: ""; flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--cc); }
+.chip span { color: var(--muted); font-size: 0.8rem; }
+.chip .lv { color: var(--accent); font-weight: 700; }
+.chip[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
+.pick { font: inherit; font-size: 0.95rem; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; width: 100%; }
+.trigger { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 16px; align-items: center; }
+.shutter { appearance: none; width: 84px; height: 84px; border-radius: 50%; border: 4px solid var(--accent); background: var(--surface); padding: 5px; cursor: pointer; display: grid; place-items: center; }
+.shutter span { width: 100%; height: 100%; border-radius: 50%; background: var(--accent); display: grid; place-items: center; color: var(--surface); }
+.shutter svg { width: 30px; height: 30px; }
+.shutter:active span { transform: scale(0.9); }
+.shutter[disabled] { opacity: 0.4; cursor: default; }
+.tri { display: grid; gap: 6px; min-width: 0; }
+.tri b { font-size: 1.05rem; font-weight: 700; }
+.tri .for { color: var(--muted); font-size: 0.9rem; }
+.tri .go { justify-self: start; }
+
+/* zdjęcia na żywo */
+.flow { display: grid; gap: 10px; }
+.shot { appearance: none; width: 100%; text-align: left; cursor: pointer; display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 14px; align-items: center; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 10px; transition: border-color .4s; }
+.shot.reading, .shot.upload { border-color: var(--warn); }
+.shot.failed, .shot.error { border-color: var(--hot); }
+.pic { position: relative; display: block; width: 92px; height: 92px; border-radius: 12px; overflow: hidden; background: var(--bg); }
+.pic img { width: 100%; height: 100%; object-fit: cover; display: block; transition: filter .6s, transform .6s; }
+.pic .ph { position: absolute; inset: 0; display: grid; place-items: center; color: var(--faint); }
+.pic .veil { position: absolute; left: 0; right: 0; top: 0; background: rgb(0 0 0 / 0.5); transition: height .25s; }
+.pic .pct { position: absolute; inset: 0; display: grid; place-items: center; color: #fff; font-weight: 800; font-size: 1.05rem; text-shadow: 0 1px 4px rgb(0 0 0 / 0.5); }
+.pic .scan { position: absolute; left: -10%; right: -10%; height: 34%; top: -34%; background: linear-gradient(to bottom, transparent, color-mix(in srgb, var(--warn) 55%, transparent) 70%, var(--warn) 92%, transparent); pointer-events: none; }
+.pic .grid { position: absolute; inset: 0; background-image: linear-gradient(color-mix(in srgb, var(--warn) 22%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--warn) 22%, transparent) 1px, transparent 1px); background-size: 46px 46px; pointer-events: none; }
+.pic .ok { position: absolute; right: 6px; bottom: 6px; width: 26px; height: 26px; border-radius: 50%; background: var(--accent); color: var(--surface); display: grid; place-items: center; box-shadow: 0 2px 8px rgb(0 0 0 / 0.25); }
+.pic .ok svg { width: 15px; height: 15px; }
+.pic .bad { position: absolute; right: 6px; bottom: 6px; width: 26px; height: 26px; border-radius: 50%; background: var(--hot); color: var(--surface); display: grid; place-items: center; font-weight: 800; }
+.shot.queued .pic img { filter: grayscale(0.85) brightness(0.92); }
+.shot.reading .pic img { transform: scale(1.06); }
+.info { display: grid; gap: 4px; min-width: 0; }
+.info .nm { display: flex; align-items: center; gap: 7px; font-weight: 700; font-size: 0.95rem; min-width: 0; }
+.info .nm::before { content: ""; flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--cc); }
+.info .nm span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.info .what { font-size: 0.9rem; color: var(--muted); overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.shot.done .info .what { color: var(--ink); font-weight: 600; }
+.shot.failed .info .what, .shot.error .info .what { color: var(--hot); }
+.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+.steps i { height: 5px; border-radius: 99px; background: var(--line); position: relative; overflow: hidden; }
+.steps i.on { background: var(--accent); }
+.steps i.now { background: var(--warn-soft); }
+.steps i.now::after { content: ""; position: absolute; inset: 0; width: 45%; border-radius: 99px; background: var(--warn); }
+.steps i.bad { background: var(--hot); }
+.legend3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; color: var(--faint); font-size: 0.72rem; }
+.time { display: block; color: var(--faint); font-size: 0.8rem; }
+.calm { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 0.92rem; background: var(--surface); border: 1px dashed var(--line); border-radius: var(--r); padding: 14px 16px; }
+.calm svg { width: 20px; height: 20px; color: var(--accent); flex: none; }
+.runerr { color: var(--hot); font-size: 0.9rem; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .shot.reading .pic .scan { animation: scan 1.7s cubic-bezier(.45, 0, .55, 1) infinite; }
+  .shot.reading .pic .grid { animation: gridfade 1.7s ease-in-out infinite; }
+  .shot.queued .pic { animation: breathe 2.4s ease-in-out infinite; }
+  .steps i.now::after { animation: slide 1.3s ease-in-out infinite; }
+  .shot.pop .pic .ok { animation: pop .55s cubic-bezier(.2, 1.6, .4, 1) both; }
+  .shot.pop { animation: glow 1.2s ease-out both; }
+  .shot.enter { animation: enter .45s cubic-bezier(.2, .9, .3, 1) both; }
+  .spin { animation: spin .8s linear infinite; }
+}
+@keyframes scan { from { top: -34%; } to { top: 100%; } }
+@keyframes gridfade { 0%, 100% { opacity: 0.15; } 50% { opacity: 0.6; } }
+@keyframes breathe { 0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--warn) 0%, transparent); } 50% { box-shadow: 0 0 0 4px color-mix(in srgb, var(--warn) 35%, transparent); } }
+@keyframes slide { from { transform: translateX(-100%); } to { transform: translateX(230%); } }
+@keyframes pop { from { transform: scale(0); } to { transform: scale(1); } }
+@keyframes glow { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 45%, transparent); } 100% { box-shadow: 0 0 0 14px color-mix(in srgb, var(--accent) 0%, transparent); } }
+@keyframes enter { from { opacity: 0; transform: translateY(-10px) scale(0.98); } to { opacity: 1; transform: none; } }
+@keyframes spin { to { transform: rotate(360deg); } }
+.spin { width: 13px; height: 13px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; display: inline-block; flex: none; }
+
+/* wykres: zdjęcia według przedmiotu */
+.seg { display: inline-grid; grid-auto-flow: column; gap: 2px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 3px; margin-left: auto; }
+.seg button { appearance: none; border: 0; background: none; color: var(--muted); font-weight: 600; font-size: 0.8rem; padding: 4px 9px; border-radius: 7px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); }
+.chart { display: grid; gap: 12px; padding: 14px 16px; }
+.crow { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 10px; align-items: center; }
+.crow .cn { font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; gap: 7px; min-width: 0; }
+.crow .cn::before { content: ""; flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--cc); }
+.crow .cn span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.crow .cv { font-size: 0.9rem; font-weight: 700; text-align: right; }
+.crow .cv small { color: var(--faint); font-weight: 500; }
+.track { grid-column: 1 / -1; height: 12px; border-radius: 99px; background: var(--bg); display: flex; overflow: hidden; }
+.track i { height: 100%; transition: width .8s cubic-bezier(.2, .8, .2, 1); }
+.track i.d { background: var(--accent); }
+.track i.w { background: var(--warn); }
+.track i.f { background: var(--hot); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; color: var(--muted); font-size: 0.8rem; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+.totals { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 0.9rem; color: var(--muted); }
+.totals b { color: var(--ink); font-size: 1.05rem; }
+
+/* notatki: foldery i dni */
 .row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; align-items: center; padding: 12px 0; border-top: 1px solid var(--line); }
-.card > .row:first-child { border-top: 0; }
 button.row { appearance: none; width: 100%; text-align: left; background: none; border-width: 1px 0 0; border-style: solid; border-color: var(--line); cursor: pointer; }
-.card > button.row:first-child { border-top: 0; }
+.card > .row:first-child, .card > button.row:first-child { border-top: 0; }
 .row .nm { display: grid; gap: 2px; min-width: 0; }
 .row .nm b { font-weight: 600; display: flex; align-items: center; gap: 8px; }
 .row .nm b::before { content: ""; flex: none; width: 9px; height: 9px; border-radius: 50%; background: var(--cc); }
 .row .nm span { color: var(--muted); font-size: 0.9rem; }
-.row .lv { color: var(--accent); font-weight: 700; }
-.row.now { margin-inline: -10px; padding-inline: 10px; border-radius: 10px; background: var(--accent-soft); }
 .row .chev { color: var(--faint); font-size: 1.3rem; line-height: 1; }
-
-.state { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; font-size: 0.92rem; color: var(--accent); font-weight: 600; border: 1px solid var(--accent); background: var(--accent-soft); border-radius: 12px; padding: 10px 14px; }
-.state.err { color: var(--hot); border-color: var(--hot); background: var(--surface); }
-.state.wait { color: var(--muted); border-color: var(--line); background: var(--surface); }
-.spin { width: 13px; height: 13px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; display: inline-block; flex: none; }
-@media (prefers-reduced-motion: no-preference) { .spin { animation: spin .8s linear infinite; } }
-@keyframes spin { to { transform: rotate(360deg); } }
-
-.day { padding: 14px 16px; display: grid; gap: 12px; }
+.fh { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px; align-items: center; }
+.fh .back { appearance: none; border: 1px solid var(--line); background: var(--surface); font-weight: 600; font-size: 0.9rem; padding: 7px 12px; border-radius: 10px; cursor: pointer; }
+.fh .t { display: grid; min-width: 0; }
+.fh .t b { font-size: 1.15rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fh .t span { color: var(--muted); font-size: 0.88rem; }
+.day { padding: 14px 16px; display: grid; gap: 12px; scroll-margin-top: 130px; }
 .day .dh { display: grid; gap: 2px; }
 .day .dh small { color: var(--muted); font-size: 0.86rem; }
 .day .dh h3 { font-size: 1.15rem; font-weight: 700; }
@@ -100,11 +200,10 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
 .th.pend img { opacity: 0.55; }
 .th .bd { position: absolute; right: 4px; bottom: 4px; min-width: 20px; height: 20px; padding: 0 5px; border-radius: 99px; background: var(--surface); color: var(--muted); font-size: 0.72rem; font-weight: 700; display: grid; place-items: center; }
 .th .bd.err { color: var(--hot); }
-.st { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; font-size: 0.9rem; color: var(--muted); }
-.st.err { color: var(--hot); }
 .tools { display: flex; flex-wrap: wrap; gap: 6px; }
-.tools button, .st button { appearance: none; border: 1px solid var(--line); background: var(--surface); color: var(--accent); font-weight: 600; font-size: 0.85rem; padding: 5px 11px; border-radius: 99px; cursor: pointer; }
+.tools button { appearance: none; border: 1px solid var(--line); background: var(--surface); color: var(--accent); font-weight: 600; font-size: 0.85rem; padding: 5px 11px; border-radius: 99px; cursor: pointer; }
 .more { appearance: none; border: 0; background: none; padding: 0; color: var(--accent); font-weight: 600; cursor: pointer; justify-self: start; }
+.wait { color: var(--warn); font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; gap: 8px; }
 
 .md { font-size: 0.97rem; line-height: 1.6; min-width: 0; overflow-wrap: anywhere; display: grid; gap: 10px; }
 .md h4 { font-size: 1.02rem; margin-top: 8px; }
@@ -127,47 +226,72 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
 .lb .lbar { display: flex; gap: 8px; justify-content: space-between; padding: 10px 16px; }
 .lb .lbar button { appearance: none; border: 1px solid rgb(255 255 255 / 0.25); background: rgb(255 255 255 / 0.08); color: #fff; font-weight: 600; padding: 8px 14px; border-radius: 10px; cursor: pointer; }
 .lb .lbar button.del { color: #ffb4ab; }
-.lb .pic { flex: 1; min-height: 0; overflow: auto; display: grid; place-items: center; color: #fff; }
+.lb .lpic { flex: 1; min-height: 0; overflow: auto; display: grid; place-items: center; }
 .lb img { max-width: 100%; max-height: 100%; cursor: zoom-in; }
-.lb.zoom .pic { place-items: start; }
+.lb.zoom .lpic { place-items: start; }
 .lb.zoom img { max-width: none; max-height: none; width: 230%; cursor: zoom-out; }
 .file { position: fixed; left: -200px; top: 0; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 </style>
 </head>
 <body>
 <header class="bar"><div class="in">
-  <button type="button" id="back" hidden>‹ Wszystkie</button>
-  <div class="tt"><small>SimpleAGH</small><b id="title">Notatki z zajęć</b><span id="sub" hidden></span></div>
+  <div class="top"><span class="brand">SimpleAGH · notatki z zajęć</span><a class="home" href="https://claude.ai/artifact/GEHBVvxFZPSqFgtywBrXMj" target="_blank" rel="noopener">Nauka ↗</a></div>
+  <div class="tabs" role="tablist" aria-label="Widok">
+    <button class="tab" type="button" role="tab" id="tab-aparat" aria-controls="pane-aparat" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8.5A2.5 2.5 0 0 1 5.5 6h1.6l1.4-2h7l1.4 2h1.6A2.5 2.5 0 0 1 21 8.5v9a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17.5z"/><circle cx="12" cy="13" r="3.6"/></svg>Aparat<span class="cnt" id="cnt" hidden></span></button>
+    <button class="tab" type="button" role="tab" id="tab-notatki" aria-controls="pane-notatki" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3h7l5 5v11.5A1.5 1.5 0 0 1 17.5 21h-10A1.5 1.5 0 0 1 6 19.5v-15A1.5 1.5 0 0 1 7.5 3z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg>Notatki</button>
+  </div>
 </div></header>
-<main id="main"><p class="hint">Wczytuję…</p></main>
+<main>
+  <section class="pane" id="pane-aparat" role="tabpanel" aria-labelledby="tab-aparat">
+    <div id="shoot"></div>
+    <section class="sec" aria-live="polite">
+      <div class="sec-h"><h2>Zdjęcia</h2><span class="aside" id="flow-aside"></span></div>
+      <div class="flow" id="flow"></div>
+    </section>
+    <section class="sec">
+      <div class="sec-h"><h2>Ile zdjęć z czego</h2><div class="seg" id="range"><button type="button" data-r="week" aria-pressed="true">Ten tydzień</button><button type="button" data-r="all" aria-pressed="false">Semestr</button></div></div>
+      <div class="card chart" id="chart"></div>
+    </section>
+  </section>
+  <section class="pane" id="pane-notatki" role="tabpanel" aria-labelledby="tab-notatki" hidden></section>
+  <section class="pane" id="pane-setup" hidden></section>
+</main>
 <div class="lb" id="lb" role="dialog" aria-label="Zdjęcie z zajęć" hidden>
   <div class="lbar"><button type="button" id="lb-x">Zamknij</button><button type="button" class="del" id="lb-del">Usuń zdjęcie</button></div>
-  <div class="pic"><img id="lb-img" alt="Zdjęcie z zajęć"></div>
+  <div class="lpic"><img id="lb-img" alt="Zdjęcie z zajęć"></div>
 </div>
 <input type="file" class="file" id="cam" accept="image/*" capture="environment" tabindex="-1" aria-hidden="true">
 <input type="file" class="file" id="gal" accept="image/*" multiple tabindex="-1" aria-hidden="true">
 <script>
 (function () {
   "use strict";
-  var OWNER = "Juzu01", REPO = "simpleagh-notatki", BRANCH = "main", LS = "notatki-token";
+  var OWNER = "Juzu01", REPO = "simpleagh-notatki", BRANCH = "main", LS = "notatki-token", LS_F = "notatki-folder", LS_T = "notatki-tab";
+  var API = "https://api.github.com/repos/" + OWNER + "/" + REPO + "/";
   var KIND_L = { wyklad: "wykład", cwiczenia: "ćwiczenia", lab: "laboratorium" };
   var DAY_L = ["niedziela", "poniedziałek", "wtorek", "środa", "czwartek", "piątek", "sobota"];
   var MON_G = ["stycznia", "lutego", "marca", "kwietnia", "maja", "czerwca", "lipca", "sierpnia", "września", "października", "listopada", "grudnia"];
   var DK = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   var PHOTO = /^photos\/([A-Za-z0-9_-]+)\/(\d{4}-\d{2}-\d{2})\/([A-Za-z0-9_-]+)\.jpg$/;
   var CAM_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8.5A2.5 2.5 0 0 1 5.5 6h1.6l1.4-2h7l1.4 2h1.6A2.5 2.5 0 0 1 21 8.5v9a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17.5z"/><circle cx="12" cy="13" r="3.6"/></svg>';
+  var CHECK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
   var $ = function (id) { return document.getElementById(id); };
-  var main = $("main"), titleEl = $("title"), subEl = $("sub"), back = $("back"), cam = $("cam"), gal = $("gal");
+  var paneA = $("pane-aparat"), paneN = $("pane-notatki"), paneS = $("pane-setup"), tabA = $("tab-aparat"), tabN = $("tab-notatki"), cnt = $("cnt");
+  var shootBox = $("shoot"), flowBox = $("flow"), flowAside = $("flow-aside"), chartBox = $("chart"), cam = $("cam"), gal = $("gal");
   var lb = $("lb"), lbImg = $("lb-img"), lbDel = $("lb-del");
 
-  /* klucz: z kodu QR (#t=...) albo wklejony; trzymany tylko w tym telefonie */
+  /* klucz: z kodu QR (#t=...) albo wklejony; zostaje tylko w tym telefonie */
   var TOKEN = "";
   try { TOKEN = localStorage.getItem(LS) || ""; } catch (e) {}
   var m = /[#&]t=([A-Za-z0-9_]+)/.exec(location.hash);
   if (m) { TOKEN = m[1]; try { localStorage.setItem(LS, TOKEN); } catch (e) {} history.replaceState(null, "", location.pathname); }
+  var startTab = /^#(aparat|notatki)$/.exec(location.hash);   // link z SimpleAGH otwiera konkretną zakładkę
+  function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+  function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
 
-  var CFG = null, INDEX = { notes: {} }, TREE = null, RUN = null, idxSha = null, cfgSha = null;
-  var local = [], chain = Promise.resolve(), blobs = {}, view = { k: "home" }, target = null, openDays = {}, lbPath = null, wantDel = false, timer = null, authErr = false, netErr = false;
+  var CFG = null, INDEX = { notes: {} }, TREE = null, RUN = null, JOB = null, RUNSET = {}, idxSha = null, cfgSha = null;
+  var local = [], chain = Promise.resolve(), blobs = {}, tab = startTab ? startTab[1] : lsGet(LS_T) === "notatki" ? "notatki" : "aparat";
+  var view = { k: "home" }, target = lsGet(LS_F), openDays = {}, lbPath = null, wantDel = false, timer = null, authErr = false, netErr = false;
+  var range = "week", cards = {}, prevStage = {}, firstFlow = true;
 
   function el(tag, attrs, kids) {
     var e = document.createElement(tag);
@@ -182,56 +306,81 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
     return e;
   }
   function btn(cls, text, fn, kids) { var b = el("button", { class: cls, type: "button", text: kids ? null : text }, kids); b.addEventListener("click", fn); return b; }
-  function camBtn(cls, text, fn) { var b = btn(cls, null, fn, [el("span", { html: CAM_SVG }).firstChild, text]); return b; }
+  function svg(s) { return el("span", { html: s }).firstChild; }
   function pad(n) { return String(n).padStart(2, "0"); }
   function isoDay(d) { return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
   function dayLabel(iso) { var d = new Date(iso + "T12:00"); return DAY_L[d.getDay()] + ", " + d.getDate() + " " + MON_G[d.getMonth()]; }
+  function shortDay(iso) { var t = isoDay(new Date()), y = isoDay(new Date(Date.now() - 864e5)); return iso === t ? "dziś" : iso === y ? "wczoraj" : dayLabel(iso); }
   function mins(t) { var p = t.split(":"); return (+p[0]) * 60 + (+p[1]); }
   function nNotes(n) { return n === 1 ? "1 notatka" : n + (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? " notatki" : " notatek"); }
-  function F(id) { return (CFG.folders || []).filter(function (f) { return f.id === id; })[0]; }
+  function nPhotos(n) { return n === 1 ? "1 zdjęcie" : n + (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? " zdjęcia" : " zdjęć"); }
+  function F(id) { return CFG ? (CFG.folders || []).filter(function (f) { return f.id === id; })[0] : null; }
   function fname(f) { return (CFG.names || {})[f.course] || f.course; }
   function fcolor(f) { return "--cc:var(--c-" + ((CFG.colors || {})[f.course] || "pl1") + ")"; }
+  function clock(sec) { sec = Math.max(0, Math.round(sec)); return Math.floor(sec / 60) + ":" + pad(sec % 60); }
 
   /* --- GitHub --- */
+  function headers(raw, json) {
+    var h = { Authorization: "Bearer " + TOKEN, "X-GitHub-Api-Version": "2022-11-28", Accept: raw ? "application/vnd.github.raw+json" : "application/vnd.github+json" };
+    if (json) h["Content-Type"] = "application/json";
+    return h;
+  }
   function api(path, o) {
     o = o || {};
-    var h = { Authorization: "Bearer " + TOKEN, "X-GitHub-Api-Version": "2022-11-28", Accept: o.raw ? "application/vnd.github.raw+json" : "application/vnd.github+json" };
-    if (o.body) h["Content-Type"] = "application/json";
-    return fetch("https://api.github.com/repos/" + OWNER + "/" + REPO + "/" + path, { method: o.method || "GET", headers: h, body: o.body ? JSON.stringify(o.body) : undefined, cache: "no-store" })
+    return fetch(API + path, { method: o.method || "GET", headers: headers(o.raw, !!o.body), body: o.body ? JSON.stringify(o.body) : undefined, cache: "no-store" })
       .then(function (r) {
         if (r.status === 401) throw { code: "auth" };
         if (!r.ok) throw { code: "http", status: r.status };
         return o.raw === "blob" ? r.blob() : o.raw ? r.text() : r.json();
       }, function () { throw { code: "net" }; });
   }
+  function put(path, body, onProgress) {  // XHR, żeby był prawdziwy postęp wysyłania
+    return new Promise(function (res, rej) {
+      var x = new XMLHttpRequest(), h = headers(false, true);
+      x.open("PUT", API + path);
+      for (var k in h) x.setRequestHeader(k, h[k]);
+      if (onProgress && x.upload) x.upload.onprogress = function (e) { if (e.lengthComputable) onProgress(e.loaded / e.total); };
+      x.onload = function () { if (x.status >= 200 && x.status < 300) res(); else rej({ code: x.status === 401 ? "auth" : "http", status: x.status }); };
+      x.onerror = function () { rej({ code: "net" }); };
+      x.send(JSON.stringify(body));
+    });
+  }
   function rawJson(path) { return api("contents/" + path + "?ref=" + BRANCH, { raw: true }).then(JSON.parse); }
+  function treeOf(ref) {
+    return api("git/trees/" + ref + "?recursive=1").then(function (t) {
+      var out = {}; (t.tree || []).forEach(function (x) { if (x.type === "blob") out[x.path] = x.sha; }); return out;
+    });
+  }
+  function active(r) { return r && /^(queued|in_progress|waiting|pending|requested)$/.test(r.status); }
 
   function refresh() {
     clearTimeout(timer);
-    if (!TOKEN) { draw(); return Promise.resolve(); }
-    return api("git/trees/" + BRANCH + "?recursive=1").then(function (t) {
-      var tree = {};
-      (t.tree || []).forEach(function (x) { if (x.type === "blob") tree[x.path] = x.sha; });
-      TREE = tree; authErr = false; netErr = false;
+    if (!TOKEN) { render(); return Promise.resolve(); }
+    return Promise.all([treeOf(BRANCH), api("actions/runs?per_page=3").catch(function () { return null; })]).then(function (r) {
+      TREE = r[0]; authErr = false; netErr = false;
+      var runs = (r[1] && r[1].workflow_runs) || [];
+      RUN = runs.filter(active).pop() || runs[0] || null;   // najstarszy trwający, a jak nic nie trwa: ostatni
       var jobs = [];
-      if (tree["folders.json"] !== cfgSha) jobs.push(rawJson("folders.json").then(function (c) { CFG = c; cfgSha = tree["folders.json"]; }));
-      if (tree["index.json"] !== idxSha) jobs.push(rawJson("index.json").then(function (x) { INDEX = x || { notes: {} }; idxSha = tree["index.json"]; }));
-      jobs.push(api("actions/runs?per_page=3").then(function (r) { RUN = (r.workflow_runs || [])[0] || null; }, function () { RUN = null; }));
+      if (TREE["folders.json"] !== cfgSha) jobs.push(rawJson("folders.json").then(function (c) { CFG = c; cfgSha = TREE["folders.json"]; }));
+      if (TREE["index.json"] !== idxSha) jobs.push(rawJson("index.json").then(function (x) { INDEX = x || { notes: {} }; idxSha = TREE["index.json"]; }));
+      if (active(RUN)) {
+        jobs.push(api("actions/runs/" + RUN.id + "/jobs").then(function (j) { JOB = (j.jobs || [])[0] || null; }, function () { JOB = null; }));
+        if (!RUNSET[RUN.head_sha]) jobs.push(treeOf(RUN.head_sha).then(function (t) { RUNSET[RUN.head_sha] = t; }, function () {}));
+      } else JOB = null;
       return Promise.all(jobs);
     }).then(function () {
       local = local.filter(function (e) { return !(e.state === "sent" && TREE[e.path]); });
     }, function (e) {
       if (e && e.code === "auth") authErr = true; else netErr = true;
-    }).then(function () { draw(); later(); });
+    }).then(function () { render(); later(); });
   }
-  function busy() { return RUN && (RUN.status === "queued" || RUN.status === "in_progress" || RUN.status === "waiting" || RUN.status === "pending"); }
   function later() {  // odświeżaj, póki coś się dzieje
-    var any = busy() || local.some(function (e) { return e.state !== "error"; }) || photos().some(function (p) { return p.status === "pending"; });
-    if (any || netErr) timer = setTimeout(refresh, netErr ? 20000 : 12000);
+    var any = active(RUN) || local.some(function (e) { return e.state !== "error"; }) || photos().some(function (p) { return p.status === "pending"; });
+    if (any || netErr) timer = setTimeout(refresh, netErr ? 20000 : 7000);
   }
   document.addEventListener("visibilitychange", function () { if (!document.hidden) refresh(); });
 
-  /* --- zdjęcia w repo --- */
+  /* --- zdjęcia w repo i ich etap --- */
   function photos() {
     var out = [];
     if (!TREE) return out;
@@ -241,7 +390,24 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
       var status = TREE["boards/" + base + ".txt"] ? "done" : TREE["boards/" + base + ".failed"] ? "failed" : "pending";
       out.push({ path: p, folder: mm[1], day: mm[2], name: mm[3], status: status, thumb: TREE["thumbs/" + base + ".jpg"] ? "thumbs/" + base + ".jpg" : null });
     });
-    return out.sort(function (a, b) { return a.name < b.name ? -1 : 1; });
+    return out.sort(function (a, b) { return (a.day + a.name) < (b.day + b.name) ? -1 : 1; });
+  }
+  function runStep() {  // który krok workflow teraz trwa
+    if (!active(RUN)) return null;
+    if (RUN.status !== "in_progress" || !JOB) return "start";
+    var s = (JOB.steps || []).filter(function (x) { return x.status === "in_progress"; })[0];
+    if (!s) return "start";
+    if (s.name === "Notatki ze zdjęć") return "claude";
+    if (s.name === "Zapisz") return "save";
+    if (s.name === "Narzędzia") return "tools";
+    return "start";
+  }
+  function stage(p) {  // upload | error | queued | reading | done | failed
+    if (p.local) return p.local.state === "error" ? "error" : p.local.state === "sent" ? "queued" : "upload";
+    if (p.status === "done") return "done";
+    if (p.status === "failed") return "failed";
+    if (active(RUN) && RUNSET[RUN.head_sha] && RUNSET[RUN.head_sha][p.path]) return "reading";
+    return "queued";
   }
   function blobUrl(path) {
     if (blobs[path]) return Promise.resolve(blobs[path]);
@@ -272,25 +438,26 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
   function addFiles(files, fid) {
     Array.prototype.slice.call(files || []).forEach(function (f) {
       var t = when(f), day = isoDay(t), name = pad(t.getHours()) + pad(t.getMinutes()) + pad(t.getSeconds()) + "-" + Math.random().toString(36).slice(2, 6);
-      var e = { folder: fid, day: day, name: name, path: "photos/" + fid + "/" + day + "/" + name + ".jpg", url: URL.createObjectURL(f), file: f, state: "prep" };
+      var e = { folder: fid, day: day, name: name, path: "photos/" + fid + "/" + day + "/" + name + ".jpg", url: URL.createObjectURL(f), file: f, state: "prep", pct: 0 };
       local.push(e);
       chain = chain.then(function () { return upload(e); });
     });
-    draw();
+    render();
   }
   function upload(e) {
-    e.state = "prep"; e.err = null; draw();
+    e.state = "prep"; e.err = null; e.pct = 0; render();
     return decode(e.file).then(function (im) { return toJpeg(im, 2800, 0.86); }).then(b64).then(function (data) {
-      e.state = "upload"; draw();
+      e.state = "upload"; render();
       var body = { message: "Zdjęcie: " + e.folder + " " + e.day, content: data, branch: BRANCH };
-      return api("contents/" + e.path, { method: "PUT", body: body }).catch(function (err) {
-        if (err && err.status === 409) return new Promise(function (r) { setTimeout(r, 1500); }).then(function () { return api("contents/" + e.path, { method: "PUT", body: body }); });
+      var prog = function (x) { e.pct = x; progress(e); };
+      return put("contents/" + e.path, body, prog).catch(function (err) {
+        if (err && err.status === 409) return new Promise(function (r) { setTimeout(r, 1500); }).then(function () { return put("contents/" + e.path, body, prog); });
         throw err;
       });
-    }).then(function () { e.state = "sent"; e.file = null; draw(); setTimeout(refresh, 2500); }, function (err) {
+    }).then(function () { e.state = "sent"; e.file = null; e.pct = 1; render(); setTimeout(refresh, 2500); }, function (err) {
       e.state = "error";
-      e.err = err && err.code === "decode" ? "Nie da się odczytać tego pliku. Zrób zdjęcie jeszcze raz." : err && err.code === "auth" ? "Klucz do repozytorium nie działa." : err && err.code === "net" ? "Brak internetu. Zdjęcie czeka w telefonie, kliknij „Wyślij jeszcze raz”." : "Nie udało się wysłać zdjęcia (" + (err && err.status || "?") + ").";
-      draw();
+      e.err = err && err.code === "decode" ? "Nie da się odczytać tego pliku. Zrób zdjęcie jeszcze raz." : err && err.code === "auth" ? "Klucz do repozytorium nie działa." : err && err.code === "net" ? "Brak internetu. Zdjęcie czeka w telefonie, dotknij, żeby wysłać jeszcze raz." : "Nie udało się wysłać zdjęcia (" + (err && err.status || "?") + "). Dotknij, żeby spróbować jeszcze raz.";
+      render();
     });
   }
   function delPhoto(p) {
@@ -342,108 +509,307 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
   }
   function noTitle(t) { return t.replace(/^\s*#\s+.*(\n|$)/, ""); }
 
-  /* --- wyświetlanie --- */
-  function head(t, sub, showBack) { titleEl.textContent = t; subEl.textContent = sub || ""; subEl.hidden = !sub; back.hidden = !showBack; }
-  function draw() {
-    main.textContent = "";
-    if (!TOKEN || authErr) return drawSetup();
-    if (!CFG) { head("Notatki z zajęć"); main.appendChild(el("p", { class: "hint", text: netErr ? "Brak połączenia z GitHubem. Spróbuję jeszcze raz za chwilę." : "Wczytuję…" })); return; }
-    var f = view.k === "folder" && F(view.f);
-    if (f) drawFolder(f); else drawHome();
+  /* --- zakładki --- */
+  function setTab(t) {
+    tab = t; lsSet(LS_T, t);
+    tabA.setAttribute("aria-selected", t === "aparat" ? "true" : "false");
+    tabN.setAttribute("aria-selected", t === "notatki" ? "true" : "false");
+    render(); window.scrollTo(0, 0);
   }
-  function stateLine(folder) {
-    var ps = photos().filter(function (p) { return !folder || p.folder === folder; });
-    var pend = ps.filter(function (p) { return p.status === "pending"; }).length;
-    var up = local.filter(function (e) { return (!folder || e.folder === folder) && (e.state === "prep" || e.state === "upload"); }).length;
-    if (up) return el("div", { class: "state" }, [el("span", { class: "spin" }), "Wysyłam " + (up === 1 ? "zdjęcie" : up + " zdjęcia") + "…"]);
-    if (busy()) return el("div", { class: "state" }, [el("span", { class: "spin" }), "Claude robi notatki. Zwykle 2–4 minuty na zdjęcie, możesz zamknąć stronę."]);
-    if (!pend) return null;
-    if (RUN && RUN.conclusion === "failure") return el("div", { class: "state err" }, ["Ostatnie robienie notatek się nie udało.", el("a", { href: RUN.html_url, target: "_blank", rel: "noopener", text: "Szczegóły ↗" })]);
-    return el("div", { class: "state wait" }, [el("span", { class: "spin" }), "Zdjęcie czeka, aż Claude zacznie (do minuty)…"]);
+  tabA.addEventListener("click", function () { setTab("aparat"); });
+  tabN.addEventListener("click", function () { view = { k: "home" }; setTab("notatki"); });
+
+  function render() {
+    var setup = !TOKEN || authErr;
+    paneS.hidden = !setup; paneA.hidden = setup || tab !== "aparat"; paneN.hidden = setup || tab !== "notatki";
+    if (setup) return drawSetup();
+    var busyN = items().filter(function (it) { return /^(upload|queued|reading)$/.test(it.stage); }).length;
+    cnt.hidden = !busyN; cnt.textContent = busyN;
+    if (!CFG) {
+      var msg = netErr ? "Brak połączenia z GitHubem. Spróbuję jeszcze raz za chwilę." : "Wczytuję…";
+      shootBox.textContent = ""; shootBox.appendChild(el("p", { class: "hint", text: msg }));
+      paneN.textContent = ""; paneN.appendChild(el("p", { class: "hint", text: msg }));
+      return;
+    }
+    if (tab === "aparat") { drawShoot(); drawFlow(); drawChart(); }
+    else drawNotes();
   }
+
   function drawSetup() {
-    head("Notatki z zajęć");
+    paneS.textContent = "";
     var inp = el("input", { type: "password", id: "tok", placeholder: "github_pat_…", autocomplete: "off", autocapitalize: "off", spellcheck: "false", "aria-label": "Klucz do repozytorium" });
-    var save = btn("go big", "Zapisz klucz", function () {
+    var save = btn("go", "Zapisz klucz", function () {
       var v = inp.value.trim(); if (!v) return;
-      TOKEN = v; authErr = false; try { localStorage.setItem(LS, v); } catch (e) {}
-      main.textContent = ""; main.appendChild(el("p", { class: "hint", text: "Sprawdzam klucz…" })); refresh();
+      TOKEN = v; authErr = false; lsSet(LS, v);
+      paneS.textContent = ""; paneS.appendChild(el("p", { class: "hint", text: "Sprawdzam klucz…" })); refresh();
     });
-    main.appendChild(el("section", { class: "setup" }, [
+    paneS.appendChild(el("div", { class: "setup" }, [
       el("p", { text: authErr ? "Klucz do repozytorium z notatkami nie działa (wygasł albo jest zły). Wklej nowy." : "Ta strona zapisuje zdjęcia w Twoim prywatnym repozytorium z notatkami. Potrzebuje do niego klucza; zostaje tylko w tym telefonie." }),
       el("ol", {}, [el("li", { text: "Na laptopie uruchom: ~/SimpleAGH/tools/notes_qr.sh i zeskanuj kod aparatem telefonu." }), el("li", { text: "Albo wklej klucz tutaj." })]),
-      inp, el("div", { class: "acts" }, [save])
+      inp, el("div", {}, [save])
     ]));
   }
-  function snap(fid) { cam.click(); target = fid; view = { k: "folder", f: fid }; draw(); window.scrollTo(0, 0); }
-  function drawHome() {
-    head("Notatki z zajęć", null, false);
-    var sl = stateLine(); if (sl) main.appendChild(sl);
+
+  /* --- Aparat: wybór zajęć i spust --- */
+  function nowClass() {
     var now = new Date(), tk = DK[now.getDay()], nm = now.getHours() * 60 + now.getMinutes();
     var today = (CFG.schedule || []).filter(function (x) { return x.day === tk && F(x.folder); }).sort(function (a, b) { return mins(a.start) - mins(b.start); });
-    if (today.length) {
-      var card = el("div", { class: "card" });
-      today.forEach(function (x) {
-        var f = F(x.folder), on = nm >= mins(x.start) - 15 && nm <= mins(x.end) + 30;
-        var lv = !on ? null : nm > mins(x.end) ? "przed chwilą · " : "teraz · ";
-        card.appendChild(el("div", { class: "row" + (on ? " now" : ""), style: fcolor(f) }, [
-          el("div", { class: "nm" }, [el("b", { text: fname(f) }), el("span", {}, [lv ? el("span", { class: "lv", text: lv }) : null, x.start + "–" + x.end + " · " + KIND_L[f.kind]])]),
-          camBtn("go", "Zdjęcie", function () { snap(f.id); })
-        ]));
+    var on = today.filter(function (x) { return nm >= mins(x.start) - 15 && nm <= mins(x.end) + 30; })[0] || null;
+    return { today: today, on: on, nm: nm };
+  }
+  var autoPicked = false, shootSig = "";
+  function drawShoot() {
+    var nc = nowClass();
+    if (!autoPicked) { autoPicked = true; if (nc.on) target = nc.on.folder; }
+    if (target && !F(target)) target = null;
+    var sig = [target, cfgSha, nc.on && nc.on.folder, Math.floor(nc.nm / 5)].join("|");
+    if (sig === shootSig && shootBox.firstChild) return;
+    shootSig = sig;
+    shootBox.textContent = "";
+    var box = el("div", { class: "shoot" });
+    if (nc.today.length) {
+      var chips = el("div", { class: "chips", role: "group", "aria-label": "Dzisiejsze zajęcia" });
+      nc.today.forEach(function (x) {
+        var f = F(x.folder), on = nc.on === x, past = nc.nm > mins(x.end) + 30;
+        var c = btn("chip", null, function () { target = f.id; lsSet(LS_F, f.id); render(); }, [
+          el("b", { text: fname(f) }),
+          el("span", {}, [on ? el("span", { class: "lv", text: nc.nm > mins(x.end) ? "przed chwilą · " : "teraz · " }) : null, x.start + "–" + x.end + " · " + KIND_L[f.kind] + (past ? " · było" : "")])
+        ]);
+        c.setAttribute("style", fcolor(f)); c.setAttribute("aria-pressed", target === f.id ? "true" : "false");
+        chips.appendChild(c);
       });
-      main.appendChild(el("section", { class: "sec" }, [el("h2", { text: "Dziś" }), el("p", { class: "sub", text: "Zrób zdjęcie tablicy, a Claude zrobi z niego notatkę." }), card]));
+      box.appendChild(el("p", { class: "hint", text: "Dziś" })); box.appendChild(chips);
     }
+    var sel = el("select", { class: "pick", id: "pick", "aria-label": "Zajęcia" });
+    sel.appendChild(el("option", { value: "", text: nc.today.length ? "Inne zajęcia…" : "Wybierz zajęcia…" }));
+    (CFG.folders || []).forEach(function (f) { var o = el("option", { value: f.id, text: fname(f) + " – " + KIND_L[f.kind] }); if (f.id === target) o.selected = true; sel.appendChild(o); });
+    sel.addEventListener("change", function () { if (sel.value) { target = sel.value; lsSet(LS_F, target); render(); } });
+    box.appendChild(sel);
+    var f = F(target);
+    var shutter = btn("shutter", null, function () { if (target) cam.click(); }, [el("span", {}, [svg(CAM_SVG)])]);
+    shutter.setAttribute("aria-label", "Zrób zdjęcie");
+    if (!f) shutter.disabled = true;
+    box.appendChild(el("div", { class: "trigger" }, [
+      shutter,
+      el("div", { class: "tri" }, [
+        el("b", { text: f ? "Zrób zdjęcie tablicy" : "Najpierw wybierz zajęcia" }),
+        el("span", { class: "for", text: f ? fname(f) + " · " + KIND_L[f.kind] : "Zdjęcie trafi do notatki z tych zajęć." }),
+        f ? btn("go alt", "Z galerii", function () { gal.click(); }) : null
+      ])
+    ]));
+    shootBox.appendChild(box);
+  }
+
+  /* --- Aparat: każde zdjęcie na żywo (karty zostają w DOM, żeby animacje się nie restartowały) --- */
+  function items() {
+    var today = isoDay(new Date()), yest = isoDay(new Date(Date.now() - 864e5)), out = [];
+    local.forEach(function (e) { if (!(TREE && TREE[e.path])) out.push({ key: e.path, folder: e.folder, day: e.day, name: e.name, local: e }); });
+    photos().forEach(function (p) { p.key = p.path; out.push(p); });
+    out.forEach(function (it) { it.stage = stage(it); });
+    out = out.filter(function (it) { return it.stage !== "done" || it.day === today || it.day === yest || prevStage[it.key]; });
+    var ord = { upload: 0, error: 0, reading: 1, queued: 2, failed: 3, done: 4 };
+    return out.sort(function (a, b) { return (ord[a.stage] - ord[b.stage]) || ((b.day + b.name) < (a.day + a.name) ? -1 : 1); }).slice(0, 14);
+  }
+  var STAGE_TXT = {
+    upload: function (it) { return it.local.state === "prep" ? "Przygotowuję zdjęcie…" : "Wysyłam… " + Math.round((it.local.pct || 0) * 100) + "%"; },
+    queued: function () { return active(RUN) ? "W kolejce – Claude kończy poprzednie zdjęcia" : "Czeka, aż Claude zacznie (kilka sekund)"; },
+    reading: function () { var s = runStep(); return s === "claude" ? "Claude czyta tablicę i pisze notatkę" : s === "save" ? "Zapisuję notatkę…" : s === "tools" ? "Claude się uruchamia…" : "Serwer GitHuba startuje…"; },
+    done: function (it) { var n = (INDEX.notes || {})[it.folder + "/" + it.day]; return n ? n.title : "Gotowe"; },
+    failed: function () { return "Claude nie odczytał tego zdjęcia. Zrób je jeszcze raz."; },
+    error: function (it) { return it.local.err; }
+  };
+  function stepsOf(st) {
+    var cls = { upload: ["now", "", ""], error: ["bad", "", ""], queued: ["on", "", ""], reading: ["on", "now", ""], done: ["on", "on", "on"], failed: ["on", "bad", ""] }[st];
+    return el("span", { class: "steps", "aria-hidden": "true" }, cls.map(function (c) { return el("i", { class: c }); }));
+  }
+  function since(it) {
+    if (it.stage !== "reading" || !RUN) return null;
+    var s = JOB && (JOB.steps || []).filter(function (x) { return x.name === "Notatki ze zdjęć" && x.started_at; })[0];
+    return s ? Date.parse(s.started_at) : RUN.run_started_at ? Date.parse(RUN.run_started_at) : null;
+  }
+  function buildCard(it) {
+    var f = F(it.folder) || { course: it.folder, kind: "" };
+    var b = el("button", { class: "shot", type: "button", style: fcolor(f) });
+    var pic = el("span", { class: "pic" }, [el("span", { class: "ph", html: CAM_SVG })]);
+    b._pic = pic; b._img = null;
+    var info = el("span", { class: "info" }, [
+      el("span", { class: "nm" }, [el("span", { text: fname(f) + " · " + (KIND_L[f.kind] || "") })]),
+      el("span", { class: "what" }),
+      el("span", { class: "steps" }),
+      el("span", { class: "time" })
+    ]);
+    b.appendChild(pic); b.appendChild(info);
+    b._what = info.children[1]; b._steps = info.children[2]; b._time = info.children[3];
+    b.addEventListener("click", function () {
+      var cur = b._it; if (!cur) return;
+      if (cur.stage === "error" && cur.local && cur.local.file) { chain = chain.then(function () { return upload(cur.local); }); return; }
+      if (cur.stage === "done") { openNote(cur.folder, cur.day); return; }
+      if (!cur.local) openLb(cur);
+    });
+    var src = it.local ? Promise.resolve(it.local.url) : it.thumb ? blobUrl(it.thumb) : blobUrl(it.path);
+    src.then(function (u) { var im = el("img", { src: u, alt: "" }); pic.replaceChild(im, pic.firstChild); b._img = im; }, function () {});
+    return b;
+  }
+  function updateCard(b, it) {
+    var old = b._it ? b._it.stage : null;
+    b._it = it;
+    var st = it.stage;
+    b.className = "shot " + st + (old && old !== st && st === "done" ? " pop" : "") + (!old && !firstFlow ? " enter" : "");
+    b._what.textContent = STAGE_TXT[st](it);
+    if (old !== st) { var steps = stepsOf(st); b._steps.parentNode.replaceChild(steps, b._steps); b._steps = steps; }
+    var t0 = since(it); b._since = t0;
+    b._time.textContent = st === "done" ? shortDay(it.day) + " · dotknij, żeby przeczytać" : st === "queued" || st === "failed" ? shortDay(it.day) : "";
+    // nakładki na zdjęciu (tylko przy zmianie etapu, żeby skanowanie się nie restartowało)
+    if (old === st && st !== "upload") return labelCard(b, it);
+    [".scan", ".grid", ".veil", ".pct", ".ok", ".bad"].forEach(function (s) { var x = b._pic.querySelector(s); if (x) x.remove(); });
+    if (st === "reading") { b._pic.appendChild(el("span", { class: "grid" })); b._pic.appendChild(el("span", { class: "scan" })); }
+    if (st === "upload") { var v = el("span", { class: "veil" }); v.style.height = (100 - Math.round((it.local.pct || 0) * 100)) + "%"; b._pic.appendChild(v); b._pic.appendChild(el("span", { class: "pct", text: it.local.state === "prep" ? "…" : Math.round((it.local.pct || 0) * 100) + "%" })); }
+    if (st === "done") b._pic.appendChild(el("span", { class: "ok", html: CHECK_SVG }));
+    if (st === "failed" || st === "error") b._pic.appendChild(el("span", { class: "bad", text: "!" }));
+    labelCard(b, it);
+  }
+  function labelCard(b, it) { b.setAttribute("aria-label", fname(F(it.folder) || { course: it.folder }) + ": " + b._what.textContent); }
+  function progress(e) {  // płynny pasek wysyłania bez przerysowania całej listy
+    var b = cards[e.path]; if (!b) return;
+    var v = b._pic.querySelector(".veil"), p = b._pic.querySelector(".pct"), pc = Math.round((e.pct || 0) * 100);
+    if (v) v.style.height = (100 - pc) + "%";
+    if (p) p.textContent = pc + "%";
+    b._what.textContent = "Wysyłam… " + pc + "%";
+  }
+  function drawFlow() {
+    var list = items(), seen = {};
+    ["calm", "runerr"].forEach(function (c) { var x = flowBox.querySelector("." + c); if (x) x.remove(); });
+    list.forEach(function (it, i) {
+      var b = cards[it.key] || (cards[it.key] = buildCard(it));
+      updateCard(b, it); seen[it.key] = 1;
+      if (flowBox.children[i] !== b) flowBox.insertBefore(b, flowBox.children[i] || null);
+      prevStage[it.key] = it.stage;
+    });
+    Object.keys(cards).forEach(function (k) { if (!seen[k]) { cards[k].remove(); delete cards[k]; } });
+    var busyN = list.filter(function (it) { return /^(upload|queued|reading)$/.test(it.stage); }).length;
+    if (!list.length) flowBox.appendChild(el("div", { class: "calm" }, [svg(CAM_SVG), "Tu zobaczysz każde zdjęcie: jak się wysyła, jak Claude je czyta i kiedy notatka jest gotowa."]));
+    else if (!busyN) flowBox.appendChild(el("div", { class: "calm" }, [svg(CHECK_SVG), "Wszystko gotowe. Dotknij zdjęcia, żeby przeczytać notatkę."]));
+    if (!active(RUN) && RUN && RUN.conclusion === "failure" && list.some(function (it) { return it.stage === "queued"; }))
+      flowBox.appendChild(el("p", { class: "runerr" }, ["Ostatnie robienie notatek się nie udało. ", el("a", { href: RUN.html_url, target: "_blank", rel: "noopener", text: "Szczegóły ↗" })]));
+    flowAside.textContent = busyN ? "w toku: " + busyN : "";
+    firstFlow = false;
+    tick();
+  }
+  function tick() {
+    Object.keys(cards).forEach(function (k) {
+      var b = cards[k]; if (!b._since || !b._it || b._it.stage !== "reading") return;
+      b._time.textContent = "trwa " + clock((Date.now() - b._since) / 1000) + " · zwykle ok. 0:40 na zdjęcie";
+    });
+  }
+  setInterval(tick, 1000);
+
+  /* --- Aparat: wykres zdjęć według przedmiotu --- */
+  $("range").addEventListener("click", function (e) {
+    var b = e.target.closest("button"); if (!b) return;
+    range = b.getAttribute("data-r");
+    Array.prototype.forEach.call(this.children, function (x) { x.setAttribute("aria-pressed", x === b ? "true" : "false"); });
+    drawChart();
+  });
+  function drawChart() {
+    var now = new Date(), mon = new Date(now.getFullYear(), now.getMonth(), now.getDate() - ((now.getDay() + 6) % 7)), from = range === "week" ? isoDay(mon) : "0000";
+    var per = {}, courses = [];
+    (CFG.folders || []).forEach(function (f) { if (!per[f.course]) { per[f.course] = { d: 0, w: 0, f: 0, notes: 0 }; courses.push(f.course); } });
+    photos().forEach(function (p) {
+      if (p.day < from) return;
+      var f = F(p.folder); if (!f) return;
+      var st = stage(p), c = per[f.course];
+      if (st === "done") c.d++; else if (st === "failed") c.f++; else c.w++;
+    });
+    local.forEach(function (e) { if (!(TREE && TREE[e.path]) && e.day >= from) { var f = F(e.folder); if (f) per[f.course].w++; } });
+    Object.keys(INDEX.notes || {}).forEach(function (k) { var n = INDEX.notes[k], f = F(n.folder); if (f && n.day >= from) per[f.course].notes++; });
+    var max = 1, tot = { d: 0, w: 0, f: 0, notes: 0 };
+    courses.forEach(function (c) { var x = per[c]; max = Math.max(max, x.d + x.w + x.f); tot.d += x.d; tot.w += x.w; tot.f += x.f; tot.notes += x.notes; });
+    var rows = chartBox._rows || (chartBox._rows = {});
+    if (!chartBox._built) {
+      chartBox.textContent = "";
+      chartBox._tot = el("div", { class: "totals" }); chartBox.appendChild(chartBox._tot);
+      courses.forEach(function (c) {
+        var f = { course: c }, r = el("div", { class: "crow", style: fcolor(f) }, [
+          el("div", { class: "cn" }, [el("span", { text: fname(f) })]), el("div", { class: "cv" }),
+          el("div", { class: "track" }, [el("i", { class: "d" }), el("i", { class: "w" }), el("i", { class: "f" })])
+        ]);
+        rows[c] = r; chartBox.appendChild(r);
+      });
+      chartBox.appendChild(el("div", { class: "legend" }, [
+        el("span", {}, [el("i", { style: "background:var(--accent)" }), "notatka gotowa"]),
+        el("span", {}, [el("i", { style: "background:var(--warn)" }), "w toku"]),
+        el("span", {}, [el("i", { style: "background:var(--hot)" }), "nie udało się"])
+      ]));
+      chartBox._built = true;
+    }
+    chartBox._tot.textContent = "";
+    chartBox._tot.appendChild(el("span", {}, [el("b", { text: String(tot.d + tot.w + tot.f) }), " " + nPhotos(tot.d + tot.w + tot.f).replace(/^\d+ /, "")]));
+    chartBox._tot.appendChild(el("span", {}, [el("b", { text: String(tot.notes) }), " " + nNotes(tot.notes).replace(/^\d+ /, "")]));
+    if (tot.w) chartBox._tot.appendChild(el("span", {}, [el("b", { text: String(tot.w) }), " w toku"]));
+    courses.forEach(function (c) {
+      var x = per[c], r = rows[c], n = x.d + x.w + x.f, segs = r.querySelectorAll(".track i");
+      requestAnimationFrame(function () {
+        segs[0].style.width = (x.d / max * 100) + "%"; segs[1].style.width = (x.w / max * 100) + "%"; segs[2].style.width = (x.f / max * 100) + "%";
+      });
+      r.children[1].textContent = "";
+      r.children[1].appendChild(document.createTextNode(String(n)));
+      if (x.notes) r.children[1].appendChild(el("small", { text: " · " + nNotes(x.notes) }));
+      r.setAttribute("aria-label", fname({ course: c }) + ": " + nPhotos(n) + ", gotowe " + x.d + ", w toku " + x.w);
+    });
+  }
+
+  /* --- Notatki: foldery i dni --- */
+  function openNote(folder, day) {
+    view = { k: "folder", f: folder }; openDays[folder + "/" + day] = true; setTab("notatki");
+    var c = document.getElementById("day-" + folder + "-" + day); if (c) c.scrollIntoView({ block: "start" });
+  }
+  function drawNotes() {
+    paneN.textContent = "";
+    var f = view.k === "folder" && F(view.f);
+    if (f) drawFolder(f); else drawFolders();
+  }
+  function drawFolders() {
     var all = el("div", { class: "card" });
     (CFG.folders || []).forEach(function (f) {
       var n = Object.keys(INDEX.notes || {}).filter(function (k) { return INDEX.notes[k].folder === f.id; }).length;
-      all.appendChild(btn("row", null, function () { view = { k: "folder", f: f.id }; draw(); window.scrollTo(0, 0); }, [
+      all.appendChild(btn("row", null, function () { view = { k: "folder", f: f.id }; render(); window.scrollTo(0, 0); }, [
         el("span", { class: "nm", style: fcolor(f) }, [el("b", { text: fname(f) }), el("span", { text: KIND_L[f.kind] + (n ? " · " + nNotes(n) : "") })]),
         el("span", { class: "chev", "aria-hidden": "true", text: "›" })
       ]));
     });
-    main.appendChild(el("section", { class: "sec" }, [el("h2", { text: "Wszystkie zajęcia" }), all]));
+    paneN.appendChild(el("section", { class: "sec" }, [el("div", { class: "sec-h" }, [el("h2", { text: "Wszystkie zajęcia" })]), all]));
   }
   function drawFolder(f) {
-    head(fname(f), KIND_L[f.kind], true);
-    var sl = stateLine(f.id); if (sl) main.appendChild(sl);
-    main.appendChild(el("div", { class: "acts" }, [
-      camBtn("go big", "Zrób zdjęcie", function () { cam.click(); target = f.id; }),
-      btn("go big alt", "Z galerii", function () { gal.click(); target = f.id; })
+    paneN.appendChild(el("div", { class: "fh" }, [
+      btn("back", "‹ Wszystkie", function () { view = { k: "home" }; render(); window.scrollTo(0, 0); }),
+      el("div", { class: "t" }, [el("b", { text: fname(f) }), el("span", { text: KIND_L[f.kind] })])
     ]));
     var byDay = {};
     function D(d) { return byDay[d] || (byDay[d] = []); }
     Object.keys(INDEX.notes || {}).forEach(function (k) { if (INDEX.notes[k].folder === f.id) D(INDEX.notes[k].day); });
     photos().forEach(function (p) { if (p.folder === f.id) D(p.day).push(p); });
-    local.forEach(function (e) { if (e.folder === f.id && !(TREE && TREE[e.path])) D(e.day).push({ path: e.path, name: e.name, local: e, status: "local" }); });
     var days = Object.keys(byDay).sort().reverse();
     if (!days.length) {
-      main.appendChild(el("p", { class: "hint", text: "Jeszcze nie ma notatek. Na zajęciach zrób zdjęcie tablicy. Zdjęcia z jednego dnia trafiają do jednej notatki, a Claude dopisuje do niej każde kolejne." }));
+      paneN.appendChild(el("p", { class: "hint", text: "Jeszcze nie ma notatek z tych zajęć. Zrób zdjęcie tablicy w zakładce Aparat." }));
       return;
     }
     days.forEach(function (d, di) {
-      var key = f.id + "/" + d, note = (INDEX.notes || {})[key], ps = byDay[d].sort(function (a, b) { return a.name < b.name ? -1 : 1; });
+      var key = f.id + "/" + d, note = (INDEX.notes || {})[key], ps = byDay[d];
       var open = key in openDays ? openDays[key] : di === 0;
-      var card = el("div", { class: "card day" }, [el("div", { class: "dh" }, [el("small", { text: dayLabel(d) }), el("h3", { text: note ? note.title : "Nowa notatka" })])]);
+      var card = el("div", { class: "card day", id: "day-" + f.id + "-" + d }, [el("div", { class: "dh" }, [el("small", { text: dayLabel(d) }), el("h3", { text: note ? note.title : "Nowa notatka" })])]);
       if (ps.length) {
         var strip = el("div", { class: "strip" });
         ps.forEach(function (p, i) {
-          var pend = p.status !== "done", bad = p.status === "failed" || (p.local && p.local.state === "error");
-          var th = btn("th" + (pend ? " pend" : ""), null, function () { if (!p.local) openLb(p); }, [el("span", { text: "…" })]);
+          var st = stage(p), pend = st !== "done";
+          var th = btn("th" + (pend ? " pend" : ""), null, function () { openLb(p); }, [el("span", { text: "…" })]);
           th.setAttribute("aria-label", "Zdjęcie " + (i + 1));
-          if (pend) th.appendChild(el("span", { class: "bd" + (bad ? " err" : ""), text: bad ? "!" : "…" }));
-          var src = p.local ? Promise.resolve(p.local.url) : p.thumb ? blobUrl(p.thumb) : null;
-          if (src) src.then(function (u) { th.replaceChild(el("img", { src: u, alt: "" }), th.firstChild); }, function () {});
+          if (pend) th.appendChild(el("span", { class: "bd" + (st === "failed" ? " err" : ""), text: st === "failed" ? "!" : "…" }));
+          (p.thumb ? blobUrl(p.thumb) : blobUrl(p.path)).then(function (u) { th.replaceChild(el("img", { src: u, alt: "" }), th.firstChild); }, function () {});
           strip.appendChild(th);
         });
         card.appendChild(strip);
-        ps.forEach(function (p, i) {
-          var t = null, err = false, again = null;
-          if (p.local) {
-            t = { prep: "Przygotowuję zdjęcie…", upload: "Wysyłam zdjęcie…", sent: "Wysłane." }[p.local.state];
-            if (p.local.state === "error") { t = p.local.err; err = true; if (p.local.file) again = btn("", "Wyślij jeszcze raz", function () { chain = chain.then(function () { return upload(p.local); }); }); }
-          } else if (p.status === "failed") { t = "Claude nie odczytał tego zdjęcia. Zrób je jeszcze raz."; err = true; }
-          if (t) card.appendChild(el("div", { class: "st" + (err ? " err" : "") }, [el("span", { text: (ps.length > 1 ? "Zdjęcie " + (i + 1) + ": " : "") + t }), again]));
-        });
+        var waiting = ps.filter(function (p) { return /^(queued|reading)$/.test(stage(p)); }).length;
+        if (waiting) card.appendChild(el("div", { class: "wait" }, [el("span", { class: "spin" }), "Claude dopisuje " + nPhotos(waiting) + " do tej notatki…"]));
       }
       if (note) {
         if (open) {
@@ -452,16 +818,16 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
             try { navigator.clipboard.writeText(note.md).then(function () { copyB.textContent = "Skopiowane"; }, function () { copyB.textContent = "Nie udało się"; }); } catch (e) { copyB.textContent = "Nie udało się"; }
           });
           var redoB = btn("", "Zrób od nowa", function () { redoB.disabled = true; redoB.textContent = "Zlecone"; redo(f.id, d); });
-          card.appendChild(el("div", { class: "tools" }, [copyB, redoB, di ? btn("", "Zwiń", function () { openDays[key] = false; draw(); }) : null]));
-        } else card.appendChild(btn("more", "Pokaż notatkę", function () { openDays[key] = true; draw(); }));
+          card.appendChild(el("div", { class: "tools" }, [copyB, redoB, di ? btn("", "Zwiń", function () { openDays[key] = false; render(); }) : null]));
+        } else card.appendChild(btn("more", "Pokaż notatkę", function () { openDays[key] = true; render(); }));
       }
-      main.appendChild(card);
+      paneN.appendChild(card);
     });
   }
 
   /* --- podgląd zdjęcia --- */
   function openLb(p) {
-    lbPath = p; wantDel = false; lbDel.textContent = "Usuń zdjęcie";
+    lbPath = p; wantDel = false; lbDel.textContent = "Usuń zdjęcie"; lbDel.hidden = stage(p) === "reading";
     lbImg.removeAttribute("src"); lb.classList.remove("zoom"); lb.hidden = false;
     blobUrl(p.path).then(function (u) { if (lbPath === p) lbImg.src = u; }, function () {});
   }
@@ -470,16 +836,16 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
   lbImg.addEventListener("click", function () { lb.classList.toggle("zoom"); });
   lbDel.addEventListener("click", function () {
     if (!lbPath) return;
-    if (!wantDel) { wantDel = true; lbDel.textContent = "Na pewno? Kliknij jeszcze raz"; return; }
+    if (!wantDel) { wantDel = true; lbDel.textContent = "Na pewno? Dotknij jeszcze raz"; return; }
     var p = lbPath; closeLb(); delPhoto(p);
   });
   document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !lb.hidden) closeLb(); });
-  back.addEventListener("click", function () { view = { k: "home" }; draw(); window.scrollTo(0, 0); });
   [cam, gal].forEach(function (inp) {
     inp.addEventListener("change", function () { if (inp.files && inp.files.length && target) addFiles(inp.files, target); inp.value = ""; });
   });
   window.addEventListener("beforeunload", function (e) { if (local.some(function (x) { return x.state === "prep" || x.state === "upload"; })) { e.preventDefault(); e.returnValue = ""; } });
 
+  setTab(tab);
   refresh();
 })();
 </script>
