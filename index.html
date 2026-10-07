@@ -375,6 +375,7 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
       RUN = runs.filter(active).pop() || runs[0] || null;   // najstarszy trwający, a jak nic nie trwa: ostatni
       var jobs = [];
       if (TREE["folders.json"] !== cfgSha) jobs.push(rawJson("folders.json").then(function (c) { CFG = c; cfgSha = TREE["folders.json"]; }));
+      if (TREE["progress.json"] && TREE["progress.json"] !== progSha) jobs.push(rawJson("progress.json").then(function (x) { PROG = x; progSha = TREE["progress.json"]; applyProgress(); }, function () {}));
       if (TREE["index.json"] !== idxSha) jobs.push(rawJson("index.json").then(function (x) { INDEX = x || { notes: {} }; idxSha = TREE["index.json"]; }));
       if (active(RUN)) {
         jobs.push(api("actions/runs/" + RUN.id + "/jobs").then(function (j) { JOB = (j.jobs || [])[0] || null; }, function () { JOB = null; }));
@@ -579,7 +580,48 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
       set(); setTimeout(set, 600);
       if (naukaObs) naukaObs.disconnect();
       if (window.ResizeObserver) { naukaObs = new ResizeObserver(set); naukaObs.observe(d.body); }
+      d.addEventListener("change", function (e) { if (!applying && e.target.matches && e.target.matches("input.tick")) onTick(); });  // faza bąbelkowa: strona już zsynchronizowała duplikaty
+      applyProgress();
     } catch (e) { fr.style.height = "85vh"; }
+  }
+
+  /* --- odhaczenia z Nauki: progress.json w prywatnym repo, wspólne dla Safari, ikonki i każdego urządzenia --- */
+  var PROG = null, progSha = null, applying = false, progTimer = null, progBusy = false, progAgain = false;
+  function tickDoc() { var fr = paneK.querySelector("iframe"); try { return fr && fr.contentDocument && fr.contentDocument.querySelector("input.tick") ? fr.contentDocument : null; } catch (e) { return null; } }
+  function applyProgress() {  // stan z repo → kratki na stronie (kliknięcie, żeby strona sama policzyła i przekreśliła)
+    var d = tickDoc(); if (!d || !PROG || !PROG.done) return;
+    applying = true;
+    try {
+      var seen = {};
+      d.querySelectorAll("input.tick[data-id]").forEach(function (cb) {
+        var id = cb.getAttribute("data-id"); if (seen[id]) return; seen[id] = 1;
+        if (cb.checked !== !!PROG.done[id]) cb.click();
+      });
+    } finally { applying = false; }
+  }
+  function onTick() {  // kratki na stronie → stan → repo (tematy, których już nie ma na stronie, zostają)
+    var d = tickDoc(); if (!d) return;
+    var next = Object.assign({}, (PROG && PROG.done) || {}), now = new Date().toISOString();
+    d.querySelectorAll("input.tick[data-id]").forEach(function (cb) {
+      var id = cb.getAttribute("data-id");
+      if (cb.checked) { if (!next[id]) next[id] = now; } else delete next[id];
+    });
+    PROG = { done: next, updated: now };
+    clearTimeout(progTimer); progTimer = setTimeout(saveProgress, 1200);
+  }
+  function saveProgress() {
+    if (progBusy) { progAgain = true; return; }
+    progBusy = true;
+    var json = JSON.stringify(PROG, null, 0);
+    var body = { message: "Odhaczone w Nauce", content: btoa(unescape(encodeURIComponent(json))), branch: BRANCH };
+    if (progSha) body.sha = progSha;
+    api("contents/progress.json", { method: "PUT", body: body }).then(function (r) {
+      progSha = r && r.content && r.content.sha || progSha; if (TREE) TREE["progress.json"] = progSha;
+    }, function (e) {
+      if (e && (e.status === 409 || e.status === 422)) return rawJson("progress.json").then(function (x) {  // ktoś zmienił w międzyczasie: połącz i spróbuj jeszcze raz
+        progSha = null; return api("contents/progress.json?ref=" + BRANCH).then(function (meta) { progSha = meta.sha; PROG = { done: Object.assign({}, x.done || {}, PROG.done), updated: new Date().toISOString() }; progAgain = true; });
+      });
+    }).catch(function () {}).then(function () { progBusy = false; if (progAgain) { progAgain = false; saveProgress(); } });
   }
 
   function drawSetup() {
