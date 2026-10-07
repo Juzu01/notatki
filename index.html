@@ -239,6 +239,11 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
 .md .disp { text-align: center; font-size: 1.12rem; line-height: 1.9; padding: 4px 0; overflow-x: auto; }
 .md .fig { font-size: 0.92rem; color: var(--muted); font-style: italic; padding-left: 14px; border-left: 2px solid var(--line); }
 .md .res { font-weight: 600; }
+.md figure.fg { margin: 4px 0; display: grid; gap: 6px; justify-items: center; }
+.md .fgb { appearance: none; border: 0; padding: 0; background: none; cursor: zoom-in; display: block; max-width: 100%; }
+.md .fgb img { display: block; max-width: 100%; max-height: 60vh; min-height: 80px; border-radius: 6px; background: var(--bg); box-shadow: 0 1px 0 var(--line), 0 0 0 1px var(--line); }
+.md figure.nofig .fgb { display: none; }
+.md figcaption { font-size: 0.92rem; color: var(--muted); text-align: center; max-width: 52ch; line-height: 1.5; }
 .md .zrow { text-align: right; margin-top: -8px; line-height: 1; }
 .md .res::after { content: " ∎"; color: var(--faint); font-weight: 400; }
 .md aside.mn { font-family: var(--font); font-size: 0.86rem; line-height: 1.55; color: var(--muted); padding-left: 18px; position: relative; max-width: 58ch; }
@@ -571,6 +576,11 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
       if ((mm = /^\s*(#{1,4})\s+(.*)$/.exec(ln))) { flushP(); flushL(); var h = "h" + Math.max(4, Math.min(6, mm[1].length + 2)); out.push("<" + h + ">" + inline(esc(mm[2])) + "</" + h + ">"); return; }
       if ((mm = /^\s*[-*•]\s+(.*)$/.exec(ln))) { flushP(); if (!list || list.t !== "ul") { flushL(); list = { t: "ul", items: [] }; } list.items.push(mm[1]); return; }
       if ((mm = /^\s*\d+[.)]\s+(.*)$/.exec(ln))) { flushP(); if (!list || list.t !== "ol") { flushL(); list = { t: "ol", items: [] }; } list.items.push(mm[1]); return; }
+      if ((mm = /^\s*!\[([^\]]*)\]\((figs\/[A-Za-z0-9_\/.-]+\.jpg)\)(.*)$/.exec(ln))) {   // wycinek ze zdjęcia
+        flushP(); flushL();
+        out.push('<figure class="fg"><button type="button" class="fgb" data-fig="' + esc(mm[2]) + '" aria-label="Powiększ rysunek"><img alt="' + esc(mm[1]) + '"></button><figcaption>' + inline(esc(mm[1] + mm[3])) + "</figcaption></figure>");
+        return;
+      }
       if (/^\s*(\{z\d{1,2}\}\s*)+$/.test(ln)) { flushP(); flushL(); out.push('<p class="zrow">' + inline(esc(ln.trim())) + "</p>"); return; }   // samo „{z1}” w linii: źródło pod elementem
       if (/^\s*Rys\.\s*\d+\./.test(ln)) { flushP(); flushL(); out.push('<p class="fig">' + inline(esc(ln.trim())) + "</p>"); return; }
       if (/^\s*Wynik:/.test(ln)) { flushP(); flushL(); out.push('<p class="res">' + inline(esc(ln.trim())) + "</p>"); return; }
@@ -1017,6 +1027,7 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
           var mdBox = el("div", { class: "md", html: md(noTitle(note.md || "")) }), hs = mdBox.querySelectorAll("h4");
           if (hs.length >= 3) card.appendChild(el("nav", { class: "toc", "aria-label": "Spis" }, Array.prototype.map.call(hs, function (h) { return btn("", h.textContent, function () { h.scrollIntoView({ behavior: "smooth", block: "start" }); }); })));
           card.appendChild(mdBox);
+          mdBox.querySelectorAll("[data-fig]").forEach(function (b) { blobUrl(b.getAttribute("data-fig")).then(function (u) { b.firstChild.src = u; }, function () { b.closest("figure").classList.add("nofig"); }); });
           if (mdBox.querySelector(".dag, .mn, .zref")) card.appendChild(el("p", { class: "legend-n", text: "† dopisane przez Claude'a, nie było na zdjęciach · zdj. N – zdjęcie, z którego to pochodzi (dotknij, żeby je otworzyć)" }));
           var copyB = btn("", "Kopiuj", function () {
             try { navigator.clipboard.writeText(note.md).then(function () { copyB.textContent = "Skopiowane"; }, function () { copyB.textContent = "Nie udało się"; }); } catch (e) { copyB.textContent = "Nie udało się"; }
@@ -1039,6 +1050,8 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
     return out;
   }
   document.addEventListener("click", function (e) {
+    var fg = e.target.closest && e.target.closest(".fgb");
+    if (fg) { lbPath = null; wantDel = false; lbDel.hidden = true; lb.classList.remove("zoom"); lbImg.src = fg.firstChild.src || ""; lb.hidden = false; return; }
     var z = e.target.closest && e.target.closest(".zref");
     if (z) { var card = z.closest(".day"), ps = card && card._ps, p = ps && ps[+z.getAttribute("data-z") - 1]; if (p) openLb(p); return; }
     var b = e.target.closest && e.target.closest(".s-next, .s-all"); if (!b) return;
