@@ -218,6 +218,7 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
 .md h4 { font-size: 1.1rem; font-weight: 800; margin-top: 12px; padding-bottom: 6px; border-bottom: 2px solid var(--accent-soft); scroll-margin-top: 140px; }
 .md h5, .md h6 { font-size: 0.98rem; margin-top: 4px; }
 .md strong { font-weight: 700; }
+.md sub, .md sup { font-size: 0.72em; line-height: 0; }
 .md mark { background: var(--hl); color: inherit; border-radius: 4px; padding: 0 3px; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
 .md ul, .md ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
 .md ul > li { position: relative; padding-left: 18px; }
@@ -533,6 +534,8 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
   function inline(s) {  // s już escapowane
     return s.replace(/`([^`]+)`/g, "<code>$1</code>")
       .replace(/==([^=]+)==/g, "<mark>$1</mark>")
+      .replace(/_\{([^{}]{1,40})\}/g, "<sub>$1</sub>").replace(/\^\{([^{}]{1,40})\}/g, "<sup>$1</sup>")   // lim_{x→2}, D_{f}, x^{n+1}
+      .replace(/\b([A-Za-z])_([A-Za-z0-9])\b/g, "$1<sub>$2</sub>")   // D_f, a_n
       .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
       .replace(/(^|[\s(])\*([^*\s][^*]*)\*/g, "$1<em>$2</em>")
       .replace(/\s*\(uzupełnione\)/g, ' <span class="add" title="Tego nie było na tablicy – dopisał Claude">uzupełnione</span>')
@@ -711,9 +714,11 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
     var hasKeyInUrl = /[#&]t=/.test(location.hash), copyB = btn("go alt", "Skopiuj klucz", function () {
       try { navigator.clipboard.writeText(TOKEN).then(function () { copyB.textContent = "Skopiowany"; }, function () { copyB.textContent = "Nie udało się"; }); } catch (e) { copyB.textContent = "Nie udało się"; }
     });
+    if (lsGet("notatki-keybox-off")) return null;
+    var closeB = btn("go alt", "Zamknij", function () { lsSet("notatki-keybox-off", "1"); var kb = $("keybox-slot"); kb.textContent = ""; });
     return el("div", { class: "calm keybox" }, [el("span", { text: hasKeyInUrl
       ? "Ikonka na ekranie początkowym: dodaj ją teraz z tej strony (Udostępnij → „Do ekranu początkowego”), wtedy klucz przejdzie do niej sam. Starą ikonkę bez klucza usuń."
-      : "Ikonka na ekranie początkowym prosi o klucz? Skopiuj go tutaj, otwórz ikonkę i dotknij „Wklej ze schowka”." }), copyB]);
+      : "Ikonka na ekranie początkowym prosi o klucz? Skopiuj go tutaj, otwórz ikonkę i dotknij „Wklej ze schowka”." }), el("span", { class: "acts" }, [copyB, closeB])]);
   }
 
   /* --- Aparat: wybór zajęć i spust --- */
