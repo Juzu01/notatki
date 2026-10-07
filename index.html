@@ -15,7 +15,7 @@
 <title>Notatki z zajęć</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400;1,8..60,600&display=swap">
 <style>
 /* Notatki z zajęć (SimpleAGH): zdjęcie tablicy z telefonu → prywatne repo na GitHubie → Claude Code w GitHub Actions robi notatkę.
    Dwie zakładki u góry: Aparat (wybór zajęć, spust, każde zdjęcie na żywo: wysyłanie → kolejka → Claude czyta → gotowe, wykres zdjęć według przedmiotu)
@@ -24,6 +24,7 @@
   --bg: #f3f5f3; --surface: #ffffff; --ink: #18211c; --muted: #5c6962; --faint: #89958e; --line: #e1e7e3;
   --accent: #0b6b45; --accent-soft: #e2f1e9; --hot: #b42318; --warn: #b26a00; --warn-soft: #fbefdc; --k-thm: #6a46c8; --k-ex: #2b62c9; --hl: #ffe680;
   --c-ma: #3b6fd8; --c-ha: #7b55d0; --c-dm: #0f8a7e; --c-lcs: #b8860b; --c-ics: #cc4b73; --c-unix: #3f8f34; --c-pl1: #d65a26;
+  --serif: "Source Serif 4", "Iowan Old Style", Charter, Georgia, serif;
   --font: "Figtree", system-ui, -apple-system, "Segoe UI", Roboto, Arial, "Noto Sans Math", sans-serif;
   --r: 16px;
   color-scheme: light;
@@ -213,61 +214,62 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
 .more { appearance: none; border: 0; background: none; padding: 0; color: var(--accent); font-weight: 600; cursor: pointer; justify-self: start; }
 .wait { color: var(--warn); font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; gap: 8px; }
 
-.md { font-size: 1rem; line-height: 1.65; min-width: 0; overflow-wrap: anywhere; display: grid; gap: 12px; }
-.md p { max-width: 62ch; }
-.md h4 { font-size: 1.1rem; font-weight: 800; margin-top: 12px; padding-bottom: 6px; border-bottom: 2px solid var(--accent-soft); scroll-margin-top: 140px; }
-.md h5, .md h6 { font-size: 0.98rem; margin-top: 4px; }
-.md strong { font-weight: 700; }
+.md { font-family: var(--serif); font-size: 1.06rem; line-height: 1.7; min-width: 0; overflow-wrap: anywhere; display: grid; gap: 14px; color: var(--ink); }
+.md > p:first-child { color: var(--muted); font-style: italic; }
+.md p { max-width: 64ch; }
+.md h4 { font-family: var(--font); font-size: 1.12rem; font-weight: 700; letter-spacing: -0.005em; margin-top: 18px; scroll-margin-top: 140px; }
+.md h5, .md h6 { font-family: var(--font); font-size: 1rem; margin-top: 6px; }
+.md strong { font-weight: 600; }
+.md em { font-style: italic; }
 .md sub, .md sup { font-size: 0.72em; line-height: 0; }
-.md mark { background: var(--hl); color: inherit; border-radius: 4px; padding: 0 3px; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
-.md ul, .md ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
-.md ul > li { position: relative; padding-left: 18px; }
-.md ul > li::before { content: ""; position: absolute; left: 4px; top: 0.66em; width: 6px; height: 6px; border-radius: 50%; background: var(--k, var(--accent)); }
-.md ol { counter-reset: st; }
-.md ol > li { counter-increment: st; display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 10px; align-items: start; }
-.md ol > li::before { content: counter(st); width: 24px; height: 24px; border-radius: 50%; background: var(--k, var(--accent)); color: var(--surface); font-size: 0.78rem; font-weight: 800; display: grid; place-items: center; margin-top: 1px; }
-.md code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.86em; background: var(--bg); border: 1px solid var(--line); border-radius: 5px; padding: 0 4px; }
-.md pre { margin: 0; background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; overflow-x: auto; }
-.md pre code { border: 0; padding: 0; background: none; font-size: 0.84rem; }
+.md mark { background: var(--hl); color: inherit; border-radius: 3px; padding: 0 2px; }
+.md ul, .md ol { margin: 0; padding-left: 1.4em; display: grid; gap: 4px; }
+.md ul { list-style: none; }
+.md ul > li { position: relative; }
+.md ul > li::before { content: "–"; position: absolute; left: -1.1em; color: var(--faint); }
+.md ol > li::marker { color: var(--muted); font-variant-numeric: tabular-nums; }
+/* elementy jak w podręczniku: nazwa wersalikami, twierdzenie kursywą, przykład i dowód z cienką linią */
+.md .env { display: grid; gap: 8px; }
+.md .env > p:first-child > strong:first-child, .md .env.task strong:first-child { font-family: var(--font); font-variant: small-caps; font-weight: 700; letter-spacing: 0.03em; font-size: 1.04em; }
+.md .env.def > p:first-child > strong:first-child { color: var(--accent); }
+.md .env.thm > p, .md .env.thm li { font-style: italic; }
+.md .env.thm > p:first-child > strong:first-child { font-style: normal; color: var(--k-thm); }
+.md .env.ex, .md .env.proof { padding-left: 14px; border-left: 1px solid var(--line); }
+.md .env.rem > p:first-child > strong:first-child { color: var(--warn); }
+.md .disp { text-align: center; font-size: 1.12rem; line-height: 1.9; padding: 4px 0; overflow-x: auto; }
+.md .fig { font-size: 0.92rem; color: var(--muted); font-style: italic; padding-left: 14px; border-left: 2px solid var(--line); }
+.md .res { font-weight: 600; }
+.md .zrow { text-align: right; margin-top: -8px; line-height: 1; }
+.md .res::after { content: " ∎"; color: var(--faint); font-weight: 400; }
+.md aside.mn { font-family: var(--font); font-size: 0.86rem; line-height: 1.55; color: var(--muted); padding-left: 18px; position: relative; max-width: 58ch; }
+.md aside.mn .mk { position: absolute; left: 4px; top: 0; color: var(--faint); }
+.md .dag { color: var(--faint); margin-left: 1px; cursor: help; }
+.md .ill { color: var(--hot); font-style: italic; font-size: 0.9em; }
+.md .zref { appearance: none; border: 0; background: var(--bg); color: var(--muted); font-family: var(--font); font-size: 0.66rem; font-weight: 700; line-height: 1; padding: 2px 4px; margin-left: 2px; border-radius: 4px; vertical-align: 2px; cursor: pointer; }
+.md .zref::before { content: "zdj. "; font-weight: 500; }
+.md .zref + .zref::before { content: ""; }
+.md code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.86em; background: var(--bg); border-radius: 4px; padding: 0 4px; }
+.md pre { margin: 0; background: var(--bg); border-radius: 8px; padding: 10px 12px; overflow-x: auto; }
+.md pre code { padding: 0; background: none; font-size: 0.84rem; }
 .tw { overflow-x: auto; }
-.md table { border-collapse: separate; border-spacing: 0; font-size: 0.92rem; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
-.md th, .md td { padding: 5px 12px; text-align: center; border-top: 1px solid var(--line); }
-.md th { background: var(--bg); border-top: 0; font-weight: 700; }
-.md td + td, .md th + th { border-left: 1px solid var(--line); }
-/* ramki */
-.md .call { --k: var(--accent); border-radius: 14px; padding: 10px 14px 12px; display: grid; gap: 6px; background: color-mix(in srgb, var(--k) 8%, var(--surface)); border: 1px solid color-mix(in srgb, var(--k) 26%, var(--line)); border-left: 4px solid var(--k); }
-.md .call .ch { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; }
-.md .call .cl { font-size: 0.7rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--k); }
-.md .call .ch b { font-weight: 700; font-size: 1rem; }
-.md .call .cb { display: grid; gap: 8px; }
-.md .call.def { --k: var(--accent); }
-.md .call.thm { --k: var(--k-thm); }
-.md .call.ex { --k: var(--k-ex); }
-.md .call.warn { --k: var(--warn); }
-.md .call.eq { --k: var(--muted); background: var(--surface); }
-.md .call.eq .cb { font-family: "STIX Two Text", "Cambria Math", ui-serif, Georgia, serif; font-size: 1.18rem; text-align: center; line-height: 1.7; }
-.md .call.eq .cb p { max-width: none; }
-.md .call.plain { --k: var(--faint); border-left-style: dashed; background: var(--surface); }
-.md .call.gist { --k: var(--accent); font-size: 1.04rem; background: var(--accent-soft); border-color: var(--accent-soft); }
-.md .call.mem { --k: var(--accent); border: 2px solid var(--accent); background: var(--surface); }
-.md .call.mem ul > li { padding-left: 24px; }
-.md .call.mem ul > li::before { content: "✓"; background: none; width: auto; height: auto; top: 0; left: 2px; color: var(--accent); font-weight: 800; }
-.md .call.task { --k: var(--k-ex); background: var(--surface); border-style: solid; }
-.md .call.task .sol { border-top: 1px dashed color-mix(in srgb, var(--k) 40%, var(--line)); padding-top: 10px; display: grid; gap: 8px; }
-.md .call.task .sol[hidden] { display: none; }
+.md table { border-collapse: collapse; font-size: 0.95rem; margin: 2px auto; border-top: 1.5px solid var(--ink); border-bottom: 1.5px solid var(--ink); }
+.md th, .md td { padding: 4px 14px; text-align: center; }
+.md th { font-weight: 600; border-bottom: 1px solid var(--muted); }
+/* zadania: rozwiązanie odsłaniane krok po kroku */
+.md .env.task .sol { display: grid; gap: 8px; padding-left: 14px; border-left: 1px solid var(--line); }
+.md .env.task .sol[hidden] { display: none; }
 .md .hid { display: none !important; }
 .md .shown { animation: stepin .35s ease-out both; }
-@keyframes stepin { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+@keyframes stepin { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .md .shown { animation: none; } }
-.md .sbar { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 2px; }
-.md .sbar button { appearance: none; border: 0; border-radius: 10px; padding: 7px 12px; font-weight: 700; font-size: 0.86rem; cursor: pointer; background: var(--k); color: var(--surface); }
-.md .sbar button.s-all { background: color-mix(in srgb, var(--k) 12%, var(--surface)); color: var(--k); }
-.md .sbar button:disabled { opacity: 0.55; cursor: default; }
-.md .call.quote { --k: var(--line); background: none; border: 0; border-left: 3px solid var(--line); border-radius: 0; color: var(--muted); }
-.md .add { display: inline-block; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.03em; color: var(--muted); border: 1px dashed var(--faint); border-radius: 99px; padding: 0 6px; line-height: 1.5; vertical-align: 1px; white-space: nowrap; }
-.md .ill { color: var(--hot); font-style: italic; font-size: 0.9em; }
-.toc { display: flex; flex-wrap: wrap; gap: 6px; }
-.toc button { appearance: none; border: 1px solid var(--line); background: var(--bg); color: var(--ink); font-weight: 600; font-size: 0.8rem; padding: 4px 10px; border-radius: 99px; cursor: pointer; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.md .sbar { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; font-family: var(--font); }
+.md .sbar button { appearance: none; border: 0; background: none; padding: 2px 0; font-weight: 600; font-size: 0.9rem; color: var(--accent); text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; cursor: pointer; }
+.md .sbar button.s-all { color: var(--muted); font-weight: 500; }
+.md .sbar button:disabled { color: var(--faint); text-decoration: none; cursor: default; }
+.legend-n { font-size: 0.78rem; color: var(--faint); border-top: 1px solid var(--line); padding-top: 8px; }
+.toc { display: grid; gap: 2px; padding: 2px 0 4px; border-bottom: 1px solid var(--line); }
+.toc button { appearance: none; border: 0; background: none; padding: 3px 0; text-align: left; color: var(--muted); font-weight: 500; font-size: 0.9rem; cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.toc button:hover { color: var(--accent); }
 
 .setup { display: grid; gap: 12px; }
 .setup input { font: inherit; font-size: 0.95rem; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 11px 12px; width: 100%; }
@@ -527,24 +529,30 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
     return api("contents/" + path, { method: "PUT", body: body }).then(function () { setTimeout(refresh, 2500); }, function () { refresh(); });
   }
 
-  /* --- markdown notatek: ramki „> [!DEF] …”, zakreślacz ==…==, kroki z numerami, tabele; wszystko escapowane --- */
+  /* --- markdown notatek, składany jak skrypt z wykładu ---
+     **Definicja 1** (…). / **Twierdzenie 2** / **Przykład 3.** … – element do pustej linii; „:: wzór” – wzór osobno;
+     „Rys. 1.” – opis rysunku; „> …” – dopisek na marginesie; {z3} – odnośnik do zdjęcia; (uzupełnione) – †;
+     **Zadanie 1.** treść / --- / kroki – rozwiązanie odsłaniane krok po kroku. Stare ramki „> [!DEF]” też działają. */
   var CALL = { "DEF": ["def", "Definicja"], "TW": ["thm", "Twierdzenie"], "WZÓR": ["eq", "Wzór"], "WZOR": ["eq", "Wzór"], "PRZYKŁAD": ["ex", "Przykład"], "PRZYKLAD": ["ex", "Przykład"],
     "ZADANIE": ["task", "Zadanie"], "UWAGA": ["warn", "Uwaga"], "PO LUDZKU": ["plain", "Po ludzku"], "SEDNO": ["gist", "W skrócie"], "ZAPAMIĘTAJ": ["mem", "Do zapamiętania"], "ZAPAMIETAJ": ["mem", "Do zapamiętania"] };
+  var ENV = /^\s*\*\*(Definicja|Twierdzenie|Lemat|Wniosek|Własność|Prawo|Reguła|Przykład|Dowód|Uwaga|Obserwacja|Zadanie)\b/;
+  var ENV_K = { Definicja: "def", Twierdzenie: "thm", Lemat: "thm", Wniosek: "thm", Własność: "thm", Prawo: "thm", Reguła: "thm", Przykład: "ex", Dowód: "proof", Uwaga: "rem", Obserwacja: "rem", Zadanie: "task" };
   function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;"); }
   function inline(s) {  // s już escapowane
     return s.replace(/`([^`]+)`/g, "<code>$1</code>")
       .replace(/==([^=]+)==/g, "<mark>$1</mark>")
-      .replace(/_\{([^{}]{1,40})\}/g, "<sub>$1</sub>").replace(/\^\{([^{}]{1,40})\}/g, "<sup>$1</sup>")   // lim_{x→2}, D_{f}, x^{n+1}
-      .replace(/\b([A-Za-z])_([A-Za-z0-9])\b/g, "$1<sub>$2</sub>")   // D_f, a_n
       .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
       .replace(/(^|[\s(])\*([^*\s][^*]*)\*/g, "$1<em>$2</em>")
-      .replace(/\s*\(uzupełnione\)/g, ' <span class="add" title="Tego nie było na tablicy – dopisał Claude">uzupełnione</span>')
-      .replace(/\[nieczytelne\]/g, '<span class="ill">nieczytelne</span>');
+      .replace(/_\{([^{}]{1,40})\}/g, "<sub>$1</sub>").replace(/\^\{([^{}]{1,40})\}/g, "<sup>$1</sup>")   // lim_{x→2}, a_{n+1}, x^{n+1}
+      .replace(/\b([A-Za-z])_([A-Za-z0-9])\b/g, "$1<sub>$2</sub>")   // D_f, a_n
+      .replace(/\s*\(uzupełnione\)/g, '<sup class="dag" title="Dopisane – tego nie było na zdjęciach">†</sup>')
+      .replace(/\[nieczytelne\]/g, '<span class="ill">[nieczytelne]</span>')
+      .replace(/\{z(\d{1,2})\}/g, '<button type="button" class="zref" data-z="$1" title="Zdjęcie $1">$1</button>');
   }
   function plain(lines) {  // nagłówki, listy, tabele, akapity
     var out = [], list = null, para = [], tbl = null;
     function flushP() { if (para.length) { out.push("<p>" + inline(esc(para.join("\n")).replace(/\n/g, "<br>")) + "</p>"); para = []; } }
-    function flushL() { if (list) { out.push("<" + list.t + ">" + list.items.map(function (x) { return "<li><span>" + inline(esc(x)) + "</span></li>"; }).join("") + "</" + list.t + ">"); list = null; } }
+    function flushL() { if (list) { out.push("<" + list.t + ">" + list.items.map(function (x) { return "<li>" + inline(esc(x)) + "</li>"; }).join("") + "</" + list.t + ">"); list = null; } }
     function flushT() {
       if (!tbl) return;
       out.push('<div class="tw"><table>' + tbl.map(function (r, ri) { var t = ri ? "td" : "th"; return "<tr>" + r.map(function (x) { return "<" + t + ">" + inline(esc(x)) + "</" + t + ">"; }).join("") + "</tr>"; }).join("") + "</table></div>");
@@ -563,28 +571,48 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
       if ((mm = /^\s*(#{1,4})\s+(.*)$/.exec(ln))) { flushP(); flushL(); var h = "h" + Math.max(4, Math.min(6, mm[1].length + 2)); out.push("<" + h + ">" + inline(esc(mm[2])) + "</" + h + ">"); return; }
       if ((mm = /^\s*[-*•]\s+(.*)$/.exec(ln))) { flushP(); if (!list || list.t !== "ul") { flushL(); list = { t: "ul", items: [] }; } list.items.push(mm[1]); return; }
       if ((mm = /^\s*\d+[.)]\s+(.*)$/.exec(ln))) { flushP(); if (!list || list.t !== "ol") { flushL(); list = { t: "ol", items: [] }; } list.items.push(mm[1]); return; }
+      if (/^\s*(\{z\d{1,2}\}\s*)+$/.test(ln)) { flushP(); flushL(); out.push('<p class="zrow">' + inline(esc(ln.trim())) + "</p>"); return; }   // samo „{z1}” w linii: źródło pod elementem
+      if (/^\s*Rys\.\s*\d+\./.test(ln)) { flushP(); flushL(); out.push('<p class="fig">' + inline(esc(ln.trim())) + "</p>"); return; }
+      if (/^\s*Wynik:/.test(ln)) { flushP(); flushL(); out.push('<p class="res">' + inline(esc(ln.trim())) + "</p>"); return; }
       flushL(); para.push(ln.trim());
     });
     flushP(); flushL(); flushT();
     return out.join("");
   }
-  function callout(q) {
-    var mm = /^\[!([^\]]+)\]\s*(.*)$/.exec((q[0] || "").trim()), type = ["quote", ""], title = "";
-    if (mm) { type = CALL[mm[1].trim().toUpperCase()] || ["plain", mm[1].trim()]; title = mm[2]; q = q.slice(1); }
-    var head = type[1] ? '<div class="ch"><span class="cl">' + esc(type[1]) + "</span>" + (title ? "<b>" + inline(esc(title)) + "</b>" : "") + "</div>" : "";
+  function callout(q) {  // stary format „> [!DEF] …” (notatki sprzed zmiany wyglądu)
+    var mm = /^\[!([^\]]+)\]\s*(.*)$/.exec((q[0] || "").trim()), type = CALL[mm[1].trim().toUpperCase()] || ["plain", mm[1].trim()], title = mm[2]; q = q.slice(1);
     var cut = q.findIndex(function (x) { return /^\s*-{3,}\s*$/.test(x); });
-    if (type[0] === "task" && cut >= 0)  // zadanie: treść widać, rozwiązanie odsłania się krok po kroku
-      return '<div class="call task">' + head + '<div class="cb">' + md(q.slice(0, cut).join("\n")) + '</div><div class="sol" hidden>' + md(q.slice(cut + 1).join("\n")) +
-        '</div><div class="sbar"><button type="button" class="s-next">Pokaż pierwszy krok</button><button type="button" class="s-all">Całe rozwiązanie</button></div></div>';
-    return '<div class="call ' + type[0] + '">' + head + '<div class="cb">' + md(q.join("\n")) + "</div></div>";
+    var head = "<p><strong>" + esc(type[1]) + "</strong>" + (title ? " (" + inline(esc(title)) + ")." : ".") + "</p>";
+    if (type[0] === "task" && cut >= 0) return task(head + md(q.slice(0, cut).join("\n")), q.slice(cut + 1));
+    var k = { def: "def", thm: "thm", ex: "ex", warn: "rem", plain: "rem", eq: "def", gist: "lead", mem: "def", task: "task" }[type[0]] || "rem";
+    return '<div class="env ' + k + '">' + head + md(q.join("\n")) + "</div>";
   }
-  function md(src) {
+  function task(statementHtml, solLines) {
+    return '<div class="env task">' + statementHtml + '<div class="sol" hidden>' + md(solLines.join("\n")) +
+      '</div><div class="sbar"><button type="button" class="s-next">Pokaż rozwiązanie</button><button type="button" class="s-all">od razu całe</button></div></div>';
+  }
+  function env(lines) {  // **Definicja 1** … do pustej linii
+    var kind = ENV_K[ENV.exec(lines[0])[1]] || "rem";
+    var cut = lines.findIndex(function (x) { return /^\s*-{3,}\s*$/.test(x); });
+    if (kind === "task" && cut >= 0) return task(md(lines.slice(0, cut).join("\n"), true), lines.slice(cut + 1));
+    return '<div class="env ' + kind + '">' + md(lines.join("\n"), true) + "</div>";
+  }
+  function md(src, inner) {
     var L = String(src || "").replace(/\r/g, "").split("\n"), out = [], buf = [], i = 0;
     function flush() { if (buf.length) { out.push(plain(buf)); buf = []; } }
     while (i < L.length) {
-      if (/^\s*```/.test(L[i])) { flush(); var code = []; i++; while (i < L.length && !/^\s*```/.test(L[i])) code.push(L[i++]); i++; out.push("<pre><code>" + esc(code.join("\n")) + "</code></pre>"); continue; }
-      if (/^\s*>/.test(L[i])) { flush(); var q = []; while (i < L.length && /^\s*>/.test(L[i])) q.push(L[i++].replace(/^\s*>\s?/, "")); out.push(callout(q)); continue; }
-      buf.push(L[i++]);
+      var ln = L[i];
+      if (/^\s*```/.test(ln)) { flush(); var code = []; i++; while (i < L.length && !/^\s*```/.test(L[i])) code.push(L[i++]); i++; out.push("<pre><code>" + esc(code.join("\n")) + "</code></pre>"); continue; }
+      if (/^\s*>\s*\[!/.test(ln)) { flush(); var q = []; while (i < L.length && /^\s*>/.test(L[i])) q.push(L[i++].replace(/^\s*>\s?/, "")); out.push(callout(q)); continue; }
+      if (/^\s*>/.test(ln)) { flush(); var mn = []; while (i < L.length && /^\s*>/.test(L[i])) mn.push(L[i++].replace(/^\s*>\s?/, "")); out.push('<aside class="mn"><span class="mk" aria-hidden="true">†</span>' + inline(esc(mn.join(" "))) + "</aside>"); continue; }
+      if (/^\s*::/.test(ln)) { flush(); var f = []; while (i < L.length && /^\s*::/.test(L[i])) f.push(inline(esc(L[i++].replace(/^\s*::\s?/, "")))); out.push('<div class="disp">' + f.join("<br>") + "</div>"); continue; }
+      if (!inner && ENV.test(ln)) {
+        flush(); var e = [ln]; i++;
+        while (i < L.length && L[i].trim() && !ENV.test(L[i]) && !/^\s*#/.test(L[i])) e.push(L[i++]);
+        if (/Zadanie/.test(ENV.exec(ln)[1])) while (i < L.length && !ENV.test(L[i]) && !/^\s*#/.test(L[i])) e.push(L[i++]);  // rozwiązanie może mieć puste linie
+        out.push(env(e)); continue;
+      }
+      buf.push(ln); i++;
     }
     flush();
     return out.join("");
@@ -967,7 +995,9 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
     days.forEach(function (d, di) {
       var key = f.id + "/" + d, note = (INDEX.notes || {})[key], ps = byDay[d];
       var open = key in openDays ? openDays[key] : di === 0;
+      ps.sort(function (x, y) { return x.name < y.name ? -1 : 1; });
       var card = el("div", { class: "card day", id: "day-" + f.id + "-" + d }, [el("div", { class: "dh" }, [el("small", { text: dayLabel(d) }), el("h3", { text: note ? note.title : "Nowa notatka" })])]);
+      card._ps = ps;
       if (ps.length) {
         var strip = el("div", { class: "strip" });
         ps.forEach(function (p, i) {
@@ -985,8 +1015,9 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
       if (note) {
         if (open) {
           var mdBox = el("div", { class: "md", html: md(noTitle(note.md || "")) }), hs = mdBox.querySelectorAll("h4");
-          if (hs.length >= 3) card.appendChild(el("div", { class: "toc", "aria-label": "Spis" }, Array.prototype.map.call(hs, function (h) { return btn("", h.textContent, function () { h.scrollIntoView({ behavior: "smooth", block: "start" }); }); })));
+          if (hs.length >= 3) card.appendChild(el("nav", { class: "toc", "aria-label": "Spis" }, Array.prototype.map.call(hs, function (h) { return btn("", h.textContent, function () { h.scrollIntoView({ behavior: "smooth", block: "start" }); }); })));
           card.appendChild(mdBox);
+          if (mdBox.querySelector(".dag, .mn, .zref")) card.appendChild(el("p", { class: "legend-n", text: "† dopisane przez Claude'a, nie było na zdjęciach · zdj. N – zdjęcie, z którego to pochodzi (dotknij, żeby je otworzyć)" }));
           var copyB = btn("", "Kopiuj", function () {
             try { navigator.clipboard.writeText(note.md).then(function () { copyB.textContent = "Skopiowane"; }, function () { copyB.textContent = "Nie udało się"; }); } catch (e) { copyB.textContent = "Nie udało się"; }
           });
@@ -1008,13 +1039,15 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
     return out;
   }
   document.addEventListener("click", function (e) {
+    var z = e.target.closest && e.target.closest(".zref");
+    if (z) { var card = z.closest(".day"), ps = card && card._ps, p = ps && ps[+z.getAttribute("data-z") - 1]; if (p) openLb(p); return; }
     var b = e.target.closest && e.target.closest(".s-next, .s-all"); if (!b) return;
     var task = b.closest(".task"), sol = task.querySelector(".sol"), steps = solSteps(sol), next = task.querySelector(".s-next");
     if (sol.hidden) { sol.hidden = false; steps.forEach(function (x) { x.classList.add("hid"); }); }
     if (b.classList.contains("s-all")) steps.forEach(function (x) { x.classList.remove("hid"); });
     else { var h = steps.filter(function (x) { return x.classList.contains("hid"); })[0]; if (h) { h.classList.remove("hid"); h.classList.add("shown"); } }
     var left = steps.filter(function (x) { return x.classList.contains("hid"); }).length;
-    next.textContent = left ? "Następny krok (" + (steps.length - left) + "/" + steps.length + ")" : "Wszystkie kroki";
+    next.textContent = left ? "Następny krok (" + (steps.length - left) + " z " + steps.length + ")" : "To całe rozwiązanie";
     next.disabled = !left; task.querySelector(".s-all").hidden = !left;
   });
 
