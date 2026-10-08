@@ -504,7 +504,8 @@ html.rec-open { overflow: hidden; }
   var m = VISIT ? null : /[#&]t=([A-Za-z0-9_]+)/.exec(location.hash);
   // ikonka na ekranie początkowym iPhone'a ma osobną pamięć niż Safari: w Safari klucz zostaje w adresie, żeby „Do ekranu początkowego” zabrało go do ikonki
   var STANDALONE = navigator.standalone === true || (window.matchMedia && matchMedia("(display-mode: standalone)").matches);
-  if (m) { TOKEN = m[1]; try { localStorage.setItem(LS, TOKEN); } catch (e) {} if (STANDALONE) history.replaceState(null, "", location.pathname); }
+  var IOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  if (m) { TOKEN = m[1]; try { localStorage.setItem(LS, TOKEN); } catch (e) {} if (STANDALONE || !IOS) history.replaceState(null, "", location.pathname); }
   var startTab = /^#(nauka|aparat|notatki)$/.exec(location.hash);   // link z SimpleAGH otwiera konkretną zakładkę
   function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
@@ -1041,6 +1042,28 @@ html.rec-open { overflow: hidden; }
     ]));
     if (STANDALONE) paneS.appendChild(el("p", { class: "hint", text: "Masz już klucz w Safari? Otwórz tę stronę w Safari, dotknij „Skopiuj klucz” na górze strony i wróć tutaj do „Wklej ze schowka”." }));
   }
+  /* parowanie komputera: laptop pokazuje QR z #para=<id>.<klucz AES>; telefon szyfruje swój klucz do GitHuba tym kluczem
+     i zapisuje para/<id>.json w prywatnym repo; laptop (tools/klucz_komputer.py) odczytuje, odszyfrowuje i od razu usuwa plik */
+  var PARA = VISIT ? null : /[#&]para=([0-9a-f]{12})\.([A-Za-z0-9_-]{43})/.exec(HASH0);
+  function paraBox() {
+    var slot = $("keybox-slot"); slot.textContent = "";
+    function done(t) { slot.textContent = ""; slot.appendChild(el("div", { class: "calm keybox" }, [el("span", { text: t }), btn("go alt", "Zamknij", function () { slot.textContent = ""; })])); }
+    if (!TOKEN) return done("W tej przeglądarce nie ma klucza. Otwórz ten kod w przeglądarce, w której Notatki są zalogowane.");
+    var yes = btn("go", "Tak, zaloguj", function () {
+      yes.disabled = true; yes.textContent = "Wysyłam…";
+      crypto.subtle.importKey("raw", b64bytes(PARA[2]), "AES-GCM", false, ["encrypt"]).then(function (k) {
+        var iv = crypto.getRandomValues(new Uint8Array(12));
+        return crypto.subtle.encrypt({ name: "AES-GCM", iv: iv }, k, new TextEncoder().encode(TOKEN)).then(function (ct) {
+          var u = new Uint8Array(12 + ct.byteLength); u.set(iv); u.set(new Uint8Array(ct), 12);
+          var bin = ""; for (var i = 0; i < u.length; i++) bin += String.fromCharCode(u[i]);
+          return api("contents/para/" + PARA[1] + ".json", { method: "PUT", body: { message: "Parowanie komputera", branch: BRANCH, content: btoa(JSON.stringify({ v: 1, d: btoa(bin) })) } });
+        });
+      }).then(function () { done("Gotowe. Komputer za chwilę się zaloguje."); }, function () { done("Nie udało się wysłać. Zeskanuj kod jeszcze raz."); });
+    });
+    slot.appendChild(el("div", { class: "calm keybox" }, [el("span", { text: "Zalogować komputer tym samym kluczem co ten telefon?" }), el("div", { class: "acts" }, [yes, btn("go alt", "Nie", function () { slot.textContent = ""; })])]));
+  }
+  if (PARA) history.replaceState(null, "", location.pathname);
+
   function keyBox() {  // w Safari (nie w ikonce): jak przenieść klucz do ikonki na ekranie początkowym
     if (VISIT || STANDALONE || !TOKEN) return null;
     var hasKeyInUrl = /[#&]t=/.test(location.hash), copyB = btn("go alt", "Skopiuj klucz", function () {
@@ -2017,6 +2040,7 @@ html.rec-open { overflow: hidden; }
     var br = document.querySelector(".top .brand"); br.textContent = "SimpleAGH · podgląd notatek";
     visitReady.then(function () { var d = new Date(VISIT.expires); br.textContent = "SimpleAGH · podgląd do " + d.getDate() + "." + pad(d.getMonth() + 1); }, function () {});
   }
+  if (PARA) paraBox();
   setTab(tab);
   refresh();
 })();
