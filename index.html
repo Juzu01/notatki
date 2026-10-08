@@ -616,6 +616,7 @@ html.rec-open { overflow: hidden; }
       return Promise.all(jobs);
     }).then(function () {
       local = local.filter(function (e) { return !(e.state === "sent" && TREE[e.path]); });
+      checkPara();
     }, function (e) {
       if (e && e.code === "auth") authErr = true; else netErr = true;
     }).then(function () { render(); later(); });
@@ -1042,30 +1043,59 @@ html.rec-open { overflow: hidden; }
     ]));
     if (STANDALONE) paneS.appendChild(el("p", { class: "hint", text: "Masz już klucz w Safari? Otwórz tę stronę w Safari, dotknij „Skopiuj klucz” na górze strony i wróć tutaj do „Wklej ze schowka”." }));
   }
-  /* parowanie komputera: laptop pokazuje QR z #para=<id>.<klucz AES>; telefon szyfruje swój klucz do GitHuba tym kluczem
-     i zapisuje para/<id>.json w prywatnym repo; laptop (tools/klucz_komputer.py) odczytuje, odszyfrowuje i od razu usuwa plik */
-  var PARA = VISIT ? null : /[#&]para=([0-9a-f]{12})\.([A-Za-z0-9_-]{43})/.exec(HASH0);
-  function paraBox() {
-    var slot = $("keybox-slot"); slot.textContent = "";
-    function done(t) { slot.textContent = ""; slot.appendChild(el("div", { class: "calm keybox" }, [el("span", { text: t }), btn("go alt", "Zamknij", function () { slot.textContent = ""; })])); }
-    if (!TOKEN) return done("W tej przeglądarce nie ma klucza. Otwórz ten kod w przeglądarce, w której Notatki są zalogowane.");
-    var yes = btn("go", "Tak, zaloguj", function () {
-      yes.disabled = true; yes.textContent = "Wysyłam…";
-      crypto.subtle.importKey("raw", b64bytes(PARA[2]), "AES-GCM", false, ["encrypt"]).then(function (k) {
-        var iv = crypto.getRandomValues(new Uint8Array(12));
-        return crypto.subtle.encrypt({ name: "AES-GCM", iv: iv }, k, new TextEncoder().encode(TOKEN)).then(function (ct) {
-          var u = new Uint8Array(12 + ct.byteLength); u.set(iv); u.set(new Uint8Array(ct), 12);
-          var bin = ""; for (var i = 0; i < u.length; i++) bin += String.fromCharCode(u[i]);
-          return api("contents/para/" + PARA[1] + ".json", { method: "PUT", body: { message: "Parowanie komputera", branch: BRANCH, content: btoa(JSON.stringify({ v: 1, d: btoa(bin) })) } });
-        });
-      }).then(function () { done("Gotowe. Komputer za chwilę się zaloguje."); }, function () { done("Nie udało się wysłać. Zeskanuj kod jeszcze raz."); });
+  /* logowanie komputera: tools/klucz_komputer.py na laptopie zostawia w repo para/<id>.req.json z kluczem publicznym (ECDH P-256).
+     Ikonka (albo Safari) z kluczem widzi to przy odświeżeniu i pyta; po „Tak” szyfruje swój klucz do GitHuba wspólnym kluczem
+     i zapisuje para/<id>.json, a laptop odczytuje go i usuwa oba pliki. Bez kodu QR: ten zawsze otwiera Safari, nie ikonkę. */
+  var paraSeen = {};
+  function bytesB64(buf) { var u = new Uint8Array(buf), bin = ""; for (var i = 0; i < u.length; i++) bin += String.fromCharCode(u[i]); return btoa(bin); }
+  function checkPara() {
+    if (VISIT || !TOKEN || !TREE || !(window.crypto && crypto.subtle)) return;
+    Object.keys(TREE).forEach(function (p) {
+      var mm = /^para\/([0-9a-f]{12})\.req\.json$/.exec(p), id = mm && mm[1];
+      if (!id || paraSeen[id] || TREE["para/" + id + ".json"]) return;
+      paraSeen[id] = true;
+      rawJson(p).then(function (q) {
+        if (q && q.pub && Date.now() - Date.parse(q.created) < 15 * 60000) paraBox(id, q, TREE[p]);
+      }, function () { delete paraSeen[id]; });
     });
-    slot.appendChild(el("div", { class: "calm keybox" }, [el("span", { text: "Zalogować komputer tym samym kluczem co ten telefon?" }), el("div", { class: "acts" }, [yes, btn("go alt", "Nie", function () { slot.textContent = ""; })])]));
   }
-  if (PARA) history.replaceState(null, "", location.pathname);
+  function paraBox(id, q, sha) {
+    var slot = $("keybox-slot"), pub = b64bytes(q.pub);
+    function done(t) { slot.textContent = ""; slot.appendChild(el("div", { class: "calm keybox" }, [el("span", { text: t }), btn("go alt", "Zamknij", function () { slot.textContent = ""; })])); }
+    crypto.subtle.digest("SHA-256", pub).then(function (h) {
+      var b = new Uint8Array(h), code = String(((b[0] << 16) | (b[1] << 8) | b[2]) % 10000 + 10000).slice(1);
+      var yes = btn("go", "Tak, zaloguj", function () {
+        yes.disabled = true; yes.textContent = "Wysyłam…";
+        Promise.all([
+          crypto.subtle.importKey("raw", pub, { name: "ECDH", namedCurve: "P-256" }, false, []),
+          crypto.subtle.generateKey({ name: "ECDH", namedCurve: "P-256" }, true, ["deriveBits"])
+        ]).then(function (r) {
+          return crypto.subtle.deriveBits({ name: "ECDH", public: r[0] }, r[1].privateKey, 256)
+            .then(function (x) { return crypto.subtle.digest("SHA-256", x); })
+            .then(function (k) { return crypto.subtle.importKey("raw", k, "AES-GCM", false, ["encrypt"]); })
+            .then(function (k) {
+              var iv = crypto.getRandomValues(new Uint8Array(12));
+              return Promise.all([
+                crypto.subtle.encrypt({ name: "AES-GCM", iv: iv, additionalData: new TextEncoder().encode(id) }, k, new TextEncoder().encode(TOKEN)),
+                crypto.subtle.exportKey("raw", r[1].publicKey)
+              ]).then(function (x) {
+                var d = new Uint8Array(12 + x[0].byteLength); d.set(iv); d.set(new Uint8Array(x[0]), 12);
+                return api("contents/para/" + id + ".json", { method: "PUT", body: { message: "Logowanie komputera", branch: BRANCH, content: btoa(JSON.stringify({ v: 2, pub: bytesB64(x[1]), d: bytesB64(d) })) } });
+              });
+            });
+        }).then(function () { done("Gotowe. Komputer za chwilę się zaloguje."); }, function () { done("Nie udało się wysłać. Uruchom logowanie na komputerze jeszcze raz."); });
+      });
+      var no = btn("go alt", "Nie", function () {
+        slot.textContent = "";
+        api("contents/para/" + id + ".req.json", { method: "DELETE", body: { message: "Logowanie komputera: odrzucone", branch: BRANCH, sha: sha } }).catch(function () {});
+      });
+      slot.textContent = "";
+      slot.appendChild(el("div", { class: "calm keybox" }, [el("span", { text: "Zalogować komputer tym samym kluczem co ten telefon? Na ekranie komputera powinien być kod " + code + "." }), el("div", { class: "acts" }, [yes, no])]));
+    });
+  }
 
   function keyBox() {  // w Safari (nie w ikonce): jak przenieść klucz do ikonki na ekranie początkowym
-    if (VISIT || STANDALONE || !TOKEN) return null;
+    if (VISIT || STANDALONE || !TOKEN || !IOS) return null;
     var hasKeyInUrl = /[#&]t=/.test(location.hash), copyB = btn("go alt", "Skopiuj klucz", function () {
       try { navigator.clipboard.writeText(TOKEN).then(function () { copyB.textContent = "Skopiowany"; }, function () { copyB.textContent = "Nie udało się"; }); } catch (e) { copyB.textContent = "Nie udało się"; }
     });
@@ -2040,7 +2070,6 @@ html.rec-open { overflow: hidden; }
     var br = document.querySelector(".top .brand"); br.textContent = "SimpleAGH · podgląd notatek";
     visitReady.then(function () { var d = new Date(VISIT.expires); br.textContent = "SimpleAGH · podgląd do " + d.getDate() + "." + pad(d.getMonth() + 1); }, function () {});
   }
-  if (PARA) paraBox();
   setTab(tab);
   refresh();
 })();
