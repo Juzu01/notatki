@@ -236,6 +236,8 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
 .md .katex { font-size: 1.08em; }
 .md .disp .katex { font-size: 1.15em; }
 .md .disp { overflow-x: auto; overflow-y: hidden; padding: 4px 0; }
+.md button.zad { appearance: none; border: 0; background: none; padding: 0; font: inherit; color: var(--accent); text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--accent) 35%, transparent); text-underline-offset: 3px; cursor: pointer; }
+.md .env.task { scroll-margin-top: 140px; }
 .md .tex-raw { font-family: ui-monospace, monospace; font-size: 0.9em; color: var(--muted); }
 .md details.fold { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .md details.fold + details.fold { border-top: 0; }
@@ -245,7 +247,7 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
 .md details.fold[open] > summary::before { transform: rotate(90deg); }
 .md details.fold > .more-b { display: grid; gap: 14px; padding: 2px 0 16px; }
 .md .env > p:first-child > strong:first-child, .md .env.task strong:first-child { font-family: var(--font); font-variant: small-caps; font-weight: 700; letter-spacing: 0.03em; font-size: 1.04em; }
-.md .env.def > p:first-child > strong:first-child { color: var(--accent); }
+.md .env.def > p:first-child > strong:first-child, .md .env.how > p:first-child > strong:first-child { color: var(--accent); }
 .md .env.thm > p, .md .env.thm li { font-style: italic; }
 .md .env.thm > p:first-child > strong:first-child { font-style: normal; color: var(--k-thm); }
 .md .env.ex, .md .env.proof { padding-left: 14px; border-left: 1px solid var(--line); }
@@ -735,8 +737,8 @@ html.rec-open { overflow: hidden; }
      **Zadanie 1.** treść / --- / kroki – rozwiązanie odsłaniane krok po kroku. Stare ramki „> [!DEF]” też działają. */
   var CALL = { "DEF": ["def", "Definicja"], "TW": ["thm", "Twierdzenie"], "WZÓR": ["eq", "Wzór"], "WZOR": ["eq", "Wzór"], "PRZYKŁAD": ["ex", "Przykład"], "PRZYKLAD": ["ex", "Przykład"],
     "ZADANIE": ["task", "Zadanie"], "UWAGA": ["warn", "Uwaga"], "PO LUDZKU": ["plain", "Po ludzku"], "SEDNO": ["gist", "W skrócie"], "ZAPAMIĘTAJ": ["mem", "Do zapamiętania"], "ZAPAMIETAJ": ["mem", "Do zapamiętania"] };
-  var ENV = /^\s*\*\*(Definicja|Twierdzenie|Lemat|Wniosek|Własność|Prawo|Reguła|Przykład|Dowód|Uwaga|Obserwacja|Zadanie)\b/;
-  var ENV_K = { Definicja: "def", Twierdzenie: "thm", Lemat: "thm", Wniosek: "thm", Własność: "thm", Prawo: "thm", Reguła: "thm", Przykład: "ex", Dowód: "proof", Uwaga: "rem", Obserwacja: "rem", Zadanie: "task" };
+  var ENV = /^\s*\*\*(Definicja|Twierdzenie|Lemat|Wniosek|Własność|Prawo|Reguła|Przykład|Dowód|Uwaga|Obserwacja|Jak to zrobić|Zadanie)(?=[\s.*(:]|$)/;   // bez \b: „ć” nie jest dla \b literą
+  var ENV_K = { Definicja: "def", Twierdzenie: "thm", Lemat: "thm", Wniosek: "thm", Własność: "thm", Prawo: "thm", Reguła: "thm", Przykład: "ex", Dowód: "proof", Uwaga: "rem", Obserwacja: "rem", "Jak to zrobić": "how", Zadanie: "task" };
   function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;"); }
   /* wzory: $…$ w notatce → KaTeX (dopóki się nie wczyta – sam tekst wzoru); w linii „:: ” jak wzór wyświetlany */
   var texCache = {};
@@ -767,6 +769,7 @@ html.rec-open { overflow: hidden; }
       .replace(/(^|[\s(])\*([^*\s][^*]*)\*/g, "$1<em>$2</em>")
       .replace(/_\{([^{}]{1,40})\}/g, "<sub>$1</sub>").replace(/\^\{([^{}]{1,40})\}/g, "<sup>$1</sup>")   // lim_{x→2}, a_{n+1}, x^{n+1}
       .replace(/\b([A-Za-z])_([A-Za-z0-9])\b/g, "$1<sub>$2</sub>")   // D_f, a_n
+      .replace(/\((Zadani[ea]) (\d+)((?:[–,-] ?\d+)*)\)/g, '(<button type="button" class="zad" data-zad="$2">$1 $2$3</button>)')
       .replace(/\s*\(uzupełnione\)/g, '<sup class="dag" title="Dopisane – tego nie było na zajęciach">†</sup>')
       .replace(/\[nieczytelne\]/g, '<span class="ill">[nieczytelne]</span>')
       .replace(/(\{(?:z\d{1,2}|t\d{1,2}:\d{2})\}\s*){2,}/g, function (run) {   // kilka odnośników z rzędu: pierwsze zdjęcie i pierwsza chwila nagrania wystarczą
@@ -2076,6 +2079,12 @@ html.rec-open { overflow: hidden; }
   $("trs-x").addEventListener("click", closeTranscript);
   trsBack.addEventListener("click", closeTranscript);
   document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !trs.hidden) closeTranscript(); });
+  document.addEventListener("click", function (e) {   // „(Zadanie 2)” w „Musisz umieć”: przewiń do zadania w tej notatce
+    var z = e.target.closest && e.target.closest("button.zad"); if (!z) return;
+    var box = z.closest(".md"), n = z.getAttribute("data-zad");
+    var tk = box && Array.prototype.filter.call(box.querySelectorAll(".env.task"), function (x) { return new RegExp("^\\s*Zadanie\\s+" + n + "\\b").test(x.textContent); })[0];
+    if (tk) { var d = tk.closest("details"); if (d) d.open = true; tk.scrollIntoView({ behavior: "smooth", block: "start" }); }
+  });
   document.addEventListener("click", function (e) {
     var t = e.target.closest && e.target.closest(".tref"); if (!t || VISIT) return;
     var card = t.closest(".day[data-key]"); if (!card) return;
