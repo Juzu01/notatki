@@ -239,6 +239,9 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
 .md button.zad { appearance: none; border: 0; background: none; padding: 0; font: inherit; color: var(--accent); text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--accent) 35%, transparent); text-underline-offset: 3px; cursor: pointer; }
 .md .env.task { scroll-margin-top: 140px; }
 .md .nw { white-space: nowrap; }
+.md .tw { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.md .tw table { overflow-wrap: normal; word-break: normal; }
+.md .tw th, .md .tw td { min-width: 4.5em; }
 .md .tex-raw { font-family: ui-monospace, monospace; font-size: 0.9em; color: var(--muted); }
 .md details.fold { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .md details.fold + details.fold { border-top: 0; }
@@ -274,9 +277,22 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
 .md .tref::before { content: "nagr. "; font-weight: 500; }
 .md .tref + .tref::before { content: ""; }
 .md span.tref { cursor: default; }
-.md code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.86em; background: var(--bg); border-radius: 4px; padding: 0 4px; }
-.md pre { margin: 0; background: var(--bg); border-radius: 8px; padding: 10px 12px; overflow-x: auto; }
-.md pre code { padding: 0; background: none; font-size: 0.84rem; }
+.md code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.86em; background: var(--bg); border-radius: 4px; padding: 0 4px; white-space: pre-wrap; }
+.md pre { margin: 0; background: var(--bg); border-radius: 8px; padding: 10px 12px; overflow-x: auto; font-size: 0.84rem; line-height: 1.5; }
+.md pre code { padding: 0; background: none; font-size: inherit; }
+.md .runc { display: grid; gap: 8px; }
+.md .run-bar { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+.md .run-bar button { appearance: none; border: 0; background: none; padding: 4px 0; font-family: var(--font); font-size: 0.9rem; font-weight: 600; color: var(--accent); cursor: pointer; }
+.md .run-bar .run-go { background: var(--accent); color: #fff; padding: 6px 14px; border-radius: 99px; }
+.md .run-bar .run-go:disabled { opacity: 0.55; }
+.md textarea.run-src, .md textarea.run-in { width: 100%; box-sizing: border-box; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.84rem; line-height: 1.5; background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; resize: vertical; }
+.md .term { background: #16181a; color: #e6e6e6; border-radius: 8px; padding: 10px 12px; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.82rem; line-height: 1.55; overflow-x: auto; white-space: pre-wrap; overflow-wrap: anywhere; }
+.md .term .pr { color: #7ee2a8; font-weight: 700; }
+.md .term .tl-cmd { color: #ffffff; }
+.md .term .tl-out { color: #e6e6e6; }
+.md .term .tl-dim { color: #8a9096; font-style: italic; }
+.md .term .tl-err { color: #ff8a80; }
+.md .term .tl-warn { color: #ffd479; }
 .tw { overflow-x: auto; }
 .md table { border-collapse: collapse; font-size: 0.95rem; margin: 2px auto; border-top: 1.5px solid var(--ink); border-bottom: 1.5px solid var(--ink); }
 .md th, .md td { padding: 4px 14px; text-align: center; }
@@ -789,7 +805,7 @@ html.rec-open { overflow: hidden; }
       .replace(/(^|[\s(])\*([^*\s][^*]*)\*/g, "$1<em>$2</em>")
       .replace(/_\{([^{}]{1,40})\}/g, "<sub>$1</sub>").replace(/\^\{([^{}]{1,40})\}/g, "<sup>$1</sup>")   // lim_{x→2}, a_{n+1}, x^{n+1}
       .replace(/\b([A-Za-z])_([A-Za-z0-9])\b/g, "$1<sub>$2</sub>")   // D_f, a_n
-      .replace(/\((Zadani[ea]) (\d+)((?:[–,-] ?\d+)*)\)/g, '(<button type="button" class="zad" data-zad="$2">$1 $2$3</button>)')
+      .replace(/\((Zadani[ea]) (\d+)((?:[–,-] ?\d+)*)\)/g, '<span class="nw">(<button type="button" class="zad" data-zad="$2">$1 $2$3</button>)</span>')
       .replace(/\s*\(uzupełnione\)/g, '<sup class="dag" title="Dopisane – tego nie było na zajęciach">†</sup>')
       .replace(/\[nieczytelne\]/g, '<span class="ill">[nieczytelne]</span>')
       .replace(/(\{(?:z\d{1,2}|t\d{1,2}:\d{2})\}\s*){2,}/g, function (run) {   // kilka odnośników z rzędu: pierwsze zdjęcie i pierwsza chwila nagrania wystarczą
@@ -851,12 +867,72 @@ html.rec-open { overflow: hidden; }
     if (kind === "task" && cut >= 0) return task(md(lines.slice(0, cut).join("\n"), true), lines.slice(cut + 1));
     return '<div class="env ' + kind + '">' + md(lines.join("\n"), true) + "</div>";
   }
+  /* --- kod: ```c z funkcją main → można uruchomić (gcc 16.2 na godbolt.org, wynik jak w terminalu); ```console → wygląda jak terminal --- */
+  var RUN_SRC = [], notesSig = "";
+  function codeBlock(lang, src) {
+    if (/^(console|terminal|shell|sh|bash)$/.test(lang)) {
+      return '<div class="term static">' + src.split("\n").map(function (l) {
+        return /^\$ /.test(l) ? '<div class="tl-cmd"><span class="pr">$</span> ' + esc(l.slice(2)) + "</div>" : '<div class="tl-out">' + (esc(l) || "&nbsp;") + "</div>";
+      }).join("") + "</div>";
+    }
+    var runnable = (lang === "c" || lang === "") && /\bmain\s*\(/.test(src) && /#\s*include/.test(src);
+    if (!runnable) return "<pre><code>" + esc(src) + "</code></pre>";
+    var ix = RUN_SRC.indexOf(src); if (ix < 0) { RUN_SRC.push(src); ix = RUN_SRC.length - 1; }
+    return '<div class="runc" data-src="' + ix + '"><pre><code>' + esc(src) + '</code></pre>' +
+      '<div class="run-bar"><button type="button" class="run-go">▶ Uruchom</button><button type="button" class="run-edit">Zmień kod</button><button type="button" class="run-stdin">Dane wejściowe</button></div>' +
+      '<textarea class="run-in" rows="2" placeholder="To, co program przeczyta przez scanf, np. 5 7" hidden></textarea><div class="term" hidden></div></div>';
+  }
+  var GB = "https://godbolt.org/api/compiler/cg162/compile";
+  function runCode(box) {
+    var ta = box.querySelector("textarea.run-src"), src = ta ? ta.value : RUN_SRC[+box.getAttribute("data-src")];
+    var stdin = box.querySelector(".run-in"), term = box.querySelector(".term"), go = box.querySelector(".run-go");
+    term.hidden = false; term.textContent = "";
+    function line(cls, text) { var d = el("div", { class: cls }); if (cls === "tl-cmd") { d.appendChild(el("span", { class: "pr", text: "$" })); d.appendChild(document.createTextNode(" " + text)); } else d.textContent = text; term.appendChild(d); return d; }
+    line("tl-cmd", "gcc main.c -Wall -Wextra -o main"); var wait = line("tl-dim", "kompiluję…");
+    go.disabled = true;
+    fetch(GB, { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify({
+      source: src, lang: "c", allowStoreCodeDebug: false,
+      options: { userArguments: "-Wall -Wextra -fdiagnostics-color=never", executeParameters: { args: [], stdin: stdin.hidden ? "" : stdin.value }, compilerOptions: { executorRequest: true, skipAsm: true }, filters: { execute: true }, tools: [], libraries: [] }
+    }) }).then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function (d) {
+      term.removeChild(wait);
+      var b = d.buildResult || {}, berr = (b.stderr || []).map(function (x) { return x.text; }).join("\n").replace(/<source>/g, "main.c").replace(/\x1b?\[[0-9;]*[mK]/g, "");
+      if (berr) line(b.code ? "tl-err" : "tl-warn", berr);
+      if (b.code) { line("tl-dim", "Kompilacja się nie udała – popraw błąd i uruchom jeszcze raz."); return; }
+      line("tl-cmd", "./main" + (stdin.hidden || !stdin.value ? "" : " < dane"));
+      var outT = (d.stdout || []).map(function (x) { return x.text; }).join("\n"), errT = (d.stderr || []).map(function (x) { return x.text; }).join("\n");
+      if (outT) line("tl-out", outT);
+      if (errT) line("tl-err", errT);
+      if (d.timedOut) line("tl-err", "Program działał za długo (pętla bez końca?).");
+      if (!outT && !errT && !d.timedOut) line("tl-dim", "(program nic nie wypisał)");
+      if (d.code) line("tl-dim", "program zakończył się kodem " + d.code);
+    }).catch(function () { wait.textContent = "Nie udało się połączyć z kompilatorem (godbolt.org). Sprawdź internet."; })
+      .then(function () { go.disabled = false; });
+  }
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest && e.target.closest(".runc button"); if (!b) return;
+    var box = b.closest(".runc");
+    if (b.classList.contains("run-go")) return runCode(box);
+    if (b.classList.contains("run-stdin")) { var si = box.querySelector(".run-in"); si.hidden = !si.hidden; if (!si.hidden) si.focus(); return; }
+    if (b.classList.contains("run-edit")) {
+      var pre = box.querySelector("pre"), ta = box.querySelector("textarea.run-src");
+      if (!ta) {
+        ta = el("textarea", { class: "run-src", spellcheck: "false", autocapitalize: "off", autocomplete: "off" }); ta.value = RUN_SRC[+box.getAttribute("data-src")];
+        ta.rows = Math.min(24, ta.value.split("\n").length + 1); box.replaceChild(ta, pre); b.textContent = "Przywróć oryginał"; ta.focus();
+      } else {
+        var p2 = el("pre", {}, [el("code", { text: RUN_SRC[+box.getAttribute("data-src")] })]); box.replaceChild(p2, ta); b.textContent = "Zmień kod";
+      }
+    }
+  });
   function md(src, inner) {
     var L = String(src || "").replace(/\r/g, "").split("\n"), out = [], buf = [], i = 0;
     function flush() { if (buf.length) { out.push(plain(buf)); buf = []; } }
     while (i < L.length) {
       var ln = L[i];
-      if (/^\s*```/.test(ln)) { flush(); var code = []; i++; while (i < L.length && !/^\s*```/.test(L[i])) code.push(L[i++]); i++; out.push("<pre><code>" + esc(code.join("\n")) + "</code></pre>"); continue; }
+      if (/^\s*```/.test(ln)) {
+        flush(); var lang = (/^\s*```\s*([A-Za-z+#]*)/.exec(ln)[1] || "").toLowerCase(), code = []; i++;
+        while (i < L.length && !/^\s*```/.test(L[i])) code.push(L[i++]);
+        i++; out.push(codeBlock(lang, code.join("\n"))); continue;
+      }
       if (/^\s*>\s*\[!/.test(ln)) { flush(); var q = []; while (i < L.length && /^\s*>/.test(L[i])) q.push(L[i++].replace(/^\s*>\s?/, "")); out.push(callout(q)); continue; }
       if (/^\s*>/.test(ln)) { flush(); var mn = []; while (i < L.length && /^\s*>/.test(L[i])) mn.push(L[i++].replace(/^\s*>\s?/, "")); out.push('<aside class="mn"><span class="mk" aria-hidden="true">†</span>' + inline(esc(mn.join(" "))) + "</aside>"); continue; }
       if (/^\s*::/.test(ln)) { flush(); var f = []; while (i < L.length && /^\s*::/.test(L[i])) f.push(inline(esc(L[i++].replace(/^\s*::\s?/, "")), true)); out.push('<div class="disp">' + f.join("<br>") + "</div>"); continue; }
@@ -866,9 +942,14 @@ html.rec-open { overflow: hidden; }
         i++; out.push('<details class="fold"><summary>' + inline(esc(sum)) + '</summary><div class="more-b">' + md(bl.join("\n")) + "</div></details>"); continue;
       }
       if (!inner && ENV.test(ln)) {
-        flush(); var e = [ln]; i++;
-        while (i < L.length && L[i].trim() && !ENV.test(L[i]) && !/^\s*(#|\+\+\+)/.test(L[i])) e.push(L[i++]);
-        if (/Zadanie/.test(ENV.exec(ln)[1])) while (i < L.length && !ENV.test(L[i]) && !/^\s*(#|\+\+\+)/.test(L[i])) e.push(L[i++]);  // rozwiązanie może mieć puste linie
+        flush(); var e = [ln], fence = false; i++;
+        var endEl = function (x, blankEnds) {   // koniec elementu: pusta linia (poza zadaniem), następny element, nagłówek „## ”, blok „+++”; w ```kodzie``` nic nie kończy
+          if (/^\s*```/.test(x)) { fence = !fence; return false; }
+          if (fence) return false;
+          return (blankEnds && !x.trim()) || ENV.test(x) || /^\s*(#{1,6}\s|\+\+\+)/.test(x);
+        };
+        while (i < L.length && !endEl(L[i], true)) e.push(L[i++]);
+        if (/Zadanie/.test(ENV.exec(ln)[1])) while (i < L.length && !endEl(L[i], false)) e.push(L[i++]);  // rozwiązanie może mieć puste linie
         out.push(env(e)); continue;
       }
       buf.push(ln); i++;
@@ -907,7 +988,10 @@ html.rec-open { overflow: hidden; }
     }
     var kb = $("keybox-slot"); if (kb && !kb.firstChild) { var k = keyBox(); if (k) kb.appendChild(k); }
     if (tab === "aparat") { drawShoot(); drawFlow(); drawChart(); }
-    else if (tab === "notatki") drawNotes();
+    else if (tab === "notatki") {   // rysuj od nowa tylko, gdy coś się zmieniło (inaczej znika zmieniony kod, wynik konsoli i rozwinięte bloki)
+      var sig = JSON.stringify([view, openDays, INDEX.generated || "", items().map(function (it) { return it.path + ":" + it.stage; }), R ? R.folder + R.day : "", Object.keys(TREE || {}).length, CFG && CFG.updated]);
+      if (sig !== notesSig || !paneN.firstChild) { notesSig = sig; drawNotes(); }
+    }
     if (typeof updateAskFab === "function" && askFab) updateAskFab();
   }
 
@@ -1404,9 +1488,11 @@ html.rec-open { overflow: hidden; }
     numsOf(m[2]).forEach(function (n) {
       var rx = new RegExp("^\\s*\\*\\*" + stem + "\\s+" + n + "(?!\\d)"), i = L.findIndex(function (x) { return rx.test(x); });
       if (i < 0) return;
-      var j = i + 1, stop = function (x) { return ENV.test(x) || /^\s*(#|\+\+\+)/.test(x); };
-      if (stem === "Zadanie") while (j < L.length && !stop(L[j])) j++;
-      else while (j < L.length && L[j].trim() && !stop(L[j])) j++;
+      var j = i + 1, fence = false, stop = function (x, blank) {
+        if (/^\s*```/.test(x)) { fence = !fence; return false; }
+        return !fence && ((blank && !x.trim()) || ENV.test(x) || /^\s*(#{1,6}\s|\+\+\+)/.test(x));
+      };
+      while (j < L.length && !stop(L[j], stem !== "Zadanie")) j++;
       parts.push(L.slice(i, j).join("\n").replace(/\s+$/, ""));
     });
     return parts.length ? parts.join("\n\n") : null;
