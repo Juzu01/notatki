@@ -15,6 +15,8 @@
 <title>Notatki z zajęć</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script id="katex-js" defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400;1,8..60,600&display=swap">
 <style>
 /* Notatki z zajęć (SimpleAGH): zdjęcie tablicy z telefonu (i nagranie wykładu, przepisywane przez Groq) → prywatne repo na GitHubie → Claude Code w GitHub Actions robi notatkę.
@@ -231,6 +233,17 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
 .md ol > li::marker { color: var(--muted); font-variant-numeric: tabular-nums; }
 /* elementy jak w podręczniku: nazwa wersalikami, twierdzenie kursywą, przykład i dowód z cienką linią */
 .md .env { display: grid; gap: 8px; }
+.md .katex { font-size: 1.08em; }
+.md .disp .katex { font-size: 1.15em; }
+.md .disp { overflow-x: auto; overflow-y: hidden; padding: 4px 0; }
+.md .tex-raw { font-family: ui-monospace, monospace; font-size: 0.9em; color: var(--muted); }
+.md details.fold { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.md details.fold + details.fold { border-top: 0; }
+.md details.fold > summary { list-style: none; cursor: pointer; padding: 11px 0; font-family: var(--font); font-size: 0.95rem; color: var(--muted); display: flex; gap: 8px; align-items: baseline; }
+.md details.fold > summary::-webkit-details-marker { display: none; }
+.md details.fold > summary::before { content: "›"; display: inline-block; width: 0.8em; color: var(--accent); font-weight: 700; transition: transform 0.15s; }
+.md details.fold[open] > summary::before { transform: rotate(90deg); }
+.md details.fold > .more-b { display: grid; gap: 14px; padding: 2px 0 16px; }
 .md .env > p:first-child > strong:first-child, .md .env.task strong:first-child { font-family: var(--font); font-variant: small-caps; font-weight: 700; letter-spacing: 0.03em; font-size: 1.04em; }
 .md .env.def > p:first-child > strong:first-child { color: var(--accent); }
 .md .env.thm > p, .md .env.thm li { font-style: italic; }
@@ -725,8 +738,22 @@ html.rec-open { overflow: hidden; }
   var ENV = /^\s*\*\*(Definicja|Twierdzenie|Lemat|Wniosek|Własność|Prawo|Reguła|Przykład|Dowód|Uwaga|Obserwacja|Zadanie)\b/;
   var ENV_K = { Definicja: "def", Twierdzenie: "thm", Lemat: "thm", Wniosek: "thm", Własność: "thm", Prawo: "thm", Reguła: "thm", Przykład: "ex", Dowód: "proof", Uwaga: "rem", Obserwacja: "rem", Zadanie: "task" };
   function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;"); }
-  function inline(s) {  // s już escapowane; [[folder/dzień#sekcja|opis]] – odnośnik do miejsca w notatce (przewodnik po przedmiocie)
+  /* wzory: $…$ w notatce → KaTeX (dopóki się nie wczyta – sam tekst wzoru); w linii „:: ” jak wzór wyświetlany */
+  var texCache = {};
+  function unesc(s) { return s.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, "&"); }
+  function tex(src, disp) {
+    var k = (disp ? "D" : "I") + src;
+    if (texCache[k]) return texCache[k];
+    if (!window.katex) return '<span class="tex-raw">' + esc(src) + "</span>";
+    var h;
+    try { h = katex.renderToString((disp ? "\\displaystyle " : "") + src, { throwOnError: false, strict: "ignore", output: "html" }); }
+    catch (e) { h = '<span class="tex-raw">' + esc(src) + "</span>"; }
+    return (texCache[k] = h);
+  }
+  function inline(s, disp) {  // s już escapowane; [[folder/dzień#sekcja|opis]] – odnośnik do miejsca w notatce (przewodnik po przedmiocie)
     var links = [];
+    s = s.replace(/`([^`]+)`/g, function (_, c) { links.push("<code>" + c + "</code>"); return "\u0001" + (links.length - 1) + "\u0002"; });
+    s = s.replace(/\$(?=\S)([^$\n]*?\S)\$(?![0-9A-Za-z])/g, function (_, m) { links.push(tex(unesc(m), disp)); return "\u0001" + (links.length - 1) + "\u0002"; });
     s = s.replace(/\[\[([A-Za-z0-9_-]+\/\d{4}-\d{2}-\d{2})(?:#([^\]|]*))?(?:\|([^\]]*))?\]\]/g, function (_, key, sec, label) {
       links.push('<button type="button" class="nlink" data-n="' + key + '" data-s="' + normSec(sec) + '">' + (label || normSec(sec) || key).replace(/\*/g, "") + "</button>");
       return "\u0001" + (links.length - 1) + "\u0002";
@@ -742,6 +769,9 @@ html.rec-open { overflow: hidden; }
       .replace(/\b([A-Za-z])_([A-Za-z0-9])\b/g, "$1<sub>$2</sub>")   // D_f, a_n
       .replace(/\s*\(uzupełnione\)/g, '<sup class="dag" title="Dopisane – tego nie było na zajęciach">†</sup>')
       .replace(/\[nieczytelne\]/g, '<span class="ill">[nieczytelne]</span>')
+      .replace(/(\{(?:z\d{1,2}|t\d{1,2}:\d{2})\}\s*){2,}/g, function (run) {   // kilka odnośników z rzędu: pierwsze zdjęcie i pierwsza chwila nagrania wystarczą
+        var z = /\{z\d{1,2}\}/.exec(run), t = /\{t\d{1,2}:\d{2}\}/.exec(run); return (z ? z[0] : "") + (t ? t[0] : "") + /\s*$/.exec(run)[0];
+      })
       .replace(/\{z(\d{1,2})\}/g, '<button type="button" class="zref" data-z="$1" title="Zdjęcie $1">$1</button>')
       .replace(/\{t(\d{1,2}):(\d{2})\}/g, function (_, h, mi) { var t = pad(h) + ":" + mi; return VISIT ? '<span class="tref">' + t + "</span>" : '<button type="button" class="tref" data-t="' + t + '" title="Co mówił prowadzący o ' + t + '">' + t + "</button>"; });
   }
@@ -806,11 +836,16 @@ html.rec-open { overflow: hidden; }
       if (/^\s*```/.test(ln)) { flush(); var code = []; i++; while (i < L.length && !/^\s*```/.test(L[i])) code.push(L[i++]); i++; out.push("<pre><code>" + esc(code.join("\n")) + "</code></pre>"); continue; }
       if (/^\s*>\s*\[!/.test(ln)) { flush(); var q = []; while (i < L.length && /^\s*>/.test(L[i])) q.push(L[i++].replace(/^\s*>\s?/, "")); out.push(callout(q)); continue; }
       if (/^\s*>/.test(ln)) { flush(); var mn = []; while (i < L.length && /^\s*>/.test(L[i])) mn.push(L[i++].replace(/^\s*>\s?/, "")); out.push('<aside class="mn"><span class="mk" aria-hidden="true">†</span>' + inline(esc(mn.join(" "))) + "</aside>"); continue; }
-      if (/^\s*::/.test(ln)) { flush(); var f = []; while (i < L.length && /^\s*::/.test(L[i])) f.push(inline(esc(L[i++].replace(/^\s*::\s?/, "")))); out.push('<div class="disp">' + f.join("<br>") + "</div>"); continue; }
+      if (/^\s*::/.test(ln)) { flush(); var f = []; while (i < L.length && /^\s*::/.test(L[i])) f.push(inline(esc(L[i++].replace(/^\s*::\s?/, "")), true)); out.push('<div class="disp">' + f.join("<br>") + "</div>"); continue; }
+      if (!inner && /^\s*\+\+\+/.test(ln)) {   // „+++ Podpis” … „+++”: zwinięte, otwiera się dotknięciem
+        flush(); var sum = ln.replace(/^\s*\+\+\+\s*/, "") || "Więcej"; var bl = []; i++;
+        while (i < L.length && !/^\s*\+\+\+\s*$/.test(L[i])) bl.push(L[i++]);
+        i++; out.push('<details class="fold"><summary>' + inline(esc(sum)) + '</summary><div class="more-b">' + md(bl.join("\n")) + "</div></details>"); continue;
+      }
       if (!inner && ENV.test(ln)) {
         flush(); var e = [ln]; i++;
-        while (i < L.length && L[i].trim() && !ENV.test(L[i]) && !/^\s*#/.test(L[i])) e.push(L[i++]);
-        if (/Zadanie/.test(ENV.exec(ln)[1])) while (i < L.length && !ENV.test(L[i]) && !/^\s*#/.test(L[i])) e.push(L[i++]);  // rozwiązanie może mieć puste linie
+        while (i < L.length && L[i].trim() && !ENV.test(L[i]) && !/^\s*(#|\+\+\+)/.test(L[i])) e.push(L[i++]);
+        if (/Zadanie/.test(ENV.exec(ln)[1])) while (i < L.length && !ENV.test(L[i]) && !/^\s*(#|\+\+\+)/.test(L[i])) e.push(L[i++]);  // rozwiązanie może mieć puste linie
         out.push(env(e)); continue;
       }
       buf.push(ln); i++;
@@ -1325,6 +1360,7 @@ html.rec-open { overflow: hidden; }
     view = { k: "course", c: f ? f.course : folder, t: "days" }; openDays[folder + "/" + day] = true; setTab("notatki");
     var c = document.getElementById("day-" + folder + "-" + day);
     var h = section && c && Array.prototype.filter.call(c.querySelectorAll(".md h4, .md h5"), function (x) { return normSec(x.textContent) === normSec(section); })[0];
+    var det = h && h.closest("details"); if (det) det.open = true;
     if (h || c) (h || c).scrollIntoView({ block: "start" });
   }
   function courses() {   // przedmioty w kolejności z planu: [{course, folders: [...]}]
@@ -1367,7 +1403,7 @@ html.rec-open { overflow: hidden; }
     drawDays(c);
   }
   function drawGuide(c, guide) {   // przewodnik: wykład + ćwiczenia + co bywa na kolokwiach (courses/<przedmiot>.md)
-    var card = el("div", { class: "card day guide" }), box = el("div", { class: "md", html: md(noTitle(guide.md || "")) }), hs = box.querySelectorAll("h4");
+    var card = el("div", { class: "card day guide" }), box = el("div", { class: "md", html: md(noTitle(guide.md || "")) }), hs = box.querySelectorAll(":scope > h4");
     if (hs.length >= 3) card.appendChild(el("nav", { class: "toc", "aria-label": "Tematy" }, Array.prototype.map.call(hs, function (h) { return btn("", h.textContent, function () { h.scrollIntoView({ behavior: "smooth", block: "start" }); }); })));
     card.appendChild(box);
     var up = guide.updated ? new Date(guide.updated) : null;
@@ -1394,7 +1430,8 @@ html.rec-open { overflow: hidden; }
       var open = key in openDays ? openDays[key] : di === 0;
       ps.sort(function (x, y) { return x.name < y.name ? -1 : 1; });
       var card = el("div", { class: "card day", id: "day-" + f.id + "-" + d, "data-key": key }, [el("div", { class: "dh" }, [el("small", { text: dayLabel(d) + " · " + KIND_L[f.kind] }), el("h3", { text: note ? note.title : "Nowa notatka" })])]);
-      if (note && (note.topics || []).length) card.appendChild(el("p", { class: "plan-l" }, ["W planie nauki: "].concat((note.topics || []).map(function (t, i) {
+      var tops = (note && note.topics || []).filter(function (t, i, a) { return a.findIndex(function (x) { return x.t === t.t; }) === i; });
+      if (tops.length) card.appendChild(el("p", { class: "plan-l" }, ["W planie nauki: "].concat(tops.map(function (t, i) {
         return el("span", {}, [i ? " · " : null, btn("pl", t.t, function () { goToTopic(t.t); })]);
       }))));
       card._ps = ps;
@@ -1418,7 +1455,7 @@ html.rec-open { overflow: hidden; }
       else if (recHere) card.appendChild(el("div", { class: "wait" }, [el("span", { class: "spin" }), "Nagrywanie trwa – notatka uzupełnia się co kilka minut."]));
       if (note) {
         if (open) {
-          var mdBox = el("div", { class: "md", html: md(noTitle(note.md || "")) }), hs = mdBox.querySelectorAll("h4");
+          var mdBox = el("div", { class: "md", html: md(noTitle(note.md || "")) }), hs = mdBox.querySelectorAll(":scope > h4");
           if (hs.length >= 3) card.appendChild(el("nav", { class: "toc", "aria-label": "Spis" }, Array.prototype.map.call(hs, function (h) { return btn("", h.textContent, function () { h.scrollIntoView({ behavior: "smooth", block: "start" }); }); })));
           card.appendChild(mdBox);
           mdBox.querySelectorAll("[data-fig]").forEach(function (b) { blobUrl(b.getAttribute("data-fig")).then(function (u) { b.firstChild.src = u; }, function () { b.closest("figure").classList.add("nofig"); }); });
@@ -2070,6 +2107,7 @@ html.rec-open { overflow: hidden; }
     var br = document.querySelector(".top .brand"); br.textContent = "SimpleAGH · podgląd notatek";
     visitReady.then(function () { var d = new Date(VISIT.expires); br.textContent = "SimpleAGH · podgląd do " + d.getDate() + "." + pad(d.getMonth() + 1); }, function () {});
   }
+  var kxs = $("katex-js"); if (kxs && !window.katex) kxs.addEventListener("load", function () { texCache = {}; render(); });
   setTab(tab);
   refresh();
 })();
