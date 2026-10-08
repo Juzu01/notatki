@@ -280,6 +280,11 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
 .toc { display: grid; gap: 2px; padding: 2px 0 4px; border-bottom: 1px solid var(--line); }
 .toc button { appearance: none; border: 0; background: none; padding: 3px 0; text-align: left; color: var(--muted); font-weight: 500; font-size: 0.9rem; cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .toc button:hover { color: var(--accent); }
+.seg.wide { display: grid; grid-template-columns: 1fr 1fr; margin: 0; padding: 4px; border-radius: 12px; }
+.seg.wide button { font-size: 0.95rem; padding: 8px; border-radius: 9px; }
+.md .nlink { appearance: none; border: 0; background: none; padding: 0; font: inherit; color: var(--accent); text-align: left; cursor: pointer; text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--accent) 35%, transparent); text-underline-offset: 3px; }
+.guide .md > p:first-child { font-style: normal; color: var(--ink); }
+.guide .md h5 { font-size: 0.8rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 4px; }
 
 .setup { display: grid; gap: 12px; }
 .setup input { font: inherit; font-size: 0.95rem; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 11px 12px; width: 100%; }
@@ -718,7 +723,15 @@ html.rec-open { overflow: hidden; }
   var ENV = /^\s*\*\*(Definicja|Twierdzenie|Lemat|Wniosek|Własność|Prawo|Reguła|Przykład|Dowód|Uwaga|Obserwacja|Zadanie)\b/;
   var ENV_K = { Definicja: "def", Twierdzenie: "thm", Lemat: "thm", Wniosek: "thm", Własność: "thm", Prawo: "thm", Reguła: "thm", Przykład: "ex", Dowód: "proof", Uwaga: "rem", Obserwacja: "rem", Zadanie: "task" };
   function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;"); }
-  function inline(s) {  // s już escapowane
+  function inline(s) {  // s już escapowane; [[folder/dzień#sekcja|opis]] – odnośnik do miejsca w notatce (przewodnik po przedmiocie)
+    var links = [];
+    s = s.replace(/\[\[([A-Za-z0-9_-]+\/\d{4}-\d{2}-\d{2})(?:#([^\]|]*))?(?:\|([^\]]*))?\]\]/g, function (_, key, sec, label) {
+      links.push('<button type="button" class="nlink" data-n="' + key + '" data-s="' + normSec(sec) + '">' + (label || normSec(sec) || key).replace(/\*/g, "") + "</button>");
+      return "\u0001" + (links.length - 1) + "\u0002";
+    });
+    return inlineRest(s).replace(/\u0001(\d+)\u0002/g, function (_, i) { return links[+i]; });
+  }
+  function inlineRest(s) {
     return s.replace(/`([^`]+)`/g, "<code>$1</code>")
       .replace(/==([^=]+)==/g, "<mark>$1</mark>")
       .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
@@ -1253,49 +1266,81 @@ html.rec-open { overflow: hidden; }
   }
 
   /* --- Notatki: foldery i dni --- */
+  function normSec(t) { return String(t || "").replace(/[*_{}]/g, "").replace(/\s+/g, " ").trim(); }
   function openNote(folder, day, section) {
-    view = { k: "folder", f: folder }; openDays[folder + "/" + day] = true; setTab("notatki");
+    var f = F(folder);
+    view = { k: "course", c: f ? f.course : folder, t: "days" }; openDays[folder + "/" + day] = true; setTab("notatki");
     var c = document.getElementById("day-" + folder + "-" + day);
-    var h = section && c && Array.prototype.filter.call(c.querySelectorAll(".md h4"), function (x) { return x.textContent.trim() === section; })[0];
+    var h = section && c && Array.prototype.filter.call(c.querySelectorAll(".md h4, .md h5"), function (x) { return normSec(x.textContent) === normSec(section); })[0];
     if (h || c) (h || c).scrollIntoView({ block: "start" });
+  }
+  function courses() {   // przedmioty w kolejności z planu: [{course, folders: [...]}]
+    var out = [], by = {};
+    (CFG.folders || []).forEach(function (f) { if (!by[f.course]) { by[f.course] = { course: f.course, folders: [] }; out.push(by[f.course]); } by[f.course].folders.push(f); });
+    return out;
   }
   function drawNotes() {
     paneN.textContent = "";
-    var f = view.k === "folder" && F(view.f);
-    if (f) drawFolder(f); else drawFolders();
+    var c = view.k === "course" && courses().filter(function (x) { return x.course === view.c; })[0];
+    if (c) drawCourse(c); else drawCourses();
   }
-  function drawFolders() {
+  function drawCourses() {   // jeden wiersz na przedmiot: wykład, ćwiczenia i laboratorium razem
     var all = el("div", { class: "card" });
-    (CFG.folders || []).forEach(function (f) {
-      var n = Object.keys(INDEX.notes || {}).filter(function (k) { return INDEX.notes[k].folder === f.id; }).length;
-      all.appendChild(btn("row", null, function () { view = { k: "folder", f: f.id }; render(); window.scrollTo(0, 0); }, [
-        el("span", { class: "nm", style: fcolor(f) }, [el("b", { text: fname(f) }), el("span", { text: KIND_L[f.kind] + (n ? " · " + nNotes(n) : "") })]),
+    courses().forEach(function (c) {
+      var n = Object.keys(INDEX.notes || {}).filter(function (k) { var f = F(INDEX.notes[k].folder); return f && f.course === c.course; }).length;
+      var f0 = c.folders[0];
+      all.appendChild(btn("row", null, function () { view = { k: "course", c: c.course, t: (INDEX.courses || {})[c.course] ? "guide" : "days" }; render(); window.scrollTo(0, 0); }, [
+        el("span", { class: "nm", style: fcolor(f0) }, [el("b", { text: fname(f0) }), el("span", { text: c.folders.map(function (f) { return KIND_L[f.kind]; }).join(", ") + (n ? " · " + nNotes(n) : "") })]),
         el("span", { class: "chev", "aria-hidden": "true", text: "›" })
       ]));
     });
-    paneN.appendChild(el("section", { class: "sec" }, [el("div", { class: "sec-h" }, [el("h2", { text: "Wszystkie zajęcia" })]), all]));
+    paneN.appendChild(el("section", { class: "sec" }, [el("div", { class: "sec-h" }, [el("h2", { text: "Przedmioty" })]), all]));
   }
-  function drawFolder(f) {
+  function drawCourse(c) {
+    var f0 = c.folders[0], guide = (INDEX.courses || {})[c.course];
+    if (!guide && view.t === "guide") view.t = "days";
     paneN.appendChild(el("div", { class: "fh" }, [
       btn("back", "‹ Wszystkie", function () { view = { k: "home" }; render(); window.scrollTo(0, 0); }),
-      el("div", { class: "t" }, [el("b", { text: fname(f) }), el("span", { text: KIND_L[f.kind] })])
+      el("div", { class: "t" }, [el("b", { text: fname(f0) }), el("span", { text: c.folders.map(function (f) { return KIND_L[f.kind]; }).join(" · ") })])
     ]));
-    var byDay = {};
-    function D(d) { return byDay[d] || (byDay[d] = []); }
-    Object.keys(INDEX.notes || {}).forEach(function (k) { if (INDEX.notes[k].folder === f.id) D(INDEX.notes[k].day); });
-    photos().forEach(function (p) { if (p.folder === f.id) D(p.day).push(p); });
-    Object.keys(TREE || {}).forEach(function (p) { var mm = /^speech\/([^/]+)\/(\d{4}-\d{2}-\d{2})\//.exec(p); if (mm && mm[1] === f.id) D(mm[2]); });
-    if (R && R.folder === f.id) D(R.day);
-    var days = Object.keys(byDay).sort().reverse();
-    if (!days.length) {
-      paneN.appendChild(el("p", { class: "hint", text: "Jeszcze nie ma notatek z tych zajęć. Zrób zdjęcie tablicy w zakładce Aparat." }));
+    if (guide) {
+      var seg = el("div", { class: "seg wide", role: "group", "aria-label": "Widok przedmiotu" });
+      [["guide", "Przewodnik"], ["days", "Zajęcia"]].forEach(function (o) {
+        var b = btn("", o[1], function () { view.t = o[0]; render(); window.scrollTo(0, 0); }); b.setAttribute("aria-pressed", view.t === o[0] ? "true" : "false"); seg.appendChild(b);
+      });
+      paneN.appendChild(seg);
+    }
+    if (view.t === "guide") return drawGuide(c, guide);
+    drawDays(c);
+  }
+  function drawGuide(c, guide) {   // przewodnik: wykład + ćwiczenia + co bywa na kolokwiach (courses/<przedmiot>.md)
+    var card = el("div", { class: "card day guide" }), box = el("div", { class: "md", html: md(noTitle(guide.md || "")) }), hs = box.querySelectorAll("h4");
+    if (hs.length >= 3) card.appendChild(el("nav", { class: "toc", "aria-label": "Tematy" }, Array.prototype.map.call(hs, function (h) { return btn("", h.textContent, function () { h.scrollIntoView({ behavior: "smooth", block: "start" }); }); })));
+    card.appendChild(box);
+    var up = guide.updated ? new Date(guide.updated) : null;
+    var redoB = VISIT ? null : btn("", "Zrób od nowa", function () { redoB.disabled = true; redoB.textContent = "Zlecone"; redo("_kurs", c.course); });
+    card.appendChild(el("p", { class: "legend-n", text: "Przewodnik łączy wykład z ćwiczeniami i ze starymi kolokwiami i egzaminami" + (up && !isNaN(up) ? " · stan z " + up.getDate() + "." + pad(up.getMonth() + 1) + " " + pad(up.getHours()) + ":" + pad(up.getMinutes()) : "") + ". Odświeża się sam po zajęciach." }));
+    if (redoB) card.appendChild(el("div", { class: "tools" }, [redoB]));
+    paneN.appendChild(card);
+  }
+  function drawDays(c) {   // wszystkie zajęcia przedmiotu po dniach, wykład i ćwiczenia razem
+    var ids = c.folders.map(function (f) { return f.id; }), byKey = {};
+    function D(fid, d) { var k = fid + "/" + d; return byKey[k] || (byKey[k] = { f: F(fid), d: d, ps: [] }); }
+    Object.keys(INDEX.notes || {}).forEach(function (k) { var n = INDEX.notes[k]; if (ids.indexOf(n.folder) >= 0) D(n.folder, n.day); });
+    photos().forEach(function (p) { if (ids.indexOf(p.folder) >= 0) D(p.folder, p.day).ps.push(p); });
+    Object.keys(TREE || {}).forEach(function (p) { var mm = /^speech\/([^/]+)\/(\d{4}-\d{2}-\d{2})\//.exec(p); if (mm && ids.indexOf(mm[1]) >= 0) D(mm[1], mm[2]); });
+    if (R && ids.indexOf(R.folder) >= 0) D(R.folder, R.day);
+    var KO = { wyklad: 0, cwiczenia: 1, lab: 2 };
+    var list = Object.keys(byKey).map(function (k) { return byKey[k]; }).sort(function (a, b) { return a.d !== b.d ? (a.d < b.d ? 1 : -1) : KO[a.f.kind] - KO[b.f.kind]; });
+    if (!list.length) {
+      paneN.appendChild(el("p", { class: "hint", text: "Jeszcze nie ma notatek z tego przedmiotu. Zrób zdjęcie tablicy w zakładce Aparat." }));
       return;
     }
-    days.forEach(function (d, di) {
-      var key = f.id + "/" + d, note = (INDEX.notes || {})[key], ps = byDay[d];
+    list.forEach(function (e, di) {
+      var f = e.f, d = e.d, key = f.id + "/" + d, note = (INDEX.notes || {})[key], ps = e.ps;
       var open = key in openDays ? openDays[key] : di === 0;
       ps.sort(function (x, y) { return x.name < y.name ? -1 : 1; });
-      var card = el("div", { class: "card day", id: "day-" + f.id + "-" + d, "data-key": key }, [el("div", { class: "dh" }, [el("small", { text: dayLabel(d) }), el("h3", { text: note ? note.title : "Nowa notatka" })])]);
+      var card = el("div", { class: "card day", id: "day-" + f.id + "-" + d, "data-key": key }, [el("div", { class: "dh" }, [el("small", { text: dayLabel(d) + " · " + KIND_L[f.kind] }), el("h3", { text: note ? note.title : "Nowa notatka" })])]);
       if (note && (note.topics || []).length) card.appendChild(el("p", { class: "plan-l" }, ["W planie nauki: "].concat((note.topics || []).map(function (t, i) {
         return el("span", {}, [i ? " · " : null, btn("pl", t.t, function () { goToTopic(t.t); })]);
       }))));
@@ -1349,6 +1394,8 @@ html.rec-open { overflow: hidden; }
   document.addEventListener("click", function (e) {
     var fg = e.target.closest && e.target.closest(".fgb");
     if (fg) { lbPath = null; wantDel = false; lbDel.hidden = true; lb.classList.remove("zoom"); lbImg.src = fg.firstChild.src || ""; lb.hidden = false; return; }
+    var nl = e.target.closest && e.target.closest(".nlink");
+    if (nl) { var nk = nl.getAttribute("data-n").split("/"); openNote(nk[0], nk[1], nl.getAttribute("data-s")); return; }
     var z = e.target.closest && e.target.closest(".zref");
     if (z) { var card = z.closest(".day"), ps = card && card._ps, p = ps && ps[+z.getAttribute("data-z") - 1]; if (p) openLb(p); return; }
     var b = e.target.closest && e.target.closest(".s-next, .s-all"); if (!b) return;
@@ -1394,8 +1441,8 @@ html.rec-open { overflow: hidden; }
   function naukaCtx(focus) {
     return { key: "nauka", where: "nauka", focus: focus || null, label: "Twój plan, UPeL i notatki" + (focus ? " · temat: " + focus : ""), wait: "Claude przegląda Twój plan" };
   }
-  function currentCtx() { return tab === "nauka" ? naukaCtx(visibleTopic()) : tab === "notatki" && view.k === "folder" ? noteCtx(visibleNoteKey()) : null; }
-  function updateAskFab() { askFab.hidden = !!VISIT || !askBox.hidden || !(tab === "nauka" ? !!naukaDoc() : tab === "notatki" && view.k === "folder" && document.querySelector(".day[data-key] .md")); }
+  function currentCtx() { return tab === "nauka" ? naukaCtx(visibleTopic()) : tab === "notatki" && view.k === "course" ? noteCtx(visibleNoteKey()) : null; }
+  function updateAskFab() { askFab.hidden = !!VISIT || !askBox.hidden || !(tab === "nauka" ? !!naukaDoc() : tab === "notatki" && view.k === "course" && document.querySelector(".day[data-key] .md")); }
   function askBusy() { return ctxA && (chats[ctxA.key] || []).some(function (m) { return !m.a; }); }
   function openAsk(ctx, quote) {
     if (!ctx) return;
