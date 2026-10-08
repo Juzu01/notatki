@@ -353,6 +353,14 @@ html.ask-open { overflow: hidden; }
 .ask-h .ctx span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ask-h .new { appearance: none; border: 0; background: none; color: var(--accent); font-weight: 600; font-size: 0.86rem; padding: 8px 4px; cursor: pointer; flex: none; }
 .ask-h .x { appearance: none; border: 0; background: var(--surface); width: 34px; height: 34px; border-radius: 50%; font-size: 1.35rem; line-height: 1; color: var(--muted); cursor: pointer; flex: none; }
+.pk { height: auto; max-height: 86vh; }
+.pk .pk-log { padding-bottom: 28px; }
+.pk .pk-log > .md { gap: 14px; }
+.pk .mat-img { width: 100%; height: auto; display: block; border-radius: 8px; border: 1px solid var(--line); background: #fff; cursor: zoom-in; }
+.pk .mat-txt { white-space: pre-wrap; font-size: 0.82rem; line-height: 1.5; background: var(--surface); border-radius: 8px; padding: 12px; overflow-x: auto; margin: 0; }
+.pk .mat-meta { font-size: 0.84rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: baseline; }
+.pk .mat-meta a { color: var(--accent); font-weight: 600; }
+.md button.mlink { appearance: none; border: 0; background: none; padding: 0; font: inherit; color: var(--accent); text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--accent) 35%, transparent); text-underline-offset: 3px; cursor: pointer; text-align: left; }
 .ask-log { flex: 1; overflow-y: auto; padding: 18px 16px 8px; display: grid; align-content: start; gap: 18px; overscroll-behavior: contain; }
 .ask-hello { display: grid; gap: 8px; color: var(--muted); font-size: 0.95rem; line-height: 1.55; padding: 4px 2px; }
 .ask-hello b { color: var(--ink); font-size: 1.02rem; }
@@ -490,6 +498,12 @@ html.rec-open { overflow: hidden; }
   <div class="ask-grip" aria-hidden="true"></div>
   <div class="ask-h"><div class="t"><b id="trs-title">Co mówił prowadzący</b><span class="ctx" id="trs-ctx"></span></div><button type="button" class="x" id="trs-x" aria-label="Zamknij">×</button></div>
   <div class="ask-log trs-log" id="trs-log"></div>
+</div>
+<div class="ask-back" id="pk-back" hidden></div>
+<div class="ask pk" id="pk" role="dialog" aria-labelledby="pk-title" hidden>
+  <div class="ask-grip" aria-hidden="true"></div>
+  <div class="ask-h"><div class="t"><b id="pk-title"></b><span class="ctx" id="pk-ctx"></span></div><button type="button" class="new" id="pk-go" hidden>Otwórz w notatce</button><button type="button" class="x" id="pk-x" aria-label="Zamknij">×</button></div>
+  <div class="ask-log pk-log" id="pk-log"></div>
 </div>
 <input type="file" class="file" id="cam" accept="image/*" capture="environment" tabindex="-1" aria-hidden="true">
 <input type="file" class="file" id="gal" accept="image/*" multiple tabindex="-1" aria-hidden="true">
@@ -758,6 +772,10 @@ html.rec-open { overflow: hidden; }
     s = s.replace(/`([^`]+)`/g, function (_, c) { links.push("<code>" + c + "</code>"); return "\u0001" + (links.length - 1) + "\u0002"; });
     s = s.replace(/\$(?=\S)([^$\n]*?\S)\$(?![0-9A-Za-z])([.,;:!?)\]]*)/g, function (_, m, p) {   // przecinek albo nawias zaraz po wzorze nie przeskakuje do nowej linii
       links.push(p ? '<span class="nw">' + tex(unesc(m), disp) + p + "</span>" : tex(unesc(m), disp)); return "\u0001" + (links.length - 1) + "\u0002"; });
+    s = s.replace(/\[\[m:([0-9a-f]{10})(?:\|([^\]]*))?\]\]/g, function (_, id, label) {   // materiał do ćwiczenia: dokładnie ta strona pliku
+      links.push('<button type="button" class="mlink" data-m="' + id + '">' + (label || "materiał").replace(/\*/g, "") + "</button>");
+      return "\u0001" + (links.length - 1) + "\u0002";
+    });
     s = s.replace(/\[\[([A-Za-z0-9_-]+\/\d{4}-\d{2}-\d{2})(?:#([^\]|]*))?(?:\|([^\]]*))?\]\]/g, function (_, key, sec, label) {
       links.push('<button type="button" class="nlink" data-n="' + key + '" data-s="' + normSec(sec) + '">' + (label || normSec(sec) || key).replace(/\*/g, "") + "</button>");
       return "\u0001" + (links.length - 1) + "\u0002";
@@ -1365,9 +1383,78 @@ html.rec-open { overflow: hidden; }
     view = { k: "course", c: f ? f.course : folder, t: "days" }; openDays[folder + "/" + day] = true; setTab("notatki");
     var c = document.getElementById("day-" + folder + "-" + day);
     var h = section && c && Array.prototype.filter.call(c.querySelectorAll(".md h4, .md h5"), function (x) { return normSec(x.textContent) === normSec(section); })[0];
+    if (!h && section && c && ELEM_RX.test(normSec(section))) {   // element: „Zadanie 4”, „Przykład 3”
+      var em = ELEM_RX.exec(normSec(section)), rx = new RegExp("^\\s*" + stemOf(em[1]) + "\\s+" + numsOf(em[2])[0] + "(?!\\d)");
+      h = Array.prototype.filter.call(c.querySelectorAll(".md .env"), function (x) { return rx.test(x.textContent); })[0];
+    }
     var det = h && h.closest("details"); if (det) det.open = true;
     if (h || c) (h || c).scrollIntoView({ block: "start" });
   }
+  /* --- podgląd w okienku: zadanie, przykład, sekcja z notatki albo strona materiału; czytasz dalej tam, gdzie byłeś --- */
+  var pk = $("pk"), pkBack = $("pk-back"), pkLog = $("pk-log"), pkGo = $("pk-go"), pkKey = null, MAT = null;
+  var ELEM_RX = /^(Zadani[ea]|Zadaniu|Zadaniach|Przykład[y]?|Definicj[ae]|Twierdzeni[ea]|Wnios(?:ek|ki)|Własnoś[ćc]i?|Lemat|Uwaga)\s+(\d+(?:\s*[–,-]\s*\d+|\s+i\s+\d+)*)/;
+  function stemOf(w) { return /^Zadani/.test(w) ? "Zadanie" : /^Przykład/.test(w) ? "Przykład" : /^Definicj/.test(w) ? "Definicja" : /^Twierdzeni/.test(w) ? "Twierdzenie" : /^Wnios/.test(w) ? "Wniosek" : /^Własnoś/.test(w) ? "Własność" : w; }
+  function numsOf(t) {   // „5–7” → [5,6,7], „1, 5”, „1 i 5” → [1,5]
+    var out = []; t.split(/\s*,\s*|\s+i\s+/).forEach(function (p) { var r = /^(\d+)\s*[–-]\s*(\d+)$/.exec(p); if (r) { for (var i = +r[1]; i <= +r[2] && out.length < 12; i++) out.push(i); } else if (+p) out.push(+p); });
+    return out;
+  }
+  function elemMd(md, sec) {   // „Zadanie 4”, „Zadania 5–6”, „Przykład 3” → markdown tych elementów (albo null)
+    var m = ELEM_RX.exec(normSec(sec)); if (!m) return null;
+    var stem = stemOf(m[1]), L = String(md).split("\n"), parts = [];
+    numsOf(m[2]).forEach(function (n) {
+      var rx = new RegExp("^\\s*\\*\\*" + stem + "\\s+" + n + "(?!\\d)"), i = L.findIndex(function (x) { return rx.test(x); });
+      if (i < 0) return;
+      var j = i + 1, stop = function (x) { return ENV.test(x) || /^\s*(#|\+\+\+)/.test(x); };
+      if (stem === "Zadanie") while (j < L.length && !stop(L[j])) j++;
+      else while (j < L.length && L[j].trim() && !stop(L[j])) j++;
+      parts.push(L.slice(i, j).join("\n").replace(/\s+$/, ""));
+    });
+    return parts.length ? parts.join("\n\n") : null;
+  }
+  function secMd(md, sec) {   // treść sekcji o tym nagłówku (bez samego nagłówka), do następnego nagłówka tego samego albo wyższego poziomu
+    var L = String(md).split("\n"), want = normSec(sec), i = -1, lv = 0;
+    for (var k = 0; k < L.length; k++) { var h = /^(#{1,6})\s+(.*)$/.exec(L[k]); if (h && (normSec(h[2]) === want || normSec(h[2]).indexOf(want) === 0)) { i = k; lv = h[1].length; break; } }
+    if (i < 0) return null;
+    var j = i + 1; while (j < L.length && !(new RegExp("^#{1," + lv + "}\\s")).test(L[j])) j++;
+    return L.slice(i + 1, j).join("\n").trim();
+  }
+  function peekOpen(title, ctx, go) {
+    $("pk-title").textContent = title; $("pk-ctx").textContent = ctx || ""; pkLog.textContent = "";
+    pkGo.hidden = !go; pkGo.onclick = go ? function () { peekClose(); go(); } : null;
+    pk.hidden = false; pkBack.hidden = false; document.documentElement.classList.add("ask-open"); pkLog.scrollTop = 0;
+  }
+  function peekClose() { pk.hidden = true; pkBack.hidden = true; pkKey = null; if (trs.hidden) document.documentElement.classList.remove("ask-open"); }
+  $("pk-x").addEventListener("click", peekClose); pkBack.addEventListener("click", peekClose);
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !pk.hidden) peekClose(); });
+  function peekRef(folder, day, sec, label) {
+    var key = folder + "/" + day, note = (INDEX.notes || {})[key], f = F(folder);
+    var ctx = (f ? fname(f) + " · " + KIND_L[f.kind] + " · " : "") + shortDay(day);
+    var src = note && sec ? (elemMd(note.md, sec) || secMd(note.md, sec)) : null;
+    peekOpen(normSec(label || sec || (note && note.title) || "Notatka"), ctx, function () { openNote(folder, day, sec); });
+    if (!note) { pkLog.appendChild(el("p", { class: "hint", text: "Tej notatki jeszcze nie ma." })); return; }
+    if (!src) src = noTitle(note.md);   // całej sekcji nie znaleziono: cała notatka
+    pkKey = key;
+    var box = el("div", { class: "md", html: md(src) }); pkLog.appendChild(box);
+    box.querySelectorAll("[data-fig]").forEach(function (b) { blobUrl(b.getAttribute("data-fig")).then(function (u) { b.firstChild.src = u; }, function () { b.closest("figure").classList.add("nofig"); }); });
+  }
+  function peekMat(id, label) {
+    peekOpen(normSec(label || "Materiał"), "", null);
+    if (VISIT) { pkLog.appendChild(el("p", { class: "hint", text: "Materiały do ćwiczenia są tylko w Twojej aplikacji, nie w podglądzie gościa." })); return; }
+    pkLog.appendChild(el("p", { class: "hint", text: "Wczytuję…" }));
+    (MAT ? Promise.resolve(MAT) : rawJson("materials.json").then(function (j) { return (MAT = j.items || {}); })).then(function (items) {
+      var it = items[id]; pkLog.textContent = "";
+      if (!it) { pkLog.appendChild(el("p", { class: "hint", text: "Tego materiału nie ma w repo." })); return; }
+      $("pk-ctx").textContent = it.t + (it.k === "img" && it.n > 1 ? " · strona " + it.p + " z " + it.n : "");
+      var meta = el("p", { class: "mat-meta" }, [it.u ? el("a", { href: it.u, target: "_blank", rel: "noopener", text: "Cały plik na UPeL-u" }) : null]);
+      if (it.k === "txt") {
+        return api("contents/materials/" + id + ".txt?ref=" + BRANCH, { raw: true }).then(function (t) { pkLog.appendChild(el("pre", { class: "mat-txt", text: t })); if (it.u) pkLog.appendChild(meta); });
+      }
+      var img = el("img", { class: "mat-img", alt: it.t }); pkLog.appendChild(img); if (it.u) pkLog.appendChild(meta);
+      img.addEventListener("click", function () { lbPath = null; wantDel = false; lbDel.hidden = true; lb.classList.remove("zoom"); lbImg.src = img.src; lb.hidden = false; });
+      return blobUrl("materials/" + id + ".jpg").then(function (u) { img.src = u; });
+    }).catch(function () { pkLog.textContent = ""; pkLog.appendChild(el("p", { class: "hint", text: "Nie udało się wczytać materiału." })); });
+  }
+
   function courses() {   // przedmioty w kolejności z planu: [{course, folders: [...]}]
     var out = [], by = {};
     (CFG.folders || []).forEach(function (f) { if (!by[f.course]) { by[f.course] = { course: f.course, folders: [] }; out.push(by[f.course]); } by[f.course].folders.push(f); });
@@ -1490,7 +1577,9 @@ html.rec-open { overflow: hidden; }
     var fg = e.target.closest && e.target.closest(".fgb");
     if (fg) { lbPath = null; wantDel = false; lbDel.hidden = true; lb.classList.remove("zoom"); lbImg.src = fg.firstChild.src || ""; lb.hidden = false; return; }
     var nl = e.target.closest && e.target.closest(".nlink");
-    if (nl) { var nk = nl.getAttribute("data-n").split("/"); openNote(nk[0], nk[1], nl.getAttribute("data-s")); return; }
+    if (nl) { var nk = nl.getAttribute("data-n").split("/"); peekRef(nk[0], nk[1], nl.getAttribute("data-s"), nl.textContent); return; }
+    var ml = e.target.closest && e.target.closest(".mlink");
+    if (ml) { peekMat(ml.getAttribute("data-m"), ml.textContent); return; }
     var z = e.target.closest && e.target.closest(".zref");
     if (z) { var card = z.closest(".day"), ps = card && card._ps, p = ps && ps[+z.getAttribute("data-z") - 1]; if (p) openLb(p); return; }
     var b = e.target.closest && e.target.closest(".s-next, .s-all"); if (!b) return;
@@ -2081,11 +2170,11 @@ html.rec-open { overflow: hidden; }
   $("trs-x").addEventListener("click", closeTranscript);
   trsBack.addEventListener("click", closeTranscript);
   document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !trs.hidden) closeTranscript(); });
-  document.addEventListener("click", function (e) {   // „(Zadanie 2)” w „Musisz umieć”: przewiń do zadania w tej notatce
+  document.addEventListener("click", function (e) {   // „(Zadanie 2)”, „(Zadania 3–4)” w notatce: okienko z tym zadaniem, bez przewijania
     var z = e.target.closest && e.target.closest("button.zad"); if (!z) return;
-    var box = z.closest(".md"), n = z.getAttribute("data-zad");
-    var tk = box && Array.prototype.filter.call(box.querySelectorAll(".env.task"), function (x) { return new RegExp("^\\s*Zadanie\\s+" + n + "\\b").test(x.textContent); })[0];
-    if (tk) { var d = tk.closest("details"); if (d) d.open = true; tk.scrollIntoView({ behavior: "smooth", block: "start" }); }
+    var card = z.closest(".day[data-key]"), key = card ? card.getAttribute("data-key") : pkKey;
+    if (!key) return;
+    var k = key.split("/"); peekRef(k[0], k[1], z.textContent, z.textContent);
   });
   document.addEventListener("click", function (e) {
     var t = e.target.closest && e.target.closest(".tref"); if (!t || VISIT) return;
