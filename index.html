@@ -1814,7 +1814,7 @@ html.rec-open { overflow: hidden; }
     m.thread = (prev[0] && (prev[0].thread || prev[0].id)) || m.id;   // id pierwszego pytania = wątek rozmowy na GitHubie
     m.t0 = Date.now(); m.wait = prev.length ? "Claude myśli" : cx.wait; m.follow = !!prev.length; delete m.queued; saveChats();
     var json = JSON.stringify({ id: m.id, thread: m.thread, note: cx.note || null, ctx: { where: cx.where, focus: cx.focus || null }, question: m.q, quote: m.quote || null, history: hist });
-    api("contents/asks/" + m.id + ".json", { method: "PUT", body: { message: "Pytanie: " + (cx.note || "nauka"), content: btoa(unescape(encodeURIComponent(json))), branch: BRANCH } })
+    putAsk("contents/asks/" + m.id + ".json", { message: "Pytanie: " + (cx.note || "nauka"), content: btoa(unescape(encodeURIComponent(json))), branch: BRANCH }, 4)
       .then(function () { pollAsk(); }, function (e) {
         m.a = e && e.status === 403 ? "Klucz ma tylko odczyt, więc pytanie nie poszło." : "Nie udało się wysłać pytania. Sprawdź internet i spróbuj jeszcze raz."; m.err = true; saveChats();
         pumpAsk(key); if (!askBox.hidden && ctxA && ctxA.key === key) renderAsk({ id: m.id });
@@ -1823,6 +1823,15 @@ html.rec-open { overflow: hidden; }
   // Odpowiedź przychodzi na żywo z gałęzi live (a/<id>.json: kawałki w trakcie pisania, na końcu done: true);
   // answers/<id>.json na main to zapis na stałe – sprawdzany co trzeci raz, gdyby live zawiodło
   var askTick = 0, lastAnsT = 0;
+  // Zapis pytania zbiega się często z wypchnięciem poprzedniej odpowiedzi (pytanie z kolejki idzie od razu po niej) – GitHub odpowiada
+  // wtedy 409, więc ponawia; 422 przy ponowieniu = plik już jest, czyli poprzednia próba jednak doszła
+  function putAsk(path, body, n) {
+    return api(path, { method: "PUT", body: body }).catch(function (e) {
+      if (e && e.status === 422 && n < 4) return;
+      if (n <= 0 || (e && (e.code === "auth" || e.status === 403))) throw e;
+      return new Promise(function (r) { setTimeout(r, 1200); }).then(function () { return putAsk(path, body, n - 1); });
+    });
+  }
   function pollAsk() {
     clearTimeout(askTimer);
     var pend = [];
@@ -1860,7 +1869,7 @@ html.rec-open { overflow: hidden; }
     if (!TOKEN || VISIT || Date.now() - Math.max(warmT, lastAnsT) < 90000) return;
     if (Object.keys(chats).some(function (k) { return chats[k].some(function (m) { return !m.a && !m.queued; }); })) return;
     warmT = Date.now();
-    api("contents/asks/w-" + Date.now().toString(36) + ".json", { method: "PUT", body: { message: "Rozgrzewka", content: btoa("{}"), branch: BRANCH } }).catch(function () { warmT = 0; });
+    putAsk("contents/asks/w-" + Date.now().toString(36) + ".json", { message: "Rozgrzewka", content: btoa("{}"), branch: BRANCH }, 2).catch(function () { warmT = 0; });
   }
   setInterval(function () {
     if (askBox.hidden || !ctxA) return;
