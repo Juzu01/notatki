@@ -726,6 +726,7 @@ html.rec-open { overflow: hidden; }
       var jobs = [];
       if (TREE["folders.json"] !== cfgSha) jobs.push(rawJson("folders.json").then(function (c) { CFG = c; cfgSha = TREE["folders.json"]; }));
       if (TREE["progress.json"] && TREE["progress.json"] !== progSha) jobs.push(rawJson("progress.json").then(function (x) { PROG = x; progSha = TREE["progress.json"]; applyProgress(); }, function () {}));
+      if (TREE["groq.json"] && TREE["groq.json"] !== gkSha) jobs.push(rawJson("groq.json").then(function (x) { gkSha = TREE["groq.json"]; groqKeys(x); }, function () {}));
       if (TREE["index.json"] !== idxSha) jobs.push(rawJson("index.json").then(function (x) { INDEX = x || { notes: {} }; idxSha = TREE["index.json"]; }));
       if (active(RUN)) {
         jobs.push(api("actions/runs/" + RUN.id + "/jobs").then(function (j) { JOB = (j.jobs || [])[0] || null; }, function () { JOB = null; }));
@@ -2895,6 +2896,18 @@ html.rec-open { overflow: hidden; }
   var GROQ = lsGet(LS_G) || "", groqBad = false;
   var gq = VISIT ? null : /[#&]groq=(gsk_[A-Za-z0-9]+)/.exec(HASH0);
   if (gq) { GROQ = gq[1]; lsSet(LS_G, GROQ); if (/groq=/.test(location.hash)) history.replaceState(null, "", location.pathname + location.hash.replace(/[#&]groq=gsk_[A-Za-z0-9]+/, "")); }
+  // klucze z groq.json w prywatnym repo: bez klucza (albo gdy Groq go odrzuci) bierze następny działający, nic nie trzeba wklejać.
+  // Wszystkie są z jednego konta Groq (wspólny limit), więc to zapas, a nie szybsze przepisywanie.
+  var GKEYS = [], gkSha = null, gkDead = {};
+  function groqKeys(x) {
+    GKEYS = ((x && x.keys) || []).filter(function (k) { return /^gsk_\w+$/.test(k); });
+    if ((!GROQ || groqBad) && nextGroq()) { recUI(); pump(); }
+  }
+  function nextGroq() {
+    var k = GKEYS.filter(function (k) { return !gkDead[k]; })[0];
+    if (!k) return false;
+    GROQ = k; groqBad = false; recErr = ""; lsSet(LS_G, k); return true;
+  }
   var recBox = $("rec"), recBar = $("recbar");
   var Q = [], R = null, recView = null, keyEdit = false, recErr = "", flushNow = {}, recLang = {}, DONE = null, RESUME = null, stopArm = 0, pumping = false, pumpT = null;
   try { RESUME = JSON.parse(lsGet(LS_R) || "null"); } catch (e) { RESUME = null; }
@@ -3090,7 +3103,7 @@ html.rec-open { overflow: hidden; }
       if (R && rkey(R) === key) { R.lines = R.lines.concat(segs).slice(-60); }
       recErr = ""; groqBad = false;
     }, function (e) {
-      if (e.code === "gauth") { groqBad = true; recErr = "Klucz Groq nie działa. Wklej nowy (nagranie czeka w telefonie)."; return; }
+      if (e.code === "gauth") { gkDead[GROQ] = 1; if (nextGroq()) return; groqBad = true; recErr = "Klucz Groq nie działa. Wklej nowy (nagranie czeka w telefonie)."; return; }
       a.tries = (a.tries || 0) + 1;
       if (e.code === "bad" && a.tries >= 3) { Q = Q.filter(function (x) { return x.id !== a.id; }); qDel([a.id]); return; }   // zepsuty kawałek: nie blokuj reszty
       a.next = Date.now() + (e.wait || Math.min(60000, 2500 * Math.pow(2, a.tries)));
