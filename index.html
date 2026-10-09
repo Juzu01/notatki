@@ -24,7 +24,7 @@
    i Notatki (foldery przedmiot + forma zajęć, w folderze notatki po dniach). Kolory i krój jak SimpleAGH. */
 :root {
   --bg: #f3f5f3; --surface: #ffffff; --ink: #18211c; --muted: #5c6962; --faint: #89958e; --line: #e1e7e3;
-  --accent: #0b6b45; --accent-soft: #e2f1e9; --hot: #b42318; --warn: #b26a00; --warn-soft: #fbefdc; --k-thm: #6a46c8; --k-ex: #2b62c9; --hl: #ffe680;
+  --accent: #0b6b45; --accent-soft: #e2f1e9; --hot: #b42318; --warn: #b26a00; --warn-soft: #fbefdc; --k-thm: #6a46c8; --k-ex: #2b62c9; --hl: #ffe680; --sx-s: #a3530f;
   --c-ma: #3b6fd8; --c-ha: #7b55d0; --c-dm: #0f8a7e; --c-lcs: #b8860b; --c-ics: #cc4b73; --c-unix: #3f8f34; --c-pl1: #d65a26;
   --serif: "Source Serif 4", "Iowan Old Style", Charter, Georgia, serif;
   --font: "Figtree", system-ui, -apple-system, "Segoe UI", Roboto, Arial, "Noto Sans Math", sans-serif;
@@ -34,14 +34,14 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #0f1311; --surface: #171d1a; --ink: #e5ebe7; --muted: #9daaa3; --faint: #6f7c75; --line: #27312c;
-    --accent: #52c48f; --accent-soft: #19322a; --hot: #ff8a7d; --warn: #f0b44c; --warn-soft: #33281a; --k-thm: #b39af5; --k-ex: #82aaf7; --hl: rgb(240 190 70 / 0.35);
+    --accent: #52c48f; --accent-soft: #19322a; --hot: #ff8a7d; --warn: #f0b44c; --warn-soft: #33281a; --k-thm: #b39af5; --k-ex: #82aaf7; --hl: rgb(240 190 70 / 0.35); --sx-s: #e5a774;
     --c-ma: #7ba3f5; --c-ha: #a98cf0; --c-dm: #42c2b4; --c-lcs: #e0b54a; --c-ics: #ee82a5; --c-unix: #82cc6e; --c-pl1: #ff9663;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --bg: #0f1311; --surface: #171d1a; --ink: #e5ebe7; --muted: #9daaa3; --faint: #6f7c75; --line: #27312c;
-  --accent: #52c48f; --accent-soft: #19322a; --hot: #ff8a7d; --warn: #f0b44c; --warn-soft: #33281a; --k-thm: #b39af5; --k-ex: #82aaf7; --hl: rgb(240 190 70 / 0.35);
+  --accent: #52c48f; --accent-soft: #19322a; --hot: #ff8a7d; --warn: #f0b44c; --warn-soft: #33281a; --k-thm: #b39af5; --k-ex: #82aaf7; --hl: rgb(240 190 70 / 0.35); --sx-s: #e5a774;
   --c-ma: #7ba3f5; --c-ha: #a98cf0; --c-dm: #42c2b4; --c-lcs: #e0b54a; --c-ics: #ee82a5; --c-unix: #82cc6e; --c-pl1: #ff9663;
   color-scheme: dark;
 }
@@ -293,6 +293,74 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
 .md .term .tl-dim { color: #8a9096; font-style: italic; }
 .md .term .tl-err { color: #ff8a80; }
 .md .term .tl-warn { color: #ffd479; }
+.md .term .tl-in { color: #7ee2a8; }
+/* kod C: kolory składni */
+.md .sx-k { color: var(--k-thm); }
+.md .sx-n { color: var(--k-ex); }
+.md .sx-s { color: var(--sx-s); }
+.md .sx-c { color: var(--faint); font-style: italic; }
+.md .sx-p { color: var(--c-pl1); }
+/* animacja „Uruchom”: pasek przesuwa się po wykonywanych liniach, pod kodem sterowanie, zmienne i terminal */
+.md .runc { scroll-margin-top: 130px; }
+.md .runc > * { min-width: 0; }
+.md .ct-code { background: var(--bg); border-radius: 8px; padding: 10px 0; overflow-x: auto; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.84rem; line-height: 1.5; }
+.md .ct-in { position: relative; width: max-content; min-width: 100%; }
+.md .ct-l { position: relative; padding: 0 12px; white-space: pre; tab-size: 4; min-height: 1.5em; }
+.md .ct-slab { position: absolute; left: 0; right: 0; top: 0; height: 1.5em; background: color-mix(in srgb, var(--accent) 14%, var(--bg)); box-shadow: inset 3px 0 0 var(--accent); opacity: 0; pointer-events: none; }
+.md .ct-slab.on { opacity: 1; }
+.md .ct-slab.err { background: color-mix(in srgb, var(--hot) 15%, transparent); box-shadow: inset 3px 0 0 var(--hot); }
+.md .ct-l mark.ct-m { background: color-mix(in srgb, var(--accent) 24%, transparent); color: inherit; border-radius: 3px; padding: 1px 0; }
+.md .ct-b { position: sticky; right: 8px; z-index: 1; box-shadow: 0 0 0 3px var(--bg); display: inline-block; margin-left: 10px; padding: 0 8px; border-radius: 99px; font-family: var(--font); font-size: 0.72rem; font-weight: 700; line-height: 1.6; vertical-align: 1px; background: var(--accent); color: var(--surface); white-space: nowrap; }
+.md .ct-b.no { background: var(--warn); }
+.md .ct-b.err { background: var(--hot); }
+.md .ct-b small { font-size: 0.85em; opacity: 0.75; margin-left: 2px; }
+.md .ct-panel { display: grid; gap: 10px; }
+.md .ct-ctl { display: flex; align-items: center; gap: 6px; }
+.md .ct-ctl button { appearance: none; border: 0; flex: none; width: 36px; height: 36px; padding: 0; border-radius: 99px; display: grid; place-items: center; background: var(--bg); color: var(--ink); cursor: pointer; }
+.md .ct-ctl button svg { width: 18px; height: 18px; }
+.md .ct-ctl .ct-play { background: var(--accent); color: var(--surface); }
+.md .ct-ctl .ct-sp { width: auto; min-width: 40px; padding: 0 9px; font-family: var(--font); font-size: 0.8rem; font-weight: 700; }
+.md .ct-ctl input[type="range"] { flex: 1 1 auto; width: 40px; margin: 0 4px; accent-color: var(--accent); }
+.md .ct-k { flex: none; min-width: 3.4em; text-align: right; font-size: 0.75rem; color: var(--faint); }
+.md .ct-note { font-size: 0.82rem; color: var(--muted); }
+.md .ct-vars { display: grid; gap: 6px; }
+.md .ct-vars:empty { display: none; }
+.md .ct-fr { display: flex; align-items: flex-start; gap: 6px 14px; padding: 7px 10px 8px; border: 1px solid var(--line); border-radius: 10px; }
+.md .ct-fr.cur { border-color: color-mix(in srgb, var(--accent) 50%, var(--line)); }
+.md .ct-fr.old { opacity: 0.62; }
+.md .ct-fn { flex: none; min-width: 3.6em; padding-top: 1px; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.76rem; font-weight: 700; color: var(--muted); }
+.md .ct-fr.cur .ct-fn { color: var(--accent); }
+.md .ct-fr.glob .ct-fn { font-family: var(--font); font-weight: 600; max-width: 5.5em; }
+.md .ct-more { font-size: 0.8rem; color: var(--faint); padding-left: 10px; }
+.md .ct-vs { flex: 1; min-width: 0; display: flex; flex-wrap: wrap; align-items: flex-start; gap: 8px 12px; }
+.md .ct-none { font-size: 0.8rem; color: var(--faint); padding-top: 1px; }
+.md .ct-v { display: grid; gap: 2px; justify-items: start; max-width: 100%; }
+.md .ct-n { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.72rem; color: var(--muted); }
+.md .ct-x { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.86rem; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 2px 8px; min-width: 2.4em; text-align: center; white-space: pre-wrap; overflow-wrap: anywhere; }
+.md .ct-x small, .md .ct-c small { color: var(--faint); font-size: 0.72em; margin-left: 4px; }
+.md .q { color: var(--faint); }
+.md .ct-cells, .md .ct-row { display: flex; max-width: 100%; overflow-x: auto; }
+.md .ct-grid { display: grid; gap: 0; }
+.md .ct-c { display: grid; justify-items: stretch; text-align: center; font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+.md .ct-c b { font-weight: 400; font-size: 0.84rem; background: var(--bg); border: 1px solid var(--line); margin-left: -1px; padding: 2px 6px; min-width: 2.2em; white-space: pre; }
+.md .ct-cells .ct-c:first-child b, .md .ct-row .ct-ri + .ct-c b { margin-left: 0; border-radius: 6px 0 0 6px; }
+.md .ct-cells .ct-c:last-child b, .md .ct-row .ct-c:last-child b { border-radius: 0 6px 6px 0; }
+.md .ct-row + .ct-row .ct-c b { margin-top: -1px; }
+.md .ct-c i, .md .ct-ri { font-style: normal; font-size: 0.62rem; color: var(--faint); line-height: 1.4; }
+.md .ct-ri { align-self: center; min-width: 1.2em; padding-right: 3px; text-align: right; }
+.md .ct-c.nul b { color: var(--faint); }
+.md .ct-c.more b { border-style: dashed; color: var(--faint); }
+@media (prefers-reduced-motion: no-preference) {
+  .md .ct-slab { transition: transform 0.26s cubic-bezier(0.3, 0.7, 0.3, 1), height 0.26s cubic-bezier(0.3, 0.7, 0.3, 1), opacity 0.2s, background-color 0.2s, box-shadow 0.2s; }
+  .md .ct-b { animation: ctpop 0.22s ease-out; }
+  .md .ct-x.chg, .md .ct-c.chg b { animation: ctchg 1.1s ease-out; }
+  .md .ct-v.new { animation: ctin 0.3s ease-out; }
+  .md .term .tl-run > span { animation: ctin 0.25s ease-out; }
+}
+.md .ct-x.chg, .md .ct-c.chg b { border-color: var(--accent); }
+@keyframes ctpop { from { opacity: 0; transform: translateX(-5px); } to { opacity: 1; transform: none; } }
+@keyframes ctchg { from { background: color-mix(in srgb, var(--accent) 32%, var(--bg)); } to { background: var(--bg); } }
+@keyframes ctin { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: none; } }
 .tw { overflow-x: auto; }
 .md table { border-collapse: collapse; font-size: 0.95rem; margin: 2px auto; border-top: 1.5px solid var(--ink); border-bottom: 1.5px solid var(--ink); }
 .md th, .md td { padding: 4px 14px; text-align: center; }
@@ -871,6 +939,609 @@ html.rec-open { overflow: hidden; }
     if (kind === "task" && cut >= 0) return task(md(lines.slice(0, cut).join("\n"), true), lines.slice(cut + 1));
     return '<div class="env ' + kind + '">' + md(lines.join("\n"), true) + "</div>";
   }
+  /* --- śledzenie programu w C (animacja „Uruchom” jak w Brilliant): przeglądarka dopisuje do kodu czujniki przy każdej instrukcji, warunku i return,
+     gcc na godbolt.org wykonuje taki program naprawdę, a w wyjściu między znakami \x1e…\x1f wraca ślad: która instrukcja, wartości zmiennych, wynik warunku --- */
+  var CT = (function () {
+    var KW = new Set("auto break case char const continue default do double else enum extern float for goto if inline int long register restrict return short signed sizeof static struct switch typedef union unsigned void volatile while _Alignas _Alignof _Atomic _Bool _Complex _Generic _Imaginary _Noreturn _Static_assert _Thread_local alignas alignof bool constexpr false nullptr static_assert thread_local true typeof typeof_unqual __attribute__ __extension__ __typeof__ __typeof __restrict __inline __inline__ __asm__ asm __int128".split(" "));
+    var TSPEC = new Set("void char short int long float double signed unsigned _Bool bool _Complex __int128 auto".split(" "));
+    var QUAL = new Set("const volatile restrict __restrict _Atomic".split(" "));
+    var STORE = new Set("typedef static extern register inline __inline __inline__ _Noreturn _Thread_local thread_local constexpr".split(" "));
+    var STDT = "size_t ssize_t ptrdiff_t intptr_t uintptr_t intmax_t uintmax_t int8_t int16_t int32_t int64_t uint8_t uint16_t uint32_t uint64_t int_least8_t int_least16_t int_least32_t int_least64_t uint_least8_t uint_least16_t uint_least32_t uint_least64_t int_fast8_t int_fast16_t int_fast32_t int_fast64_t uint_fast8_t uint_fast16_t uint_fast32_t uint_fast64_t FILE wchar_t wint_t time_t clock_t off_t va_list div_t ldiv_t lldiv_t fpos_t pid_t char16_t char32_t char8_t max_align_t nullptr_t".split(" ");
+    var CTRL = new Set("break case continue default do else for goto if return switch while sizeof typedef".split(" "));
+    var PUNCT = ["%:%:", "...", "<<=", ">>=", "->", "++", "--", "<<", ">>", "<=", ">=", "==", "!=", "&&", "||", "*=", "/=", "%=", "+=", "-=", "&=", "^=", "|=", "##", "::"];
+
+    function lex(src) {
+      var out = [], i = 0, n = src.length, lineStart = true;
+      while (i < n) {
+        var c = src[i], j;
+        if (c === "\n") { lineStart = true; i++; continue; }
+        if (c === " " || c === "\t" || c === "\r" || c === "\f" || c === "\v") { i++; continue; }
+        if (c === "\\" && src[i + 1] === "\n") { i += 2; continue; }
+        if (c === "#" && lineStart) {
+          j = i;
+          while (j < n && src[j] !== "\n") {
+            if (src[j] === "\\" && src[j + 1] === "\n") j += 2;
+            else if (src[j] === "/" && src[j + 1] === "*") { var k = src.indexOf("*/", j + 2); j = k < 0 ? n : k + 2; }
+            else if (src[j] === "/" && src[j + 1] === "/") break;
+            else j++;
+          }
+          out.push({ t: "pp", v: src.slice(i, j), s: i, e: j }); i = j; continue;
+        }
+        lineStart = false;
+        if (c === "/" && src[i + 1] === "/") {
+          j = i; while (j < n && src[j] !== "\n") j += src[j] === "\\" && src[j + 1] === "\n" ? 2 : 1;
+          out.push({ t: "cm", v: src.slice(i, j), s: i, e: j }); i = j; continue;
+        }
+        if (c === "/" && src[i + 1] === "*") {
+          j = src.indexOf("*/", i + 2); j = j < 0 ? n : j + 2;
+          out.push({ t: "cm", v: src.slice(i, j), s: i, e: j }); i = j; continue;
+        }
+        var m = /^(?:u8|[LuU])?(["'])/.exec(src.slice(i, i + 3));
+        if (m) {
+          var q = m[1]; j = i + m[0].length;
+          while (j < n && src[j] !== q && src[j] !== "\n") j += src[j] === "\\" ? 2 : 1;
+          j = Math.min(n, j + 1);
+          out.push({ t: q === '"' ? "str" : "chr", v: src.slice(i, j), s: i, e: j }); i = j; continue;
+        }
+        if (/[A-Za-z_$]/.test(c)) {
+          j = i + 1; while (j < n && /[\w$]/.test(src[j])) j++;
+          out.push({ t: "id", v: src.slice(i, j), s: i, e: j }); i = j; continue;
+        }
+        if (/\d/.test(c) || (c === "." && /\d/.test(src[i + 1] || ""))) {
+          m = /^\.?\d(?:[eEpP][+-]|[\w.']|)*/.exec(src.slice(i));
+          j = i + m[0].length; out.push({ t: "num", v: m[0], s: i, e: j }); i = j; continue;
+        }
+        var pv = c;
+        for (var pi = 0; pi < PUNCT.length; pi++) if (src.startsWith(PUNCT[pi], i)) { pv = PUNCT[pi]; break; }
+        out.push({ t: "p", v: pv, s: i, e: i + pv.length }); i += pv.length;
+      }
+      return out;
+    }
+
+    /* kolorowanie składni: klasa dla każdego znaku (do rysowania linii z podświetleniem fragmentu) */
+    function charClasses(src, toks) {
+      var cls = new Array(src.length).fill("");
+      toks.forEach(function (t, k) {
+        var c = t.t === "cm" ? "sx-c" : t.t === "pp" ? "sx-p" : t.t === "str" || t.t === "chr" ? "sx-s" : t.t === "num" ? "sx-n" :
+          t.t === "id" && (KW.has(t.v) || STDT.indexOf(t.v) >= 0) ? "sx-k" : t.t === "id" && toks[k + 1] && toks[k + 1].v === "(" ? "sx-f" : "";
+        if (t.t === "pp") {   // #include <stdio.h>: dyrektywa i nazwa pliku osobno
+          var mm = /^(#\s*\w+)(\s*)(.*)$/.exec(t.v);
+          if (mm) { for (var a = 0; a < t.e - t.s; a++) cls[t.s + a] = a < mm[1].length ? "sx-p" : /^\s*[<"]/.test(mm[3]) ? "sx-s" : ""; return; }
+        }
+        if (c) for (var i = t.s; i < t.e; i++) cls[i] = c;
+      });
+      return cls;
+    }
+    function hlRange(src, cls, a, b, ms, me) {   // HTML znaków [a,b), fragment [ms,me) w <mark>
+      var h = "", i = a, open = false;
+      while (i < b) {
+        var inM = i >= ms && i < me, c = cls[i], j = i + 1;
+        if (inM !== open) { h += inM ? '<mark class="ct-m">' : "</mark>"; open = inM; }
+        while (j < b && cls[j] === c && (j >= ms && j < me) === inM) j++;
+        var t = src.slice(i, j).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        h += c ? '<span class="' + c + '">' + t + "</span>" : t; i = j;
+      }
+      return open ? h + "</mark>" : h;
+    }
+    function highlight(src) { var cls = charClasses(src, lex(src)); return hlRange(src, cls, 0, src.length, -1, -1); }
+
+    /* dopisanie czujników do programu */
+    function instrument(src) {
+      var all = lex(src), T = all.filter(function (t) { return t.t !== "cm" && t.t !== "pp"; }), p = 0;
+      var typedefs = new Set(STDT), tdStruct = {}, structs = {}, vars = [], sites = [], ins = [], scopes = [[]], fn = null, nPrint = 0;
+      function v(k) { var t = T[p + (k || 0)]; return t ? t.v : ""; }
+      function tk(k) { return T[p + (k || 0)]; }
+      function fail(msg) { throw new Error("ct: " + msg + " @" + (T[p] ? T[p].s : "koniec")); }
+      function eat(x) { if (v() !== x) fail("oczekiwano " + x); return T[p++]; }
+      function isOpen(t) { return t && t.t === "p" && (t.v === "(" || t.v === "[" || t.v === "{"); }
+      function match(i) {
+        var o = T[i].v, c = o === "(" ? ")" : o === "[" ? "]" : "}", d = 0;
+        for (var j = i; j < T.length; j++) { if (T[j].t !== "p") continue; if (T[j].v === o) d++; else if (T[j].v === c && --d === 0) return j; }
+        p = i; fail("brak zamknięcia " + o);
+      }
+      function skipTo(stops) { while (p < T.length && stops.indexOf(v()) < 0) { if (isOpen(tk())) p = match(p) + 1; else p++; } if (p >= T.length) fail("brak " + stops.join(" ")); }
+      function add(pos, text, close) { ins.push({ pos: pos, text: text, pr: close ? 0 : 1, seq: ins.length }); }
+      function varByName(x) { for (var i = scopes.length - 1; i >= 0; i--) for (var j = scopes[i].length - 1; j >= 0; j--) if (scopes[i][j].name === x) return scopes[i][j]; return null; }
+      function isTypeName(x) { if (!typedefs.has(x)) return false; var vv = varByName(x); return !vv; }
+      function isDeclStart() {
+        var x = v(), t = tk(); if (!t || t.t !== "id") return false;
+        if (TSPEC.has(x) || QUAL.has(x) || STORE.has(x) || x === "struct" || x === "union" || x === "enum" || x === "_Static_assert" || x === "static_assert" ||
+          x === "__extension__" || x === "typeof" || x === "__typeof__" || x === "typeof_unqual" || x === "_Alignas" || x === "alignas" || x === "__attribute__") return true;
+        return isTypeName(x) && v(1) !== ":" && v(1) !== "=" && v(1) !== "(" && v(1) !== "." && v(1) !== "->" && v(1) !== "[";
+      }
+      function specifiers() {
+        var sp = { typedef: false, static: false, extern: false, register: false, st: null, td: null, base: false, defs: [], tt: [] };
+        for (;;) {
+          var x = v(), t = tk(); if (!t || t.t !== "id") break;
+          if (STORE.has(x)) { if (x === "typedef" || x === "static" || x === "extern" || x === "register") sp[x] = true; p++; continue; }
+          if (x === "__attribute__" || x === "_Alignas" || x === "alignas" || x === "__declspec") { p++; if (v() === "(") p = match(p) + 1; continue; }
+          if (x === "__extension__") { p++; continue; }
+          if (x === "_Static_assert" || x === "static_assert") { p++; p = match(p) + 1; sp.assert = true; continue; }
+          if (x === "struct" || x === "union" || x === "enum") {
+            p++; var tag = null;
+            while (v() === "__attribute__") { p++; p = match(p) + 1; }
+            if (tk() && tk().t === "id" && !KW.has(v())) { tag = v(); p++; }
+            var def = null;
+            if (v() === "{") { var cl = match(p); if (x !== "enum") { def = { kind: x, tag: tag, open: p, close: cl }; sp.defs.push(def); } p = cl + 1; }
+            sp.st = { kind: x, tag: tag, def: def }; sp.base = true; sp.tt.push(tag ? x + " " + tag : null); continue;
+          }
+          if (x === "typeof" || x === "__typeof__" || x === "__typeof" || x === "typeof_unqual" || (x === "_Atomic" && v(1) === "(") || x === "_BitInt") {
+            var s0 = T[p].s; p++; var c2 = match(p); sp.tt.push(src.slice(s0, T[c2].e)); p = c2 + 1; sp.base = true; continue;
+          }
+          if (TSPEC.has(x)) { sp.base = true; sp.tt.push(x); p++; continue; }
+          if (QUAL.has(x)) { sp.tt.push(x === "__restrict" ? "restrict" : x); p++; continue; }
+          if (!sp.base && isTypeName(x)) { sp.td = x; sp.base = true; sp.tt.push(x); p++; continue; }
+          break;
+        }
+        return sp;
+      }
+      function declarator() {
+        var d = { ptr: 0, name: null, arr: [], fn: null, grp: null };
+        while (v() === "*" || QUAL.has(v()) || v() === "__attribute__") { if (v() === "*") d.ptr++; if (v() === "__attribute__") { p++; p = match(p) + 1; } else p++; }
+        if (v() === "(" && (v(1) === "*" || v(1) === "(" || v(1) === "^" || (tk(1) && tk(1).t === "id" && !isTypeName(v(1)) && !TSPEC.has(v(1)) && v(2) === ")"))) {
+          p++; d.grp = declarator(); eat(")"); d.name = d.grp.name;
+        } else if (tk() && tk().t === "id" && !KW.has(v())) { d.name = v(); p++; }
+        for (;;) {
+          if (v() === "[") { var c = match(p); d.arr.push([p + 1, c]); p = c + 1; }
+          else if (v() === "(") { var c2 = match(p); if (!d.fn && !d.arr.length) d.fn = { open: p, close: c2 }; p = c2 + 1; }
+          else if (v() === "__attribute__" || v() === "__asm__" || v() === "asm") { p++; if (v() === "(") p = match(p) + 1; }
+          else break;
+        }
+        return d;
+      }
+      function stKey(sp) {   // klucz struktury z wypisywaczem, jeśli już jest
+        var k = null;
+        if (sp.st && sp.st.kind === "struct" && sp.st.tag) k = "s_" + sp.st.tag;
+        else if (sp.td && tdStruct[sp.td]) k = tdStruct[sp.td];
+        return k && structs[k] && structs[k].done ? k : null;
+      }
+      function classify(d, sp, param) {   // rodzaj zmiennej: scalar | ptr | arr | arr2 | struct | other
+        var base = sp.st && sp.st.kind !== "enum" ? (stKey(sp) ? { kind: "struct", st: stKey(sp) } : { kind: "other" }) : sp.td && tdStruct[sp.td] ? (stKey(sp) ? { kind: "struct", st: stKey(sp) } : { kind: "other" }) : { kind: "scalar" };
+        if (d.grp) {
+          if (d.grp.fn && !d.grp.ptr) return null;
+          if (d.grp.grp) return { kind: "other" };
+          if (d.grp.arr.length === 1 && d.grp.ptr) return param ? { kind: "ptr" } : { kind: "arr", el: { kind: "ptr" } };
+          if (d.grp.ptr && !d.grp.arr.length) return { kind: "ptr" };
+          return { kind: "other" };
+        }
+        if (d.fn) return null;
+        if (param && d.arr.length) return { kind: "ptr" };
+        if (d.arr.length === 1) return { kind: "arr", el: d.ptr ? { kind: "ptr" } : base };
+        if (d.arr.length === 2) return { kind: "arr2", el: d.ptr ? { kind: "ptr" } : base };
+        if (d.arr.length) return { kind: "other" };
+        if (d.ptr) return { kind: "ptr" };
+        return base;
+      }
+      function declare(d, sp, info, init, g) {
+        if (!info || !d.name) return;
+        var x = { vid: vars.length, name: d.name, kind: info.kind, el: info.el || null, st: info.st || null, init: init, g: g, fn: fn ? fn.name : null, noaddr: sp.register };
+        vars.push(x); scopes[scopes.length - 1].push(x);
+      }
+      function visible() {
+        var seen = {}, res = [];
+        for (var i = scopes.length - 1; i >= 0; i--) for (var j = scopes[i].length - 1; j >= 0; j--) {
+          var x = scopes[i][j]; if (seen[x.name]) continue; seen[x.name] = 1; if (!x.noaddr && x.kind !== "other") res.push(x);
+        }
+        return res.sort(function (a, b) { return a.vid - b.vid; });
+      }
+      function encOf(info, expr) {
+        if (info.kind === "struct") return "__sa_st_" + info.st;
+        if (info.kind === "ptr") return "__SA_KP(" + expr + ")";
+        if (info.kind === "scalar") return "__SA_K(" + expr + ")";
+        return "__sa_k_x";
+      }
+      function fmtArgs(info, x) {   // adres, rozmiar, koder, rozmiar elementu, wymiary, kolumny
+        if (info.kind === "arr") return "&(" + x + "),sizeof(" + x + ")," + encOf(info.el, "(" + x + ")[0]") + ",sizeof((" + x + ")[0]),1,0";
+        if (info.kind === "arr2") return "&(" + x + "),sizeof(" + x + ")," + encOf(info.el, "(" + x + ")[0][0]") + ",sizeof((" + x + ")[0][0]),2,sizeof((" + x + ")[0])/sizeof((" + x + ")[0][0])";
+        return "&(" + x + "),sizeof(" + x + ")," + encOf(info, x) + ",0,0,0";
+      }
+      function snap(id, vis, enter) {
+        var parts = vis.map(function (x) { return "__sa_var(" + x.vid + "," + fmtArgs(x, x.name) + "," + (x.g ? 1 : 0) + ")"; });
+        parts.push("__sa_e()");
+        return "(__sa_s(" + id + ",__builtin_frame_address(0)," + (enter ? 1 : 0) + ")?(" + parts.join(",") + "):0)";
+      }
+      function site(kind, s, e, vis, extra) {
+        var id = sites.length, o = { kind: kind, s: s, e: e, fn: fn ? fn.name : null, vars: vis.map(function (x) { return x.vid; }) };
+        if (extra) for (var k in extra) o[k] = extra[k];
+        sites.push(o); return id;
+      }
+      function typeText(sp, d) {   // typ zwracany przez funkcję jako tekst C (do zmiennej z wynikiem return)
+        if (sp.tt.some(function (x) { return x === null; }) || d.grp) return null;
+        var t = (sp.tt.join(" ") || "int") + " " + new Array(d.ptr + 1).join("*");
+        return /\bvoid\b/.test(t) && !d.ptr ? "void" : t.trim();
+      }
+      function structPrinter(def, key, ctype) {
+        if (!def || def.kind !== "struct") return;
+        var save = p, fields = [], nested = [];
+        p = def.open + 1;
+        try {
+          while (p < def.close) {
+            if (v() === ";") { p++; continue; }
+            var sp = specifiers(); sp.defs.forEach(function (d2) { if (d2.tag) nested.push(d2); });
+            if (v() === ";") { fields.push({ name: null, info: { kind: "other" } }); p++; continue; }
+            for (;;) {
+              var d = declarator(), bit = false;
+              if (v() === ":") { bit = true; p++; skipTo([",", ";"]); }
+              fields.push({ name: d.name, info: bit ? { kind: "other" } : classify(d, sp, false) || { kind: "other" } });
+              if (v() === ",") { p++; continue; } break;
+            }
+            eat(";");
+          }
+        } finally { p = save; }
+        nested.forEach(function (d2) { structPrinter(d2, "s_" + d2.tag, "struct " + d2.tag); });
+        var body = fields.map(function (f) {
+          return f.name && f.info.kind !== "other" ? "__sa_fmtv(" + fmtArgs(f.info, "__s->" + f.name) + ")" : '__sa_put("?")';
+        }).join(';__sa_put(",");');
+        structs[key] = { fields: fields.map(function (f) { return { name: f.name, kind: f.info.kind, el: f.info.el || null, st: f.info.st || null }; }), done: true };
+        return "static void __sa_st_" + key + "(const void*__p){const " + ctype + "*__s=(const " + ctype + "*)__p;(void)__s;__sa_put(\"{\");" + body + ";__sa_put(\"}\");}";
+      }
+      /* instrukcje */
+      function stmt(sub) {
+        var t = tk(); if (!t) fail("koniec pliku");
+        var x = t.v, s = t.s;
+        if (x === "{" && t.t === "p") { block(); return; }
+        if (x === ";" && t.t === "p") { p++; return; }
+        if (t.t === "id") {
+          if (x === "if") { p++; cond("cond"); stmt(true); if (v() === "else") { p++; stmt(true); } return; }
+          if (x === "while") { p++; cond("cond"); stmt(true); return; }
+          if (x === "do") { p++; stmt(true); eat("while"); cond("cond"); eat(";"); return; }
+          if (x === "for") return forStmt(sub);
+          if (x === "switch") { p++; cond("switch"); stmt(true); return; }
+          if (x === "case" || x === "default") { p++; if (x === "case") skipTo([":"]); eat(":"); if (sub) stmt(true); return; }
+          if (v(1) === ":" && !isTypeName(x) && !KW.has(x)) { p += 2; if (sub) stmt(true); return; }
+          if (isDeclStart()) { if (sub) fail("deklaracja jako instrukcja"); declaration(); return; }
+        }
+        var kind = x === "return" ? "return" : x === "break" || x === "continue" || x === "goto" ? "jump" : "stmt";
+        var st = p, vis = visible(); skipTo([";"]); var end = T[p]; p++;
+        var id = site(kind, s, end.e, vis);
+        if (sub) add(s, "{");
+        add(s, snap(id, vis) + ";");
+        if (kind === "return" && p - st > 2) {
+          var rt = fn.ret, a = T[st + 1].s, b = T[p - 2].e;
+          if (rt.type !== "void") {
+            add(a, "({" + (rt.type ? rt.type + " __sa_r" : "__auto_type __sa_r") + "=(");
+            add(b, ");__sa_rv(" + id + ",__builtin_frame_address(0),&__sa_r," + (rt.st ? "__sa_st_" + rt.st : rt.ptr ? "__SA_KP(__sa_r)" : "__SA_K(__sa_r)") + ");__sa_r;})", true);
+          }
+        }
+        if (sub) add(end.e, "}", true);
+      }
+      function cond(kind) {
+        eat("("); var cl = match(p - 1);
+        if (cl === p) fail("pusty warunek");
+        var s = T[p].s, e = T[cl - 1].e, vis = visible(), id = site(kind, s, e, vis);
+        if (kind === "switch") { add(s, "__SA_SW(" + id + ",(" + snap(id, vis) + ",("); add(e, ")))", true); }
+        else { add(s, "__sa_cv(" + id + ",__builtin_frame_address(0),(" + snap(id, vis) + ",!!("); add(e, ")))", true); }
+        p = cl + 1;
+      }
+      function forStmt(sub) {
+        var ft = T[p]; p++; eat("("); var cl = match(p - 1);
+        scopes.push([]);
+        var wrap = false;   // zdarzenie „init” stoi przed for; gdy for jest ciałem if/while bez klamer, trzeba je objąć { }
+        if (v() !== ";") {
+          var vis = visible(), s = T[p].s, id = site("init", s, s, vis);
+          wrap = sub; if (wrap) add(ft.s, "{");
+          add(ft.s, snap(id, vis) + ";");
+          if (isDeclStart()) declaration(true); else { skipTo([";"]); p++; }
+          sites[id].e = T[p - 2].e;
+        } else p++;
+        var cs = p; skipTo([";"]); var ce = p, vis2 = visible();
+        if (cs < ce) { var id2 = site("cond", T[cs].s, T[ce - 1].e, vis2); add(T[cs].s, "__sa_cv(" + id2 + ",__builtin_frame_address(0),(" + snap(id2, vis2) + ",!!("); add(T[ce - 1].e, ")))", true); }
+        else { var id3 = site("cond", ft.s, ft.e, vis2); add(T[ce].s, "__sa_cv(" + id3 + ",__builtin_frame_address(0),(" + snap(id3, vis2) + ",1))"); }
+        p++;
+        if (p < cl) { var vis4 = visible(), id4 = site("inc", T[p].s, T[cl - 1].e, vis4); add(T[p].s, "(" + snap(id4, vis4) + ",("); add(T[cl - 1].e, "))", true); }
+        p = cl + 1;
+        stmt(true);
+        scopes.pop();
+        if (wrap) add(T[p - 1].e, "}", true);
+      }
+      function declaration(inFor) {
+        var s = T[p].s, vis = visible(), sp = specifiers(), ds = [];
+        if (sp.assert && v() === ";") { p++; return; }
+        if (v() !== ";") for (;;) {
+          var d = declarator(), init = false;
+          if (v() === "=") { init = true; p++; skipTo([",", ";"]); }
+          ds.push({ d: d, init: init });
+          if (v() === ",") { p++; continue; } break;
+        }
+        var end = eat(";");
+        ds.forEach(function (o) {
+          if (sp.typedef) { if (o.d.name) { typedefs.add(o.d.name); if (sp.st && sp.st.kind === "struct" && !o.d.ptr && !o.d.arr.length) tdStruct[o.d.name] = sp.st.tag ? "s_" + sp.st.tag : null; } return; }
+          if (sp.extern) return;
+          declare(o.d, sp, classify(o.d, sp, false), o.init || sp.static, false);
+        });
+        if (!inFor && !sp.typedef && !sp.extern && ds.some(function (o) { return o.d.name && !o.d.fn; })) {
+          var id = site("decl", s, end.e, vis); add(s, snap(id, vis) + ";");
+        }
+      }
+      function block() { eat("{"); scopes.push([]); while (v() !== "}") { if (p >= T.length) fail("koniec pliku"); stmt(false); } p++; scopes.pop(); }
+      function params(d) {
+        var save = p, list = []; p = d.fn.open + 1;
+        while (p < d.fn.close) {
+          if (v() === "void" && (v(1) === ")" || v(1) === ",") && p + 1 === d.fn.close) { p++; break; }
+          if (v() === "...") { p++; continue; }
+          var sp = specifiers(), pd = declarator();
+          if (pd.name) list.push({ d: pd, sp: sp });
+          if (v() === ",") p++; else if (p < d.fn.close) fail("parametry");
+        }
+        p = save; return list;
+      }
+      function functionDef(sp, d, startTok) {
+        var key = stKey(sp);
+        fn = { name: d.name, ret: { type: typeText(sp, d), ptr: d.ptr > 0, st: !d.ptr && key ? key : null } };
+        scopes.push([]);
+        params(d).forEach(function (o) { declare(o.d, o.sp, classify(o.d, o.sp, true), true, false); });
+        var ob = eat("{"), vis = visible();
+        var id = site("enter", startTok.s, T[d.fn.close].e, vis);
+        add(ob.e, snap(id, vis, true) + ";");
+        while (v() !== "}") { if (p >= T.length) fail("koniec pliku"); stmt(false); }
+        var cb = T[p], vis2 = visible(), id2 = site("exit", cb.s, cb.e, vis2);
+        add(cb.s, snap(id2, vis2) + ";");
+        p++; scopes.pop(); fn = null;
+      }
+      /* poziom pliku */
+      while (p < T.length) {
+        if (v() === ";") { p++; continue; }
+        var startTok = T[p], sp = specifiers();
+        if (!sp.base && !sp.typedef && !sp.static && !sp.extern && !sp.assert) {
+          if (tk() && tk().t === "id" && v(1) === "(") sp.base = true;   // stare „main()” bez typu
+          else fail("nie rozumiem: " + v());
+        }
+        var printers = [];   // wypisywacze struktur (C) – gotowe przed deklaratorami, żeby zmienne tego typu już je miały
+        sp.defs.forEach(function (d0) { if (d0.kind === "struct" && d0.tag) { var c0 = structPrinter(d0, "s_" + d0.tag, "struct " + d0.tag); if (c0) printers.push(c0); } });
+        if (v() === ";") { var e0 = T[p]; p++; printers.forEach(function (c) { add(e0.e, c); }); continue; }
+        var done = false, tdNames = [];
+        for (;;) {
+          var d = declarator();
+          if (d.fn && !d.grp && v() === "{") {
+            printers.forEach(function (c) { add(startTok.s, c); });
+            functionDef(sp, d, startTok); done = true; break;
+          }
+          if (sp.typedef) { if (d.name) { typedefs.add(d.name); tdNames.push(d); } }
+          else if (!sp.extern) declare(d, sp, classify(d, sp, false), true, true);
+          if (v() === "=") { p++; skipTo([",", ";"]); }
+          if (v() === ",") { p++; continue; }
+          break;
+        }
+        if (done) continue;
+        var e1 = eat(";");
+        printers.forEach(function (c) { add(e1.e, c); });
+        tdNames.forEach(function (d) {
+          if (!sp.st || sp.st.kind !== "struct" || d.ptr || d.arr.length) return;
+          if (sp.st.tag) tdStruct[d.name] = "s_" + sp.st.tag;
+          else if (sp.st.def) { var c = structPrinter(sp.st.def, "t_" + d.name, d.name); tdStruct[d.name] = "t_" + d.name; if (c) add(e1.e, c); }
+        });
+      }
+      ins.sort(function (a, b) { return a.pos - b.pos || a.pr - b.pr || a.seq - b.seq; });
+      var outS = "", last = 0;
+      ins.forEach(function (o) { outS += src.slice(last, o.pos) + o.text; last = o.pos; });
+      outS += src.slice(last);
+      return { code: PRELUDE + "#line 1\n" + outS, sites: sites, vars: vars, structs: structs };
+    }
+
+    var PRELUDE = [
+      "#define _GNU_SOURCE",
+      "#include <stdio.h>",
+      "#include <stdlib.h>",
+      "#include <string.h>",
+      "#include <stdarg.h>",
+      "#include <signal.h>",
+      "#include <unistd.h>",
+      "#include <fcntl.h>",
+      "typedef void (*__sa_enc)(const void *);",
+      "static int __sa_on = 1, __sa_cnt, __sa_vn, __sa_pf[2] = { -1, -1 }, __sa_Rn;",
+      "static long __sa_outn, __sa_lpos;",
+      "static unsigned long __sa_fp, __sa_lfp;",
+      "static char __sa_vb[4096], __sa_in[1 << 16];",
+      "static void __sa_put(const char *s) { while (*s && __sa_vn < (int)sizeof __sa_vb - 1) __sa_vb[__sa_vn++] = *s++; }",
+      "static void __sa_putf(const char *f, ...) { int room = (int)sizeof __sa_vb - 1 - __sa_vn; if (room <= 0) return; va_list ap; va_start(ap, f); int r = vsnprintf(__sa_vb + __sa_vn, (size_t)room + 1, f, ap); va_end(ap); if (r > 0) __sa_vn += r < room ? r : room; }",
+      "static int __sa_safe(unsigned c) { return c > 32 && c < 127 && !strchr(\",;[]{}\\\"\\\\+=@/\", (int)c); }",
+      "static void __sa_esc(const unsigned char *s, unsigned long n) { for (unsigned long i = 0; i < n; i++) { if (__sa_safe(s[i]) || s[i] == ' ') { if (__sa_vn < (int)sizeof __sa_vb - 1) __sa_vb[__sa_vn++] = (char)s[i]; } else __sa_putf(\"\\\\%02x\", s[i]); } }",
+      "static void __sa_k_b(const void *p) { __sa_putf(\"b%d\", (int)*(const _Bool *)p); }",
+      "static void __sa_k_c(const void *p) { __sa_putf(\"c%d\", (int)*(const char *)p); }",
+      "static void __sa_k_sc(const void *p) { __sa_putf(\"i%d\", (int)*(const signed char *)p); }",
+      "static void __sa_k_uc(const void *p) { __sa_putf(\"u%u\", (unsigned)*(const unsigned char *)p); }",
+      "static void __sa_k_s(const void *p) { __sa_putf(\"i%d\", (int)*(const short *)p); }",
+      "static void __sa_k_us(const void *p) { __sa_putf(\"u%u\", (unsigned)*(const unsigned short *)p); }",
+      "static void __sa_k_i(const void *p) { __sa_putf(\"i%d\", *(const int *)p); }",
+      "static void __sa_k_u(const void *p) { __sa_putf(\"u%u\", *(const unsigned *)p); }",
+      "static void __sa_k_l(const void *p) { __sa_putf(\"i%ld\", *(const long *)p); }",
+      "static void __sa_k_ul(const void *p) { __sa_putf(\"u%lu\", *(const unsigned long *)p); }",
+      "static void __sa_k_ll(const void *p) { __sa_putf(\"i%lld\", *(const long long *)p); }",
+      "static void __sa_k_ull(const void *p) { __sa_putf(\"u%llu\", *(const unsigned long long *)p); }",
+      "static void __sa_k_f(const void *p) { unsigned u; memcpy(&u, p, 4); __sa_putf(\"f%08x\", u); }",
+      "static void __sa_k_d(const void *p) { unsigned long long u; memcpy(&u, p, 8); __sa_putf(\"d%016llx\", u); }",
+      "static void __sa_k_ld(const void *p) { __sa_putf(\"l%.21Lg\", *(const long double *)p); }",
+      "static void __sa_k_p(const void *p) { void *q; memcpy(&q, p, sizeof q); __sa_putf(\"p%lx\", (unsigned long)q); }",
+      "static void __sa_k_x(const void *p) { (void)p; __sa_put(\"?\"); }",
+      "static void __sa_k_str(const void *p) {",
+      "  const char *q; memcpy(&q, p, sizeof q); __sa_putf(\"p%lx\", (unsigned long)q);",
+      "  if (!q || __sa_pf[1] < 0 || ((unsigned long)q & 0xfefefefe00000000UL) == 0xfefefefe00000000UL) return;",
+      "  char b[64]; unsigned long n = 0;",
+      "  while (n < 48) {",
+      "    unsigned long lim = 4096 - (((unsigned long)q + n) & 4095), want = 48 - n; if (want > lim) want = lim;",
+      "    long w = write(__sa_pf[1], q + n, want); if (w <= 0) break;",
+      "    long r = read(__sa_pf[0], b + n, (unsigned long)w); if (r != w) break;",
+      "    char *z = memchr(b + n, 0, (unsigned long)w); if (z) { __sa_put(\"\\\"\"); __sa_esc((const unsigned char *)b, (unsigned long)(z - b)); return; }",
+      "    n += (unsigned long)w;",
+      "  }",
+      "  if (n) { __sa_put(\"\\\"\"); __sa_esc((const unsigned char *)b, n); __sa_put(\"+\"); }",
+      "}",
+      "#define __SA_STR(x) char *: __sa_k_str, const char *: __sa_k_str, signed char *: __sa_k_str, unsigned char *: __sa_k_str, const signed char *: __sa_k_str, const unsigned char *: __sa_k_str",
+      "#define __SA_K(x) _Generic((x), _Bool: __sa_k_b, char: __sa_k_c, signed char: __sa_k_sc, unsigned char: __sa_k_uc, short: __sa_k_s, unsigned short: __sa_k_us, int: __sa_k_i, unsigned: __sa_k_u, long: __sa_k_l, unsigned long: __sa_k_ul, long long: __sa_k_ll, unsigned long long: __sa_k_ull, float: __sa_k_f, double: __sa_k_d, long double: __sa_k_ld, __SA_STR(x), default: __sa_k_x)",
+      "#define __SA_KP(x) _Generic((x), __SA_STR(x), default: __sa_k_p)",
+      "static void __sa_fmtv(const void *a, unsigned long size, __sa_enc e, unsigned long esz, int dims, unsigned long cols) {",
+      "  const char *b = (const char *)a; unsigned long n = esz ? size / esz : 0, i;",
+      "  if (!dims) { e(a); return; }",
+      "  if (dims == 1 && (e == __sa_k_c || e == __sa_k_sc || e == __sa_k_uc)) { __sa_put(\"[x\"); for (i = 0; i < n && i < 256; i++) __sa_putf(\"%02x\", (unsigned)(unsigned char)b[i]); if (i < n) __sa_putf(\"+%lu\", n); __sa_put(\"]\"); return; }",
+      "  __sa_put(\"[\"); if (dims == 2) __sa_putf(\"#%lux%lu:\", cols ? n / cols : 0, cols);",
+      "  for (i = 0; i < n && i < 100 && __sa_vn < 3000; i++) { if (i) __sa_put(\",\"); e(b + i * esz); }",
+      "  if (i < n) __sa_putf(\"%s+%lu\", i ? \",\" : \"\", n);",
+      "  __sa_put(\"]\");",
+      "}",
+      "struct __sa_ent { const void *a; unsigned long fp, size, esz, cols; __sa_enc e; unsigned long long h; int vid, dims, g, seen; };",
+      "static struct __sa_ent __sa_R[400];",
+      "static unsigned long long __sa_hash(void) { unsigned long long h = 1469598103934665603ULL; for (int i = 0; i < __sa_vn; i++) { h ^= (unsigned char)__sa_vb[i]; h *= 1099511628211ULL; } return h; }",
+      "static int __sa_s(int id, void *fp, int enter) {",
+      "  if (!__sa_on) return 0;",
+      "  if (++__sa_cnt > 1500 || __sa_outn > 26000) { __sa_on = 0; fputs(\"\\x1eZ\\x1f\", stdout); fflush(stdout); return 0; }",
+      "  __sa_fp = (unsigned long)fp; fprintf(stdout, \"\\x1es%d\", id);",
+      "  if (__sa_fp != __sa_lfp) { fprintf(stdout, \",%lx\", __sa_fp); __sa_lfp = __sa_fp; }",
+      "  long pos = stdin ? ftell(stdin) : -1; if (pos >= 0 && pos != __sa_lpos) { fprintf(stdout, \"<%ld\", pos); __sa_lpos = pos; }",
+      "  if (enter) for (int i = 0; i < __sa_Rn; ) { if (!__sa_R[i].g && __sa_R[i].fp <= __sa_fp) __sa_R[i] = __sa_R[--__sa_Rn]; else i++; }",
+      "  return 1;",
+      "}",
+      "static void __sa_var(int vid, const void *a, unsigned long size, __sa_enc e, unsigned long esz, int dims, unsigned long cols, int g) {",
+      "  struct __sa_ent *x = 0; int i;",
+      "  for (i = 0; i < __sa_Rn; i++) if (__sa_R[i].vid == vid && __sa_R[i].a == a) { x = &__sa_R[i]; break; }",
+      "  __sa_vn = 0; __sa_fmtv(a, size, e, esz, dims, cols); unsigned long long h = __sa_hash();",
+      "  if (!x) {",
+      "    if (__sa_Rn < 400) { x = &__sa_R[__sa_Rn++]; x->vid = vid; x->a = a; x->fp = g ? 0 : __sa_fp; x->size = size; x->e = e; x->esz = esz; x->dims = dims; x->cols = cols; x->g = g; }",
+      "    fprintf(stdout, \";%d@%lx/%lu=\", vid, (unsigned long)a, size);",
+      "  } else if (h != x->h) fprintf(stdout, \";%d=\", vid);",
+      "  else { x->seen = __sa_cnt; return; }",
+      "  fwrite(__sa_vb, 1, (size_t)__sa_vn, stdout);",
+      "  if (x) { x->h = h; x->seen = __sa_cnt; }",
+      "}",
+      "static int __sa_e(void) {",
+      "  for (int i = 0; i < __sa_Rn; ) { struct __sa_ent *x = &__sa_R[i];",
+      "    if (x->seen == __sa_cnt) { i++; continue; }",
+      "    if (x->g || x->fp > __sa_fp) { __sa_vn = 0; __sa_fmtv(x->a, x->size, x->e, x->esz, x->dims, x->cols); unsigned long long h = __sa_hash();",
+      "      if (h != x->h) { fprintf(stdout, \";%d@%lx=\", x->vid, (unsigned long)x->a); fwrite(__sa_vb, 1, (size_t)__sa_vn, stdout); x->h = h; } i++; }",
+      "    else if (x->fp < __sa_fp) __sa_R[i] = __sa_R[--__sa_Rn];",
+      "    else i++;",
+      "  }",
+      "  fputs(\"\\x1f\", stdout); return 1;",
+      "}",
+      "static int __sa_cv(int id, void *fp, int v) { if (__sa_on) fprintf(stdout, \"\\x1e=%d,%lx=%d\\x1f\", id, (unsigned long)fp, v); return v; }",
+      "static void __sa_rv(int id, void *fp, const void *p, __sa_enc e) { if (!__sa_on) return; __sa_vn = 0; e(p); fprintf(stdout, \"\\x1er%d,%lx=\", id, (unsigned long)fp); fwrite(__sa_vb, 1, (size_t)__sa_vn, stdout); fputs(\"\\x1f\", stdout); }",
+      "#define __SA_SW(id, x) ({ __auto_type __sa_w = (x); if (__sa_on) { __sa_vn = 0; __SA_K(__sa_w)(&__sa_w); fprintf(stdout, \"\\x1ew%d,%lx=\", id, (unsigned long)__builtin_frame_address(0)); fwrite(__sa_vb, 1, (size_t)__sa_vn, stdout); fputs(\"\\x1f\", stdout); } __sa_w; })",
+      "static ssize_t __sa_w1(void *c, const char *b, size_t n) { (void)c; size_t d = 0; while (d < n) { ssize_t r = write(1, b + d, n - d); if (r <= 0) break; d += (size_t)r; } __sa_outn += (long)n; return (ssize_t)n; }",
+      "static ssize_t __sa_w2(void *c, const char *b, size_t n) { (void)c; fputs(\"\\x1e!\", stdout); for (size_t i = 0; i < n; i++) { unsigned char u = (unsigned char)b[i]; if (__sa_safe(u) || u == ' ') fputc(u, stdout); else fprintf(stdout, \"\\\\%02x\", u); } fputs(\"\\x1f\", stdout); return (ssize_t)n; }",
+      "static void __sa_sig(int s) { __sa_on = 0; fprintf(stdout, \"\\x1eX%d\\x1f\", s); fflush(stdout); _exit(128 + s); }",
+      "static void __sa_fin(void) { long pos = stdin ? ftell(stdin) : -1; fprintf(stdout, \"\\x1e.%ld\\x1f\", pos); fflush(stdout); }",
+      "__attribute__((constructor)) static void __sa_init(void) {",
+      "  size_t n = fread(__sa_in, 1, sizeof __sa_in - 1, stdin); if (n) { FILE *f = fmemopen(__sa_in, n, \"r\"); if (f) stdin = f; }",
+      "  cookie_io_functions_t io = { 0, __sa_w1, 0, 0 }, ie = { 0, __sa_w2, 0, 0 };",
+      "  FILE *o = fopencookie(0, \"w\", io); if (o) { setvbuf(o, 0, _IOFBF, 4096); stdout = o; }",
+      "  FILE *er = fopencookie(0, \"w\", ie); if (er) { setvbuf(er, 0, _IONBF, 0); stderr = er; }",
+      "  if (pipe(__sa_pf) == 0) { fcntl(__sa_pf[0], F_SETFL, O_NONBLOCK); fcntl(__sa_pf[1], F_SETFL, O_NONBLOCK); } else __sa_pf[1] = -1;",
+      "  static char stk[1 << 16]; stack_t ss; memset(&ss, 0, sizeof ss); ss.ss_sp = stk; ss.ss_size = sizeof stk; sigaltstack(&ss, 0);",
+      "  struct sigaction sa; memset(&sa, 0, sizeof sa); sa.sa_handler = __sa_sig; sa.sa_flags = SA_ONSTACK;",
+      "  sigaction(SIGSEGV, &sa, 0); sigaction(SIGFPE, &sa, 0); sigaction(SIGBUS, &sa, 0); sigaction(SIGABRT, &sa, 0); sigaction(SIGILL, &sa, 0);",
+      "  atexit(__sa_fin);",
+      "}",
+      ""].join("\n");
+
+    /* odczyt śladu z wyjścia programu */
+    function unesc(s) {
+      var bytes = [], i = 0;
+      while (i < s.length) {
+        if (s[i] === "\\" && /^[0-9a-f]{2}$/.test(s.substr(i + 1, 2))) { bytes.push(parseInt(s.substr(i + 1, 2), 16)); i += 3; }
+        else { var c = s.charCodeAt(i++); if (c < 128) bytes.push(c); else bytes.push.apply(bytes, Array.from(new TextEncoder().encode(String.fromCharCode(c)))); }
+      }
+      return new TextDecoder().decode(new Uint8Array(bytes));
+    }
+    function parseVal(s, i) {   // → [wartość, następny indeks]
+      var c = s[i], m, re;
+      if (c === "[") {
+        if (s[i + 1] === "x") {
+          m = /^\[x([0-9a-f]*)(?:\+(\d+))?\]/.exec(s.slice(i));
+          var bs = []; for (var k = 0; k < m[1].length; k += 2) bs.push(parseInt(m[1].substr(k, 2), 16));
+          return [{ k: "cs", b: bs, n: m[2] ? +m[2] : bs.length }, i + m[0].length];
+        }
+        var o = { k: "a", el: [], n: 0 }; i++;
+        if (s[i] === "#") { m = /^#(\d+)x(\d+):/.exec(s.slice(i)); o.rows = +m[1]; o.cols = +m[2]; i += m[0].length; }
+        while (s[i] !== "]") {
+          if (s[i] === "+") { m = /^\+(\d+)/.exec(s.slice(i)); o.n = +m[1]; i += m[0].length; continue; }
+          var r = parseVal(s, i); o.el.push(r[0]); i = r[1];
+          if (s[i] === ",") i++;
+        }
+        if (!o.n) o.n = o.el.length;
+        return [o, i + 1];
+      }
+      if (c === "{") {
+        var f = { k: "st", f: [] }; i++;
+        while (s[i] !== "}") { var r2 = parseVal(s, i); f.f.push(r2[0]); i = r2[1]; if (s[i] === ",") i++; }
+        return [f, i + 1];
+      }
+      if (c === "?") return [{ k: "x" }, i + 1];
+      if (c === "p") {
+        m = /^p([0-9a-f]+)/.exec(s.slice(i)); var pv = { k: "p", h: m[1] }; i += m[0].length;
+        if (s[i] === '"') { re = /^"([^,;\]}+]*)(\+?)/.exec(s.slice(i)); pv.str = unesc(re[1]); pv.more = !!re[2]; i += re[0].length; }
+        return [pv, i];
+      }
+      if (c === "l") { m = /^l([^,;\]}]*)/.exec(s.slice(i)); return [{ k: "l", t: m[1] }, i + m[0].length]; }
+      m = /^([iucbfd])(-?[0-9a-f]+)/.exec(s.slice(i));
+      if (!m) throw new Error("ct: wartość " + s.slice(i, i + 20));
+      return [{ k: m[1], t: m[2] }, i + m[0].length];
+    }
+    function parse(text, inst) {
+      var T = { out0: [], ev: [], stopped: false, crash: 0, fin: null, cut: false }, cur = null, i = 0, n = text.length, fp = "0";
+      var frames = [], vals = {}, gAddr = {}, pos = 0;
+      function addOut(kind, s) { if (!s) return; (cur ? cur.out : T.out0).push([kind, s]); }
+      function mk(siteId, top, back) { cur = { site: siteId, fpn: top.fpn, back: back, out: [], frames: frames, vals: vals, gAddr: gAddr, posAt: pos }; T.ev.push(cur); return cur; }
+      function step(siteId, fpn, back) {   // nowe zdarzenie: ustawia stos ramek (ramka = funkcja + adres ramki)
+        var site = inst.sites[siteId], popped = false;
+        frames = frames.slice();
+        while (frames.length && frames[frames.length - 1].fpn < fpn) { frames.pop(); popped = true; }
+        var top = frames[frames.length - 1];
+        if (!back && popped && top && top.fpn === fpn && top.fn === site.fn && site.kind !== "enter") { mk(top.site, top, true); frames = frames.slice(); }   // powrót z funkcji void: krok na linii wywołania
+        if (site.kind === "enter" || !top || top.fpn !== fpn || top.fn !== site.fn) {
+          if (top && top.fpn === fpn) frames.pop();
+          top = { fn: site.fn, fpn: fpn, addrs: {}, site: siteId }; frames.push(top);
+        } else { top = Object.assign({}, top, { site: siteId }); frames[frames.length - 1] = top; }
+        return mk(siteId, top, back);
+      }
+      function here(siteId, fpn) { return cur && cur.site === siteId && cur.fpn === fpn ? cur : step(siteId, fpn, true); }
+      while (i < n) {
+        var a = text.indexOf("\x1e", i);
+        if (a < 0) { addOut("o", text.slice(i)); break; }
+        addOut("o", text.slice(i, a));
+        var b = text.indexOf("\x1f", a + 1);
+        if (b < 0) { T.cut = true; break; }
+        var r = text.slice(a + 1, b), c = r[0], m; i = b + 1;
+        try {
+          if (c === "s") {
+            m = /^s(\d+)(?:,([0-9a-f]+))?(?:<(\d+))?/.exec(r);
+            if (m[2]) fp = m[2];
+            if (m[3] !== undefined) pos = +m[3];
+            var e = step(+m[1], parseInt(fp, 16), false), top = frames[frames.length - 1], j = m[0].length;
+            vals = Object.assign({}, vals);
+            while (j < r.length) {
+              var mv = /^;(\d+)(?:@([0-9a-f]+)(?:\/(\d+))?)?=/.exec(r.slice(j));
+              if (!mv) throw new Error("ct: zmienne " + r.slice(j, j + 30));
+              j += mv[0].length; var pv = parseVal(r, j), vid = +mv[1], info = inst.vars[vid], addr; j = pv[1];
+              if (mv[3]) {   // pierwszy raz: adres i rozmiar
+                addr = mv[2];
+                if (info && info.g) { gAddr = Object.assign({}, gAddr); gAddr[vid] = addr; }
+                else { top.addrs = Object.assign({}, top.addrs); top.addrs[vid] = addr; }
+                vals["z" + vid + "@" + addr] = +mv[3];
+              } else addr = mv[2] || (info && info.g ? gAddr[vid] : top.addrs[vid]);
+              vals[vid + "@" + addr] = pv[0];
+            }
+            e.vals = vals; e.gAddr = gAddr;
+          } else if (c === "=" || c === "r" || c === "w") {
+            m = /^.(\d+),([0-9a-f]+)=/.exec(r);
+            var fpn = parseInt(m[2], 16), ev = here(+m[1], fpn), val = c === "=" ? r.slice(m[0].length) === "1" : parseVal(r, m[0].length)[0];
+            if (c === "=") ev.cond = val; else if (c === "w") ev.sw = val;
+            else {
+              ev.ret = val;
+              if (frames.length > 1 && frames[frames.length - 1].fpn === fpn) { frames = frames.slice(); frames.pop(); var caller = frames[frames.length - 1]; mk(caller.site, caller, true); }   // wynik wraca do wywołującego
+            }
+          }
+          else if (c === "!") addOut("e", unesc(r.slice(1)));
+          else if (c === "Z") T.stopped = true;
+          else if (c === "X") T.crash = +r.slice(1);
+          else if (c === ".") T.fin = +r.slice(1);
+        } catch (err) { T.cut = true; break; }
+      }
+      T.endPos = T.fin !== null && T.fin >= 0 ? T.fin : pos;
+      T.last = { frames: frames, vals: vals, gAddr: gAddr };
+      return T;
+    }
+
+    return { lex: lex, charClasses: charClasses, hlRange: hlRange, highlight: highlight, instrument: instrument, parse: parse };
+  })();
   /* --- kod: ```c z funkcją main → można uruchomić (gcc 16.2 na godbolt.org, wynik jak w terminalu); ```console → wygląda jak terminal --- */
   var RUN_SRC = [], notesSig = "";
   function codeBlock(lang, src) {
@@ -882,48 +1553,335 @@ html.rec-open { overflow: hidden; }
     var runnable = (lang === "c" || lang === "") && /\bmain\s*\(/.test(src) && /#\s*include/.test(src);
     if (!runnable) return "<pre><code>" + esc(src) + "</code></pre>";
     var ix = RUN_SRC.indexOf(src); if (ix < 0) { RUN_SRC.push(src); ix = RUN_SRC.length - 1; }
-    return '<div class="runc" data-src="' + ix + '"><pre><code>' + esc(src) + '</code></pre>' +
+    return '<div class="runc" data-src="' + ix + '"><pre><code>' + CT.highlight(src) + '</code></pre>' +
       '<div class="run-bar"><button type="button" class="run-go">▶ Uruchom</button><button type="button" class="run-edit">Zmień kod</button><button type="button" class="run-stdin">Dane wejściowe</button></div>' +
       '<textarea class="run-in" rows="2" placeholder="To, co program przeczyta przez scanf, np. 5 7" hidden></textarea><div class="term" hidden></div></div>';
   }
   var GB = "https://godbolt.org/api/compiler/cg162/compile";
+  function gbRun(source, stdin, args) {
+    return fetch(GB, { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify({
+      source: source, lang: "c", allowStoreCodeDebug: false,
+      options: { userArguments: args, executeParameters: { args: [], stdin: stdin }, compilerOptions: { executorRequest: true, skipAsm: true }, filters: { execute: true }, tools: [], libraries: [] }
+    }) }).then(function (r) { if (!r.ok) throw 0; return r.json(); });
+  }
+  function gbText(a) { return (a || []).map(function (x) { return x.text; }).join("\n"); }
   function runCode(box) {
+    ctStop(box);
     var ta = box.querySelector("textarea.run-src"), src = ta ? ta.value : RUN_SRC[+box.getAttribute("data-src")];
-    var stdin = box.querySelector(".run-in"), term = box.querySelector(".term"), go = box.querySelector(".run-go");
+    var stdin = box.querySelector(".run-in"), term = box.querySelector(".term"), go = box.querySelector(".run-go"), input = stdin.hidden ? "" : stdin.value;
+    var oldPanel = box.querySelector(".ct-panel"); if (oldPanel) oldPanel.remove();
     term.hidden = false; term.textContent = "";
     function line(cls, text) { var d = el("div", { class: cls }); if (cls === "tl-cmd") { d.appendChild(el("span", { class: "pr", text: "$" })); d.appendChild(document.createTextNode(" " + text)); } else d.textContent = text; term.appendChild(d); return d; }
     line("tl-cmd", "gcc main.c -Wall -Wextra -o main"); var wait = line("tl-dim", "kompiluję…");
     go.disabled = true;
-    fetch(GB, { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify({
-      source: src, lang: "c", allowStoreCodeDebug: false,
-      options: { userArguments: "-Wall -Wextra -fdiagnostics-color=never", executeParameters: { args: [], stdin: stdin.hidden ? "" : stdin.value }, compilerOptions: { executorRequest: true, skipAsm: true }, filters: { execute: true }, tools: [], libraries: [] }
-    }) }).then(function (r) { if (!r.ok) throw 0; return r.json(); }).then(function (d) {
+    var inst = null; try { inst = CT.instrument(src); } catch (e) { console.warn(e); }   // nie rozumiem kodu → zwykłe uruchomienie bez animacji
+    var traced = inst ? gbRun(inst.code, input, "-w -ftrivial-auto-var-init=pattern -fdiagnostics-color=never").catch(function () { return null; }) : Promise.resolve(null);
+    Promise.all([gbRun(src, input, "-Wall -Wextra -fdiagnostics-color=never"), traced]).then(function (res) {
+      var d = res[0], t = res[1];
       term.removeChild(wait);
-      var b = d.buildResult || {}, berr = (b.stderr || []).map(function (x) { return x.text; }).join("\n").replace(/<source>/g, "main.c").replace(/\x1b?\[[0-9;]*[mK]/g, "");
+      var b = d.buildResult || {}, berr = gbText(b.stderr).replace(/<source>/g, "main.c").replace(/\x1b?\[[0-9;]*[mK]/g, "");
       if (berr) line(b.code ? "tl-err" : "tl-warn", berr);
       if (b.code) { line("tl-dim", "Kompilacja się nie udała – popraw błąd i uruchom jeszcze raz."); return; }
       line("tl-cmd", "./main" + (stdin.hidden || !stdin.value ? "" : " < dane"));
-      var outT = (d.stdout || []).map(function (x) { return x.text; }).join("\n"), errT = (d.stderr || []).map(function (x) { return x.text; }).join("\n");
-      if (outT) line("tl-out", outT);
-      if (errT) line("tl-err", errT);
-      if (d.timedOut) line("tl-err", "Program działał za długo (pętla bez końca?).");
-      if (!outT && !errT && !d.timedOut) line("tl-dim", "(program nic nie wypisał)");
-      if (d.code) line("tl-dim", "program zakończył się kodem " + d.code);
+      var T = null;
+      if (t && !(t.buildResult || {}).code) {
+        try { T = CT.parse(gbText(t.stdout).replace(/\n?\[Truncated\]$/, ""), inst); if (t.truncated) T.cut = true; } catch (e) { console.warn(e); T = null; }
+      } else if (t) console.warn("ślad się nie skompilował", gbText((t.buildResult || {}).stderr));
+      if (T && T.ev.length) { ctStart(box, src, inst, T, d, input); return; }
+      var r = el("div", { class: "tl-run" }); term.appendChild(r); ctPlain(r, d);
     }).catch(function () { wait.textContent = "Nie udało się połączyć z kompilatorem (godbolt.org). Sprawdź internet."; })
       .then(function () { go.disabled = false; });
+  }
+  function ctLine(box, cls, text) { box.appendChild(el("div", { class: cls, text: text })); }
+  function ctPlain(r, d) {   // wynik zwykłego uruchomienia (bez animacji albo po jej końcu, gdy ślad był ucięty)
+    var outT = gbText(d.stdout).replace(/\s+$/, ""), errT = gbText(d.stderr).replace(/^(Killed - processing time exceeded|Program terminated with signal: SIGKILL)$/gm, "").trim();   // komunikaty godbolta o przekroczonym czasie zastępuje zdanie niżej
+    if (outT) ctLine(r, "tl-out", outT);
+    if (errT) ctLine(r, "tl-err", errT);
+    if (d.timedOut) ctLine(r, "tl-err", "Program działał za długo (pętla bez końca?).");
+    if (!outT && !errT && !d.timedOut) ctLine(r, "tl-dim", "(program nic nie wypisał)");
+    if (d.code && !d.timedOut) ctLine(r, "tl-dim", "program zakończył się kodem " + d.code);
+  }
+
+  /* --- animacja wykonania: przesuwające się podświetlenie kodu, zmienne po każdym kroku, terminal wypisuje na bieżąco --- */
+  var CT_MS = 750, CT_SP = [1, 2, 4];
+  var CT_SIG = { 11: "Segmentation fault – program sięgnął do pamięci, do której nie ma dostępu", 8: "Floating point exception – dzielenie przez zero", 6: "Aborted – program sam się przerwał", 7: "Bus error – zły adres w pamięci", 4: "Illegal instruction" };
+  var CT_I = {
+    play: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.2v13.6L19 12z" fill="currentColor"/></svg>',
+    pause: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h3.6v14H7zM13.4 5H17v14h-3.6z" fill="currentColor"/></svg>',
+    again: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 12a6.5 6.5 0 1 0 2-4.7" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/><path d="M7 3.5v4.3h4.3" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    prev: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 5.5 8 12l6.5 6.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    next: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 5.5 16 12l-6.5 6.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+  };
+  function ctStop(box) { var A = box._ct; if (A) { clearTimeout(A.timer); A.playing = false; ctBtn(A); } }
+  function ctStart(box, src, inst, T, d, input) {
+    var A = box._ct = { k: -1, playing: false, sp: (box._ct || {}).sp || 0, timer: 0, T: T, inst: inst, src: src, d: d, input: input, n: T.ev.length, dirty: [], shown: -2 };
+    // kod: każda linia osobno (pod spodem pasek podświetlenia)
+    var toks = CT.lex(src), code = toks.filter(function (t) { return t.t !== "cm" && t.t !== "pp"; });
+    A.cls = CT.charClasses(src, toks); A.starts = [0];
+    for (var i = 0; i < src.length; i++) if (src[i] === "\n") A.starts.push(i + 1);
+    var inner = el("div", { class: "ct-in" }); A.slab = el("div", { class: "ct-slab" }); inner.appendChild(A.slab);
+    A.base = []; A.lines = A.starts.map(function (s0, li) {
+      var h = CT.hlRange(src, A.cls, s0, ctEol(A, li), -1, -1); A.base.push(h);
+      var dv = el("div", { class: "ct-l", html: h }); inner.appendChild(dv); return dv;
+    });
+    A.part = inst.sites.map(function (s) {   // podświetlić sam fragment linii? (warunek w if/for, kilka instrukcji w jednej linii)
+      if (/^(cond|init|inc|switch)$/.test(s.kind)) return true;
+      if (s.kind === "enter" || s.kind === "exit") return false;
+      var a = A.starts[ctLineAt(A, s.s)], b = ctEol(A, ctLineAt(A, Math.max(s.s, s.e - 1)));
+      return code.some(function (t) { return t.s >= a && t.e <= b && (t.e <= s.s || t.s >= s.e) && t.v !== "{" && t.v !== "}"; });
+    });
+    var view = box.querySelector("pre, .ct-code"), ta = box.querySelector("textarea.run-src");
+    A.code = el("div", { class: "ct-code" }, [inner]);
+    if (ta && !ta.hidden) { ta.hidden = true; box.querySelector(".run-edit").textContent = "Zmień kod"; }
+    if (view) box.replaceChild(A.code, view); else box.insertBefore(A.code, box.firstChild);
+    // sterowanie + zmienne
+    A.play = el("button", { type: "button", class: "ct-play" }); A.play.addEventListener("click", function () {
+      if (A.playing) return ctStop(box);
+      if (A.k >= A.n - 1) ctShow(box, -1);
+      ctPlay(box);
+    });
+    var prev = el("button", { type: "button", "aria-label": "Krok wstecz", html: CT_I.prev }), next = el("button", { type: "button", "aria-label": "Krok dalej", html: CT_I.next });
+    prev.addEventListener("click", function () { ctStop(box); ctShow(box, Math.max(-1, A.k - 1)); });
+    next.addEventListener("click", function () { ctStop(box); ctShow(box, Math.min(A.n - 1, A.k + 1)); });
+    A.range = el("input", { type: "range", min: "0", max: String(A.n), value: "0", "aria-label": "Krok programu" });
+    A.range.addEventListener("input", function () { ctStop(box); ctShow(box, +A.range.value - 1); });
+    A.cnt = el("span", { class: "ct-k" });
+    var sp = el("button", { type: "button", class: "ct-sp", "aria-label": "Prędkość", text: CT_SP[A.sp] + "×" });
+    sp.addEventListener("click", function () { A.sp = (A.sp + 1) % CT_SP.length; sp.textContent = CT_SP[A.sp] + "×"; });
+    A.vars = el("div", { class: "ct-vars" });
+    var note = T.stopped || T.cut ? el("p", { class: "ct-note", text: "Program robi więcej kroków – animacja pokazuje pierwsze " + A.n + ", wynik na końcu jest pełny." }) : null;
+    var panel = el("div", { class: "ct-panel" }, [el("div", { class: "ct-ctl" }, [A.play, prev, next, A.range, A.cnt, sp]), note, A.vars]);
+    var term = box.querySelector(".term");
+    box.insertBefore(panel, term);
+    A.run = el("div", { class: "tl-run" }); term.appendChild(A.run);
+    A.segs = ctSegs(A);
+    ctShow(box, -1);
+    var rc = box.getBoundingClientRect();
+    if (rc.top < 100 || rc.bottom > innerHeight) box.scrollIntoView({ block: rc.height < innerHeight - 120 ? "nearest" : "start", behavior: "smooth" });
+    A.timer = setTimeout(function () { ctPlay(box); }, 450);
+  }
+  function ctPlay(box) {
+    var A = box._ct; clearTimeout(A.timer); A.playing = true; ctBtn(A);
+    (function tick() {
+      if (!box.isConnected || box._ct !== A) return;
+      if (A.k >= A.n - 1) { A.playing = false; ctBtn(A); return; }
+      ctShow(box, A.k + 1);
+      A.timer = setTimeout(tick, CT_MS / CT_SP[A.sp]);
+    })();
+  }
+  function ctBtn(A) {
+    if (!A.play) return;
+    var end = A.k >= A.n - 1 && !A.playing;
+    A.play.innerHTML = A.playing ? CT_I.pause : end ? CT_I.again : CT_I.play;
+    A.play.setAttribute("aria-label", A.playing ? "Pauza" : end ? "Od nowa" : "Odtwarzaj");
+  }
+  function ctEol(A, li) { return li + 1 < A.starts.length ? A.starts[li + 1] - 1 : A.src.length; }
+  function ctLineAt(A, pos) { var lo = 0, hi = A.starts.length - 1; while (lo < hi) { var m = (lo + hi + 1) >> 1; if (A.starts[m] <= pos) lo = m; else hi = m - 1; } return lo; }
+  function ctSegs(A) {   // co pojawia się w terminalu w każdym kroku: wpisane dane (do końca linii, jak Enter), wypisany tekst
+    var T = A.T, segs = [], echoed = 0;
+    for (var j = 0; j < A.n; j++) {
+      var s = [], to = j + 1 < A.n ? T.ev[j + 1].posAt : T.endPos;
+      if (A.input && to > echoed) {
+        var nl = A.input.indexOf("\n", Math.max(to - 1, echoed));
+        nl = nl < 0 ? A.input.length : nl + 1;
+        s.push(["i", A.input.slice(echoed, nl)]); echoed = nl;
+      }
+      segs.push(s.concat(T.ev[j].out));
+    }
+    return segs;
+  }
+  function ctShow(box, k) {
+    var A = box._ct, T = A.T, inst = A.inst, e = T.ev[k], last = k === A.n - 1;
+    A.k = k;
+    A.dirty.forEach(function (li) { A.lines[li].innerHTML = A.base[li]; }); A.dirty = [];
+    if (!e) A.slab.classList.remove("on");
+    else {
+      var s = inst.sites[e.site], L1 = ctLineAt(A, s.s), L2 = ctLineAt(A, Math.max(s.s, s.e - 1));
+      var y = A.lines[L1].offsetTop, h = A.lines[L2].offsetTop + A.lines[L2].offsetHeight - y;
+      A.slab.style.transform = "translateY(" + y + "px)"; A.slab.style.height = h + "px";
+      A.slab.classList.add("on"); A.slab.classList.toggle("err", last && !!T.crash);
+      var bd = last && T.crash ? '<span class="ct-b err">tu program się wysypał</span>' :
+        e.cond !== undefined ? '<span class="ct-b' + (e.cond ? "" : " no") + '">' + (e.cond ? "prawda" : "fałsz") + "</span>" :
+        e.ret ? '<span class="ct-b">zwraca ' + ctTxt(e.ret, A, null) + "</span>" :
+        e.sw ? '<span class="ct-b">= ' + ctTxt(e.sw, A, null) + "</span>" : "";
+      for (var li = L1; li <= L2; li++) {
+        var hh = A.part[e.site] ? CT.hlRange(A.src, A.cls, A.starts[li], ctEol(A, li), s.s, s.e) : A.base[li];
+        if (li === L2) hh += bd;
+        if (hh !== A.base[li]) { A.lines[li].innerHTML = hh; A.dirty.push(li); }
+      }
+    }
+    ctVars(A, k);
+    ctOut(A, k);
+    A.range.value = String(k + 1); A.cnt.textContent = (k + 1) + "/" + A.n;
+    ctBtn(A);
+  }
+  function ctOut(A, k) {
+    var T = A.T;
+    function put(seg) { if (seg[1]) A.run.appendChild(el("span", { class: seg[0] === "i" ? "tl-in" : seg[0] === "e" ? "tl-err" : null, text: seg[1] })); }
+    if (k === A.shown + 1 && !A.ended) { if (k === 0) T.out0.forEach(put); if (k >= 0) A.segs[k].forEach(put); }
+    else {
+      A.run.textContent = ""; A.ended = false;
+      if (k >= 0) { T.out0.forEach(put); for (var j = 0; j <= k; j++) A.segs[j].forEach(put); }
+    }
+    A.shown = k;
+    if (k !== A.n - 1) return;
+    A.ended = true;   // koniec: błąd, ucięty ślad (wtedy pełny wynik zwykłego uruchomienia), kod wyjścia
+    var d = A.d, any = T.out0.length || A.segs.some(function (s) { return s.some(function (x) { return x[0] !== "i" && x[1]; }); });
+    if ((T.stopped || T.cut) && !T.crash) { A.run.textContent = ""; ctPlain(A.run, d); return; }
+    function say(cls, text) { A.run.appendChild(el("span", { class: cls, text: (A.run.textContent && !/\n$/.test(A.run.textContent) ? "\n" : "") + text + "\n" })); }
+    if (T.crash) say("tl-err", CT_SIG[T.crash] || "Program przerwany (sygnał " + T.crash + ")");
+    else if (d.timedOut) say("tl-err", "Program działał za długo (pętla bez końca?).");
+    else {
+      if (!any) say("tl-dim", "(program nic nie wypisał)");
+      if (d.code) say("tl-dim", "program zakończył się kodem " + d.code);
+    }
+  }
+  /* zmienne: stan PO wykonaniu podświetlonego kroku; ramka bieżącej funkcji na górze, wywołujące niżej, globalne na dole */
+  var CT_PAT = { 1: ["-2", "254"], 2: ["-258", "65278"], 4: ["-16843010", "4278124286"], 8: ["-72340172838076674", "18374403900871474942"] };
+  function ctPat(v, size) {
+    if (!v) return false;
+    if (v.k === "f") return v.t === "fefefefe";
+    if (v.k === "d") return v.t === "fefefefefefefefe";
+    if (v.k === "p") return v.h === "fefefefefefefefe";
+    if (/^[iucb]$/.test(v.k)) return (size ? [size] : [1, 2, 4, 8]).some(function (z) { return CT_PAT[z] && CT_PAT[z].indexOf(v.t) >= 0; });
+    return false;
+  }
+  function ctChr(c) { return c === 0 ? "\\0" : c === 10 ? "\\n" : c === 9 ? "\\t" : c === 13 ? "\\r" : c === 39 ? "\\'" : c === 92 ? "\\\\" : c >= 32 && c < 127 ? String.fromCharCode(c) : null; }
+  function ctFloat(v) {
+    var dv = new DataView(new ArrayBuffer(8)), x;
+    if (v.k === "f") { dv.setUint32(0, parseInt(v.t, 16)); x = dv.getFloat32(0); }
+    else { dv.setUint32(0, parseInt(v.t.slice(0, 8), 16)); dv.setUint32(4, parseInt(v.t.slice(8), 16)); x = dv.getFloat64(0); }
+    if (!isFinite(x)) return isNaN(x) ? "nan" : x > 0 ? "inf" : "-inf";
+    if (Number.isInteger(x) && Math.abs(x) < 1e16) return x.toFixed(1);
+    if (v.k === "f") for (var p = 1; p <= 9; p++) { var s = x.toPrecision(p); if (Math.fround(+s) === x) return String(+s); }
+    return String(x);
+  }
+  function ctPtr(v, A, ctx) {
+    if (v.h === "0") return "NULL";
+    var a = parseInt(v.h, 16);
+    for (var i = 0; ctx && i < ctx.idx.length; i++) {
+      var o = ctx.idx[i];
+      if (a >= o.lo && a < o.hi) {
+        var nm = o.name;
+        if (o.esz) { var j = Math.floor((a - o.lo) / o.esz); nm += o.cols ? "[" + Math.floor(j / o.cols) + "][" + j % o.cols + "]" : "[" + j + "]"; }
+        return "→ " + esc(nm) + (ctx.fr !== undefined && o.fr !== ctx.fr ? " <small>" + esc(o.fn || "globalna") + "</small>" : "");
+      }
+    }
+    if (v.str !== undefined) return '→ "' + esc(v.str) + (v.more ? "…" : "") + '"';
+    return "<small>0x" + v.h + "</small>";
+  }
+  function ctTxt(v, A, ctx, un, st) {   // wartość jako HTML (pojedyncza, albo skrócona tablica/struktura w środku innej)
+    if (!v) return "";
+    if (un && ctPat(v)) return '<span class="q">?</span>';
+    switch (v.k) {
+      case "i": case "u": return v.t;
+      case "b": return v.t === "0" ? "false" : "true";
+      case "c": var c = +v.t, ch = ctChr(c); return ch ? "'" + esc(ch) + "'<small>" + c + "</small>" : String(c);
+      case "f": case "d": return ctFloat(v);
+      case "l": return esc(v.t);
+      case "p": return ctPtr(v, A, ctx);
+      case "cs": var z = v.b.indexOf(0), bs = v.b.slice(0, z < 0 ? v.b.length : z);
+        if (un && bs.length && bs.every(function (b) { return b === 254; })) return '<span class="q">?</span>';
+        return '"' + esc(new TextDecoder().decode(new Uint8Array(bs))) + '"';
+      case "a": return "{" + v.el.slice(0, 8).map(function (x) { return ctTxt(x, A, ctx, un); }).join(", ") + (v.n > 8 ? ", …" : "") + "}";
+      case "st": var f = st && A.inst.structs[st] ? A.inst.structs[st].fields : [];
+        return "{" + v.f.map(function (x, i) { var fi = f[i] || {}; return (fi.name ? esc(fi.name) + ": " : "") + ctTxt(x, A, ctx, un, fi.st || (fi.el && fi.el.st)); }).join(", ") + "}";
+    }
+    return "…";
+  }
+  function ctState(A, k) { return k + 1 < A.n ? A.T.ev[k + 1] : A.T.last; }
+  function ctVars(A, k) {
+    var inst = A.inst, box = A.vars;
+    box.textContent = "";
+    if (k < 0) return;
+    var st = ctState(A, k), before = A.T.ev[k].vals, vals = st.vals, groups = [], idx = [];
+    function key(vid, a) { return vid + "@" + a; }
+    function item(x, a, fr, fn) {
+      var v = vals[key(x.vid, a)], size = vals["z" + key(x.vid, a)];
+      if (!v) return null;
+      var o = { x: x, a: a, v: v, size: size, fr: fr, fn: fn, was: before[key(x.vid, a)] };
+      var lo = parseInt(a, 16), ix = { name: x.name, lo: lo, hi: lo + (size || 1), fr: fr, fn: fn };
+      if (v.k === "a" || v.k === "cs") { ix.esz = size / (v.n || 1); if (v.cols) ix.cols = v.cols; }
+      idx.push(ix);
+      return o;
+    }
+    var frames = st.frames.slice().reverse();
+    frames.forEach(function (f, fi) {
+      var list = inst.sites[f.site].vars.map(function (vid) { var x = inst.vars[vid]; return x.g || !f.addrs[vid] ? null : item(x, f.addrs[vid], fi, f.fn); }).filter(Boolean);
+      groups.push({ name: f.fn, cur: fi === 0, list: list });
+    });
+    var gl = inst.vars.filter(function (x) { return x.g && st.gAddr[x.vid]; }).map(function (x) { return item(x, st.gAddr[x.vid], -1, null); }).filter(Boolean);
+    if (gl.length) groups.push({ name: "globalne", glob: true, list: gl });
+    if (!groups.some(function (g) { return g.list.length; })) return;
+    if (groups.length > 6) { var cut = groups.length - 5; groups.splice(3, cut - 0, { more: cut }); }
+    groups.forEach(function (g) {
+      if (g.more) { box.appendChild(el("div", { class: "ct-more", text: "… jeszcze " + g.more + " wywołań" })); return; }
+      var fr = el("div", { class: "ct-fr" + (g.cur ? " cur" : g.glob ? " glob" : " old") });
+      fr.appendChild(el("div", { class: "ct-fn", text: g.glob ? g.name : g.name + "()" }));
+      var vs = el("div", { class: "ct-vs" });
+      g.list.forEach(function (o) { vs.appendChild(ctVar(A, o, idx)); });
+      if (!g.list.length) vs.appendChild(el("span", { class: "ct-none", text: "bez zmiennych" }));
+      fr.appendChild(vs); box.appendChild(fr);
+    });
+  }
+  function ctVar(A, o, idx) {
+    var x = o.x, v = o.v, un = !x.init, ctx = { idx: idx, fr: o.fr };
+    var isNew = !o.was, chg = !isNew && JSON.stringify(o.was) !== JSON.stringify(v);
+    var wrap = el("div", { class: "ct-v" + (isNew ? " new" : "") }), body;
+    wrap.appendChild(el("span", { class: "ct-n", text: x.name }));
+    if (v.k === "a" || v.k === "cs") {
+      var n = v.k === "cs" ? v.b.length : v.el.length, esz = o.size && v.n ? o.size / v.n : 0;
+      var cell = function (i) {
+        var raw = v.k === "cs" ? { k: "c", t: String(v.b[i]) } : v.el[i], was = o.was && (v.k === "cs" ? o.was.b && o.was.b[i] : o.was.el && o.was.el[i]);
+        var ch = was !== undefined && JSON.stringify(v.k === "cs" ? v.b[i] : raw) !== JSON.stringify(was);
+        var txt = un && ctPat(raw, esz) ? '<span class="q">?</span>' : v.k === "cs" ? (ctChr(v.b[i]) !== null ? "'" + esc(ctChr(v.b[i])) + "'" : String(v.b[i])) : raw.k === "st" ? ctTxt(raw, A, ctx, un, x.el && x.el.st) : ctTxt(raw, A, ctx, un);
+        return '<span class="ct-c' + (ch ? " chg" : "") + (v.k === "cs" && v.b[i] === 0 ? " nul" : "") + '"><b>' + txt + "</b><i>" + i + "</i></span>";
+      };
+      if (v.rows && v.el.length && v.el.every(function (q) { return q.k === "c"; })) {   // tablica napisów char t[N][M]: każdy wiersz jako napis
+        var hs = "", R2 = Math.min(v.rows, 12);
+        for (var r2 = 0; r2 < R2; r2++) {
+          var row = v.el.slice(r2 * v.cols, (r2 + 1) * v.cols).map(function (q) { return +q.t & 255; }), z2 = row.indexOf(0), was2 = o.was && o.was.el ? JSON.stringify(o.was.el.slice(r2 * v.cols, (r2 + 1) * v.cols)) : null;
+          var txt2 = un && row.length && row.every(function (q) { return q === 254; }) ? '<span class="q">?</span>' : '"' + esc(new TextDecoder().decode(new Uint8Array(row.slice(0, z2 < 0 ? row.length : z2)))) + '"';
+          hs += '<span class="ct-c' + (was2 !== null && was2 !== JSON.stringify(v.el.slice(r2 * v.cols, (r2 + 1) * v.cols)) ? " chg" : "") + '"><b>' + txt2 + "</b><i>" + r2 + "</i></span>";
+        }
+        if (v.rows > R2) hs += '<span class="ct-c more"><b>…</b><i>+' + (v.rows - R2) + "</i></span>";
+        body = el("span", { class: "ct-cells", html: hs });
+      } else if (v.rows) {   // tablica 2D: wiersze
+        var rows = [], R = Math.min(v.rows, 6), C = Math.min(v.cols, 8);
+        for (var r = 0; r < R; r++) {
+          var cs = []; for (var c = 0; c < C && r * v.cols + c < n; c++) cs.push(cell(r * v.cols + c).replace(/<i>\d+<\/i>/, "<i>" + (r === R - 1 || v.rows === 1 ? c : "") + "</i>"));
+          rows.push('<span class="ct-row"><i class="ct-ri">' + r + "</i>" + cs.join("") + (v.cols > C ? '<span class="ct-c more"><b>…</b><i></i></span>' : "") + "</span>");
+        }
+        if (v.rows > R) rows.push('<span class="ct-row"><i class="ct-ri"></i><span class="ct-c more"><b>… +' + (v.rows - R) + "</b><i></i></span></span>");
+        body = el("span", { class: "ct-grid", html: rows.join("") });
+      } else {
+        var show = v.k === "cs" ? Math.min(n, Math.max(1, (v.b.indexOf(0) < 0 ? n : v.b.indexOf(0) + 1)), 16) : Math.min(n, 16), h = "";
+        if (v.k === "cs" && un && v.b.every(function (b) { return b === 254; })) show = Math.min(n, 4);
+        for (var i = 0; i < show; i++) h += cell(i);
+        if (v.n > show) h += '<span class="ct-c more"><b>…</b><i>+' + (v.n - show) + "</i></span>";
+        body = el("span", { class: "ct-cells", html: h });
+      }
+    } else {
+      body = el("span", { class: "ct-x" + (chg ? " chg" : "") + (v.k === "st" ? " st" : ""), html: un && ctPat(v, o.size) ? '<span class="q" title="niezainicjalizowana – w pamięci są przypadkowe śmieci">?</span>' : ctTxt(v, A, ctx, un, x.st) });
+    }
+    wrap.appendChild(body);
+    return wrap;
   }
   document.addEventListener("click", function (e) {
     var b = e.target.closest && e.target.closest(".runc button"); if (!b) return;
     var box = b.closest(".runc");
     if (b.classList.contains("run-go")) return runCode(box);
     if (b.classList.contains("run-stdin")) { var si = box.querySelector(".run-in"); si.hidden = !si.hidden; if (!si.hidden) si.focus(); return; }
-    if (b.classList.contains("run-edit")) {
-      var pre = box.querySelector("pre"), ta = box.querySelector("textarea.run-src");
+    if (b.classList.contains("run-edit")) {   // kod (zwykły albo z animacji) ↔ pole do edycji ↔ oryginał
+      ctStop(box);
+      var pre = box.querySelector("pre, .ct-code"), ta = box.querySelector("textarea.run-src"), pn = box.querySelector(".ct-panel");
+      if (pn) pn.remove();
+      if (ta && ta.hidden) { if (pre) pre.remove(); ta.hidden = false; b.textContent = "Przywróć oryginał"; ta.focus(); return; }
       if (!ta) {
         ta = el("textarea", { class: "run-src", spellcheck: "false", autocapitalize: "off", autocomplete: "off" }); ta.value = RUN_SRC[+box.getAttribute("data-src")];
         ta.rows = Math.min(24, ta.value.split("\n").length + 1); box.replaceChild(ta, pre); b.textContent = "Przywróć oryginał"; ta.focus();
       } else {
-        var p2 = el("pre", {}, [el("code", { text: RUN_SRC[+box.getAttribute("data-src")] })]); box.replaceChild(p2, ta); b.textContent = "Zmień kod";
+        var p2 = el("pre", { html: "<code>" + CT.highlight(RUN_SRC[+box.getAttribute("data-src")]) + "</code>" }); box.replaceChild(p2, ta); b.textContent = "Zmień kod";
       }
     }
   });
