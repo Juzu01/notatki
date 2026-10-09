@@ -392,6 +392,10 @@ html.ask-open { overflow: hidden; }
 .qa-wait .wt { font-size: 0.9rem; color: var(--muted); }
 .qa-wait .bar { height: 3px; border-radius: 99px; background: var(--line); overflow: hidden; }
 .qa-wait .bar i { display: block; height: 100%; width: 4%; background: var(--accent); border-radius: 99px; transition: width 1s linear; }
+.qa-wait.part .bar { display: none; }
+.qa-u.queued { opacity: 0.6; border-style: dashed; }
+.qa-qs { justify-self: end; display: flex; gap: 12px; align-items: baseline; margin-top: -10px; font-size: 0.8rem; color: var(--muted); }
+.qa-qs button { appearance: none; border: 0; background: none; padding: 0; font: inherit; font-weight: 600; color: var(--muted); text-decoration: underline; cursor: pointer; }
 .ask-foot { border-top: 1px solid var(--line); background: var(--bg); padding-bottom: env(safe-area-inset-bottom, 0px); }
 .ask-quote { margin: 10px 16px 0; padding: 7px 10px; border-left: 3px solid var(--accent); background: var(--surface); border-radius: 0 8px 8px 0; display: flex; gap: 8px; align-items: flex-start; font-size: 0.86rem; color: var(--muted); }
 .ask-quote span { flex: 1; max-height: 4.4em; overflow: hidden; }
@@ -1713,14 +1717,14 @@ html.rec-open { overflow: hidden; }
   }
   function currentCtx() { return tab === "nauka" ? naukaCtx(visibleTopic()) : tab === "notatki" && view.k === "course" ? noteCtx(visibleNoteKey()) : null; }
   function updateAskFab() { askFab.hidden = !!VISIT || !askBox.hidden || !(tab === "nauka" ? !!naukaDoc() : tab === "notatki" && view.k === "course" && document.querySelector(".day[data-key] .md")); }
-  function askBusy() { return ctxA && (chats[ctxA.key] || []).some(function (m) { return !m.a; }); }
+  function askBusy() { return ctxA && (chats[ctxA.key] || []).some(function (m) { return !m.a; }); }   // czeka na odpowiedź albo ma coś w kolejce
   function openAsk(ctx, quote) {
     if (!ctx) return;
     ctxA = ctx; askPend = quote || null;
     askCtxEl.textContent = ""; askCtxEl.appendChild(el("span", { text: "Widzi " + ctx.label }));
     askQuote.hidden = !askPend; askQuoteT.textContent = askPend || "";
     askBox.hidden = false; askBack.hidden = false; askFab.hidden = true; askSel.hidden = true;
-    document.documentElement.classList.add("ask-open"); renderAsk();
+    document.documentElement.classList.add("ask-open"); renderAsk("last");
   }
   function closeAsk() { askBox.hidden = true; askBack.hidden = true; document.documentElement.classList.remove("ask-open"); updateAskFab(); }
   function chipsFor(ctx, hasMsgs) {
@@ -1729,57 +1733,134 @@ html.rec-open { overflow: hidden; }
       : (askPend ? ["Wytłumacz to prościej", "Jak się tego nauczyć?", "Daj mi zadanie z tego"] : (ctx.focus ? ["Wytłumacz: " + ctx.focus] : []).concat(["Od czego zacząć dziś?", "Co muszę oddać na UPeL-u?", "Na co się przygotować na jutro?"]));
     return hasMsgs && !askPend ? q.slice(0, 2) : q;
   }
-  function renderAsk() {
+  // how: "end" – na sam dół (po wysłaniu), "last" – do ostatniego wysłanego pytania (otwarcie), { id } – przyszła odpowiedź:
+  // do jej pytania tylko wtedy, gdy ktoś był na dole; inaczej zostaje tam, gdzie czyta
+  function renderAsk(how) {
+    var keep = askLog.scrollTop, atEnd = askLog.scrollHeight - keep - askLog.clientHeight < 60;
     askLog.textContent = "";
     var list = chats[ctxA.key] || [];
     if (!list.length) askLog.appendChild(el("div", { class: "ask-hello" }, [
       el("b", { text: ctxA.where === "notatka" ? "Pytaj o tę notatkę" : "Pytaj o naukę i plan" }),
       el("span", { text: ctxA.where === "notatka"
-        ? "Claude zna całą notatkę, zdjęcia i nagranie, z których powstała, terminy z UPeL-a i plan tego przedmiotu. Możesz też zaznaczyć fragment notatki i dotknąć „Zapytaj o to”. Pierwsza odpowiedź przychodzi po ok. pół minuty, kolejne szybciej – Claude pamięta rozmowę i notatkę."
-        : "Claude zna Twój plan na jutro, zadania z UPeL-a, plan tygodnia, listy tematów i wszystkie notatki. Pytaj też o rzeczy, których jeszcze nie było – powie, że to wykracza poza zajęcia. Pierwsza odpowiedź przychodzi po ok. pół minuty, kolejne szybciej – Claude pamięta rozmowę." })
+        ? "Claude zna całą notatkę, zdjęcia i nagranie, z których powstała, terminy z UPeL-a i plan tego przedmiotu. Możesz też zaznaczyć fragment notatki i dotknąć „Zapytaj o to”. Odpowiedź zaczyna się pojawiać po kilkunastu sekundach, kolejne szybciej – Claude pamięta rozmowę i notatkę. Następne pytanie możesz dopisać od razu, poczeka w kolejce."
+        : "Claude zna Twój plan na jutro, zadania z UPeL-a, plan tygodnia, listy tematów i wszystkie notatki. Pytaj też o rzeczy, których jeszcze nie było – powie, że to wykracza poza zajęcia. Odpowiedź zaczyna się pojawiać po kilkunastu sekundach, kolejne szybciej – Claude pamięta rozmowę. Następne pytanie możesz dopisać od razu, poczeka w kolejce." })
     ]));
     list.forEach(function (m) {
-      var u = el("div", { class: "qa-u" }); if (m.quote) u.appendChild(el("span", { class: "q", text: m.quote })); u.appendChild(document.createTextNode(m.q)); askLog.appendChild(u);
-      if (m.a) {
+      var u = el("div", { class: "qa-u" + (m.queued ? " queued" : ""), "data-q": m.id }); if (m.quote) u.appendChild(el("span", { class: "q", text: m.quote })); u.appendChild(document.createTextNode(m.q)); askLog.appendChild(u);
+      if (m.queued) {
+        askLog.appendChild(el("div", { class: "qa-qs" }, [el("span", { text: "W kolejce – pójdzie po odpowiedzi na poprzednie" }), btn("", "Usuń", function () {
+          var l = chats[ctxA.key] || [], i = l.indexOf(m); if (i >= 0 && l[i].queued) { l.splice(i, 1); saveChats(); renderAsk(); }
+        })]));
+      } else if (m.a) {
         var copy = btn("", "Kopiuj", function () { try { navigator.clipboard.writeText(m.a).then(function () { copy.textContent = "Skopiowane"; }, function () {}); } catch (e) {} });
         askLog.appendChild(el("div", { class: "qa-a" + (m.err ? " err" : "") }, [el("span", { class: "who", text: "Claude" }), el("div", { class: "md", html: m.err ? esc(m.a) : md(m.a, true) }), m.err ? null : el("div", { class: "acts" }, [copy])]));
-      } else askLog.appendChild(el("div", { class: "qa-a qa-wait", "data-wait": m.id }, [el("span", { class: "who", text: "Claude" }), el("span", { class: "wt", text: waitText(m) }), el("span", { class: "bar" }, [el("i", { style: "width:" + waitPct(m) + "%" })])]));
+      } else {
+        var w = el("div", { class: "qa-a qa-wait", "data-wait": m.id }, [el("span", { class: "who", text: "Claude" }), el("span", { class: "wt", text: waitText(m) }), el("span", { class: "bar" }, [el("i", { style: "width:" + waitPct(m) + "%" })])]);
+        askLog.appendChild(w); partInto(w, m);
+      }
     });
     askChips.textContent = ""; askChips.scrollLeft = 0;
     if (!askBusy()) chipsFor(ctxA, list.length).forEach(function (q) {
       askChips.appendChild(btn("", q, function () { if (/…$/.test(q)) { askIn.value = q.replace(/…$/, " "); askIn.focus(); grow(); } else sendAsk(q); }));
     });
-    askForm.querySelector("button").disabled = !!askBusy();
+    askIn.placeholder = askBusy() ? "Dopisz następne pytanie…" : "Zapytaj o cokolwiek…";
     $("ask-new").hidden = !list.length || !!askBusy();
-    askLog.scrollTop = askLog.scrollHeight;
+    var to = null;
+    if (how === "last") { var sent = list.filter(function (m) { return !m.queued; }).pop(); to = sent && sent.id; }
+    else if (how && how.id && atEnd) to = how.id;
+    var qe = to && askLog.querySelector('[data-q="' + to + '"]');
+    if (qe) askLog.scrollTop += qe.getBoundingClientRect().top - askLog.getBoundingClientRect().top - 12;
+    else askLog.scrollTop = how === "end" || how === "last" ? askLog.scrollHeight : keep;
   }
-  function waitText(m) { var sec = Math.round((Date.now() - m.t0) / 1000); return (m.wait || "Claude myśli") + "… " + clock(sec); }
+  function waitText(m) { var sec = Math.round((Date.now() - m.t0) / 1000); return (partLines(m) ? "Claude pisze" : m.wait || "Claude myśli") + "… " + clock(sec); }
+  // odpowiedź w trakcie pisania: tylko pełne linijki, żeby nie migały urwane wzory i pogrubienia
+  function partLines(m) { var t = m.part || ""; return t.slice(0, t.lastIndexOf("\n") + 1).trim(); }
+  function partInto(w, m) {
+    var txt = partLines(m); if (!txt) return false;
+    var box = w.querySelector(".md"); if (!box) { box = el("div", { class: "md" }); w.insertBefore(box, w.querySelector(".wt")); }
+    if (box._t !== txt) { box._t = txt; box.innerHTML = md(txt, true); }
+    w.classList.add("part"); w.querySelector(".wt").textContent = waitText(m);
+    return true;
+  }
+  // przyszedł nowy kawałek: dopisuje go w miejscu, bez przerysowywania rozmowy; przy pierwszym kawałku, jeśli ktoś był na dole,
+  // przewija do pytania, potem już nie rusza – można spokojnie czytać i przewijać w górę
+  var streamed = {};
+  function showPart(m) {
+    if (askBox.hidden || !ctxA) return;
+    var w = askLog.querySelector('[data-wait="' + m.id + '"]'); if (!w) return;
+    var first = !w.classList.contains("part"), atEnd = askLog.scrollHeight - askLog.scrollTop - askLog.clientHeight < 60;
+    if (!partInto(w, m)) return;
+    streamed[m.id] = true;
+    var qe = first && atEnd && askLog.querySelector('[data-q="' + m.id + '"]');
+    if (qe) askLog.scrollTop += qe.getBoundingClientRect().top - askLog.getBoundingClientRect().top - 12;
+  }
   function waitPct(m) { var sec = (Date.now() - m.t0) / 1000; return Math.min(94, Math.round(100 * (1 - Math.exp(-sec / (m.follow ? 12 : 22))))); }
+  // Pytanie zawsze trafia najpierw do kolejki; pumpAsk wysyła je, gdy poprzednie w tej rozmowie ma już odpowiedź
+  // (na GitHubie to jedna rozmowa Claude'a, a kolejne pytanie potrzebuje poprzedniej odpowiedzi).
   function sendAsk(text) {
-    text = (text || "").trim(); if (!text || !ctxA || askBusy()) return;
+    text = (text || "").trim(); if (!text || !ctxA) return;
     var list = chats[ctxA.key] || (chats[ctxA.key] = []);
-    var hist = list.filter(function (m) { return m.a && !m.err; }).slice(-4).map(function (m) { return { q: (m.quote ? "[o fragmencie: " + m.quote.slice(0, 300) + "] " : "") + m.q, a: m.a.slice(0, 3000) }; });
-    var id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-    var prev = list.filter(function (x) { return x.a && !x.err; });
-    var thread = (prev[0] && (prev[0].thread || prev[0].id)) || id;   // id pierwszego pytania = wątek rozmowy na GitHubie
-    var m = { id: id, thread: thread, q: text, quote: askPend, t0: Date.now(), wait: prev.length ? "Claude myśli" : ctxA.wait, follow: !!prev.length };
-    list.push(m); askPend = null; askQuote.hidden = true; askIn.value = ""; grow(); saveChats(); renderAsk();
-    var json = JSON.stringify({ id: id, thread: thread, note: ctxA.note || null, ctx: { where: ctxA.where, focus: ctxA.focus || null }, question: text, quote: m.quote || null, history: hist });
-    api("contents/asks/" + id + ".json", { method: "PUT", body: { message: "Pytanie: " + (ctxA.note || "nauka"), content: btoa(unescape(encodeURIComponent(json))), branch: BRANCH } })
+    var m = { id: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), q: text, quote: askPend, queued: true,
+              cx: { note: ctxA.note || null, where: ctxA.where, focus: ctxA.focus || null, wait: ctxA.wait } };
+    list.push(m); askPend = null; askQuote.hidden = true; askIn.value = ""; grow(); saveChats();
+    pumpAsk(ctxA.key); renderAsk("end");
+  }
+  function pumpAsk(key) {
+    var list = chats[key] || []; if (!TOKEN || VISIT) return;
+    if (list.some(function (m) { return !m.a && !m.queued; })) return;
+    var i = list.findIndex(function (m) { return m.queued; }); if (i < 0) return;
+    var m = list[i], cx = m.cx || {}, prev = list.slice(0, i).filter(function (x) { return x.a && !x.err; });
+    var hist = prev.slice(-4).map(function (x) { return { q: (x.quote ? "[o fragmencie: " + x.quote.slice(0, 300) + "] " : "") + x.q, a: x.a.slice(0, 3000) }; });
+    m.thread = (prev[0] && (prev[0].thread || prev[0].id)) || m.id;   // id pierwszego pytania = wątek rozmowy na GitHubie
+    m.t0 = Date.now(); m.wait = prev.length ? "Claude myśli" : cx.wait; m.follow = !!prev.length; delete m.queued; saveChats();
+    var json = JSON.stringify({ id: m.id, thread: m.thread, note: cx.note || null, ctx: { where: cx.where, focus: cx.focus || null }, question: m.q, quote: m.quote || null, history: hist });
+    api("contents/asks/" + m.id + ".json", { method: "PUT", body: { message: "Pytanie: " + (cx.note || "nauka"), content: btoa(unescape(encodeURIComponent(json))), branch: BRANCH } })
       .then(function () { pollAsk(); }, function (e) {
-        m.a = e && e.status === 403 ? "Klucz ma tylko odczyt, więc pytanie nie poszło." : "Nie udało się wysłać pytania. Sprawdź internet i spróbuj jeszcze raz."; m.err = true; saveChats(); renderAsk();
+        m.a = e && e.status === 403 ? "Klucz ma tylko odczyt, więc pytanie nie poszło." : "Nie udało się wysłać pytania. Sprawdź internet i spróbuj jeszcze raz."; m.err = true; saveChats();
+        pumpAsk(key); if (!askBox.hidden && ctxA && ctxA.key === key) renderAsk({ id: m.id });
       });
   }
+  // Odpowiedź przychodzi na żywo z gałęzi live (a/<id>.json: kawałki w trakcie pisania, na końcu done: true);
+  // answers/<id>.json na main to zapis na stałe – sprawdzany co trzeci raz, gdyby live zawiodło
+  var askTick = 0, lastAnsT = 0;
   function pollAsk() {
     clearTimeout(askTimer);
     var pend = [];
-    Object.keys(chats).forEach(function (k) { chats[k].forEach(function (m) { if (!m.a) pend.push(m); }); });
+    Object.keys(chats).forEach(function (k) { chats[k].forEach(function (m) { if (!m.a && !m.queued) pend.push(m); }); });
     if (!pend.length || !TOKEN || VISIT) return;
+    var main = askTick++ % 3 === 2;
+    function fin(m, x) { m.a = x.answer || "Nie udało się teraz odpowiedzieć. Spróbuj zapytać jeszcze raz."; m.err = !!x.error; delete m.part; return m; }
     Promise.all(pend.map(function (m) {
-      return api("contents/answers/" + m.id + ".json?ref=" + BRANCH, { raw: true }).then(function (t) { var x = JSON.parse(t); m.a = x.answer; m.err = !!x.error; }, function () {
-        if (Date.now() - m.t0 > 5 * 60000) { m.a = "Nie ma odpowiedzi po 5 minutach. Zapytaj jeszcze raz."; m.err = true; }
+      return api("contents/a/" + m.id + ".json?ref=live", { raw: true }).then(function (t) {
+        var x = JSON.parse(t);
+        if (x.done) return fin(m, x);
+        if (x.answer && x.answer !== m.part) { m.part = x.answer; showPart(m); }
+      }, function () {}).then(function (r) {
+        if (r || !main) return r;
+        return api("contents/answers/" + m.id + ".json?ref=" + BRANCH, { raw: true }).then(function (t) { return fin(m, JSON.parse(t)); }, function () {});
+      }).catch(function () {}).then(function (r) {
+        if (!r && Date.now() - m.t0 > (m.part ? 10 : 5) * 60000) { m.a = "Nie ma odpowiedzi po " + (m.part ? 10 : 5) + " minutach. Zapytaj jeszcze raz."; m.err = true; delete m.part; return m; }
+        return r;
       });
-    })).then(function () { saveChats(); if (!askBox.hidden) renderAsk(); askTimer = setTimeout(pollAsk, 2000); });
+    })).then(function (got) {
+      got = got.filter(Boolean);
+      if (got.length) {   // bez nowej odpowiedzi nic się nie przerysowuje, więc można spokojnie przewijać
+        lastAnsT = Date.now();
+        saveChats(); Object.keys(chats).forEach(pumpAsk);
+        var mine = ctxA && got.filter(function (m) { return (chats[ctxA.key] || []).indexOf(m) >= 0; })[0];
+        if (!askBox.hidden && mine) renderAsk(streamed[mine.id] ? null : { id: mine.id });   // czytał na żywo → zostaje, gdzie jest
+      }
+      askTimer = setTimeout(pollAsk, 1000);
+    });
+  }
+  // Pierwszy znak w polu pytania budzi Claude'a na GitHubie, zanim pytanie zostanie wysłane (start trwa ok. 10 s).
+  // Po odpowiedzi czeka on jeszcze 2 minuty na następne pytanie, więc wtedy budzić nie trzeba.
+  var warmT = 0;
+  function warmAsk() {
+    if (!TOKEN || VISIT || Date.now() - Math.max(warmT, lastAnsT) < 90000) return;
+    if (Object.keys(chats).some(function (k) { return chats[k].some(function (m) { return !m.a && !m.queued; }); })) return;
+    warmT = Date.now();
+    api("contents/asks/w-" + Date.now().toString(36) + ".json", { method: "PUT", body: { message: "Rozgrzewka", content: btoa("{}"), branch: BRANCH } }).catch(function () { warmT = 0; });
   }
   setInterval(function () {
     if (askBox.hidden || !ctxA) return;
@@ -1795,7 +1876,7 @@ html.rec-open { overflow: hidden; }
   askBack.addEventListener("click", closeAsk);
   $("ask-quote-x").addEventListener("click", function () { askPend = null; askQuote.hidden = true; renderAsk(); });
   askForm.addEventListener("submit", function (e) { e.preventDefault(); sendAsk(askIn.value || (askPend ? "Wytłumacz to prościej" : "")); });
-  askIn.addEventListener("input", grow);
+  askIn.addEventListener("input", function () { grow(); if (askIn.value.trim()) warmAsk(); });
   askIn.addEventListener("keydown", function (e) { if (e.key === "Enter" && !e.shiftKey && !e.isComposing && matchMedia("(pointer: fine)").matches) { e.preventDefault(); askForm.requestSubmit(); } });
   document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !askBox.hidden) closeAsk(); });
   // zaznaczenie tekstu (w notatce albo w Nauce) → „Zapytaj o to”
@@ -1833,7 +1914,7 @@ html.rec-open { overflow: hidden; }
     if (!d || d._askSel) return; d._askSel = true;
     d.addEventListener("selectionchange", function () { var fr = paneK.querySelector("iframe"); onSel(d, function () { return fr ? fr.getBoundingClientRect().top : 0; }); });
   }
-  pollAsk();
+  Object.keys(chats).forEach(pumpAsk); pollAsk();
 
   /* --- Nagrywanie wykładu: mikrofon → kawałki ok. 1 min (cięte w ciszy) → Groq Whisper (prosto z telefonu) → co 5 min paczka tekstu
          speech/<folder>/<dzień>/<godz>-x.json w repo → GitHub Actions (tools/process.py) dopisuje to do notatki razem ze zdjęciami.
