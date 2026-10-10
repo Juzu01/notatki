@@ -2683,6 +2683,7 @@ html.rec-open { overflow: hidden; }
   function openAsk(ctx, quote) {
     if (!ctx) return;
     ctxA = ctx; askPend = quote || null;
+    warmAsk();   // otwarte okienko = zaraz będzie pytanie: budzimy Claude'a od razu, nie dopiero przy pierwszej literze
     askCtxEl.textContent = ""; askCtxEl.appendChild(el("span", { text: "Widzi " + ctx.label }));
     askQuote.hidden = !askPend; askQuoteT.textContent = askPend || "";
     askBox.hidden = false; askBack.hidden = false; askFab.hidden = true; askSel.hidden = true;
@@ -2756,7 +2757,7 @@ html.rec-open { overflow: hidden; }
     var qe = first && atEnd && askLog.querySelector('[data-q="' + m.id + '"]');
     if (qe) askLog.scrollTop += qe.getBoundingClientRect().top - askLog.getBoundingClientRect().top - 12;
   }
-  function waitPct(m) { var sec = (Date.now() - m.t0) / 1000; return Math.min(94, Math.round(100 * (1 - Math.exp(-sec / (m.follow ? 12 : 22))))); }
+  function waitPct(m) { var sec = (Date.now() - m.t0) / 1000; return Math.min(94, Math.round(100 * (1 - Math.exp(-sec / (m.follow ? 5 : 10))))); }
   // Pytanie zawsze trafia najpierw do kolejki; pumpAsk wysyła je, gdy poprzednie w tej rozmowie ma już odpowiedź
   // (na GitHubie to jedna rozmowa Claude'a, a kolejne pytanie potrzebuje poprzedniej odpowiedzi).
   function sendAsk(text) {
@@ -2824,11 +2825,11 @@ html.rec-open { overflow: hidden; }
       askTimer = setTimeout(pollAsk, 1000);
     });
   }
-  // Pierwszy znak w polu pytania budzi Claude'a na GitHubie, zanim pytanie zostanie wysłane (start trwa ok. 10 s).
-  // Po odpowiedzi czeka on jeszcze 2 minuty na następne pytanie, więc wtedy budzić nie trzeba.
+  // Otwarcie okienka „Zapytaj” (i pierwszy znak w polu) budzi Claude'a na GitHubie, zanim pytanie zostanie wysłane (start trwa ok. 10 s).
+  // Po odpowiedzi czeka on jeszcze 4 minuty na następne pytanie (ASK_IDLE w pytania.yml), więc wtedy budzić nie trzeba.
   var warmT = 0;
   function warmAsk() {
-    if (!TOKEN || VISIT || Date.now() - Math.max(warmT, lastAnsT) < 90000) return;
+    if (!TOKEN || VISIT || Date.now() - Math.max(warmT, lastAnsT) < 200000) return;
     if (Object.keys(chats).some(function (k) { return chats[k].some(function (m) { return !m.a && !m.queued; }); })) return;
     warmT = Date.now();
     putAsk("contents/asks/w-" + Date.now().toString(36) + ".json", { message: "Rozgrzewka", content: btoa("{}"), branch: BRANCH }, 2).catch(function () { warmT = 0; });
