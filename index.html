@@ -242,7 +242,6 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
 .md button.zad { appearance: none; border: 0; background: none; padding: 0; font: inherit; color: var(--accent); text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--accent) 35%, transparent); text-underline-offset: 3px; cursor: pointer; }
 .md .env.task { scroll-margin-top: 140px; }
 .md .nw { white-space: nowrap; }
-.md .nw > .katex { white-space: normal; }   /* długi wzór łamie się w środku (po „=”, „+”), a przecinek po nim zostaje przy nim */
 .md .tw { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 .md .tw table { overflow-wrap: normal; word-break: normal; }
 .md .tw th, .md .tw td { min-width: 4.5em; }
@@ -864,7 +863,7 @@ html.rec-open { overflow: hidden; }
     var links = [];
     s = s.replace(/`([^`]+)`/g, function (_, c) { links.push("<code>" + c + "</code>"); return "\u0001" + (links.length - 1) + "\u0002"; });
     s = s.replace(/\$(?=\S)([^$\n]*?\S)\$(?![0-9A-Za-z])([.,;:!?)\]]*)/g, function (_, m, p) {   // przecinek albo nawias zaraz po wzorze nie przeskakuje do nowej linii
-      links.push(p ? '<span class="nw">' + tex(unesc(m), disp) + p + "</span>" : tex(unesc(m), disp)); return "\u0001" + (links.length - 1) + "\u0002"; });
+      links.push(tex(unesc(m) + (p ? "\\text{" + p + "}" : ""), disp)); return "\u0001" + (links.length - 1) + "\u0002"; });   // przecinek/kropka po wzorze w środku wzoru: nie spadnie sama do nowej linii, a długi wzór dalej łamie się po „=”, „+”
     s = s.replace(/\[\[m:([0-9a-f]{10})(?:\|([^\]]*))?\]\]/g, function (_, id, label) {   // materiał do ćwiczenia: dokładnie ta strona pliku
       links.push('<button type="button" class="mlink" data-m="' + id + '">' + (label || "materiał").replace(/\*/g, "") + "</button>");
       return "\u0001" + (links.length - 1) + "\u0002";
