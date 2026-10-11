@@ -2143,7 +2143,7 @@ html.rec-open { overflow: hidden; }
     naukaBusy = true;
     api("contents/nauka.html?ref=" + BRANCH, { raw: true }).then(function (html) {
       naukaSha = sha;
-      var hide = "<style>nav.tabs,header.top>.brand{display:none!important}</style>";   // zakładki SimpleAGH są tu niepotrzebne – są u góry tej strony
+      var hide = "<style>nav.tabs,header.top{display:none!important}.wrap{padding-top:6px!important}</style>";   // zakładki i nagłówek SimpleAGH są tu niepotrzebne – plan zajęć ma być na samej górze
       var doc = /^\s*<!doctype/i.test(html) ? html.replace(/<body[^>]*>/i, function (b) { return b + hide; })
         : '<!doctype html><html lang="pl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0}</style></head><body>' + hide + html + "</body></html>";
       var fr = paneK.querySelector("iframe");
@@ -2202,7 +2202,7 @@ html.rec-open { overflow: hidden; }
       });
       t.parentNode.insertBefore(row, t.nextSibling);
     });
-    drawToday(map);
+    // karta „Dziś” nad Nauką zdjęta 11.10.2026 (za dużo; plan zajęć jest teraz na górze Nauki) – drawToday zostaje, gdyby wróciła
   }
   function goToTopic(topic) {
     setTab("nauka");
