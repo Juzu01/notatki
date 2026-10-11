@@ -282,7 +282,7 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
 .md span.tref { cursor: default; }
 .md code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.86em; background: var(--bg); border-radius: 4px; padding: 0 4px; white-space: pre-wrap; }
 .md pre { margin: 0; background: var(--bg); border-radius: 8px; padding: 10px 12px; overflow-x: auto; font-size: 0.84rem; line-height: 1.5; }
-.md code.nw { white-space: nowrap; }
+.md code.nw, .md .nw { white-space: nowrap; }
 .md pre code { padding: 0; background: none; font-size: inherit; }
 .md .runc { display: grid; gap: 8px; }
 .md .quiz .qz-code { background: var(--surface); border: 1px solid var(--line); }
@@ -419,6 +419,21 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
 .toc { display: grid; gap: 2px; padding: 2px 0 4px; border-bottom: 1px solid var(--line); }
 .toc button { appearance: none; border: 0; background: none; padding: 3px 0; text-align: left; color: var(--muted); font-weight: 500; font-size: 0.9rem; cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .toc button:hover { color: var(--accent); }
+.toc button.done::after { content: "✓"; margin-left: 0.45em; color: var(--accent); font-weight: 700; }
+.kol-ov { display: grid; gap: 2px; margin: 4px 0 8px; padding: 6px 0 10px; border-bottom: 1px solid var(--line); }
+.md .kol-ov .kol-h { margin: 0 0 4px; font-family: var(--font); font-size: 0.85rem; color: var(--muted); }
+.kol-row { appearance: none; border: 0; background: none; width: 100%; display: flex; align-items: center; gap: 10px; padding: 7px 0; text-align: left; font-family: var(--font); font-size: 0.92rem; color: var(--ink); cursor: pointer; }
+.kol-row .kol-i { flex: none; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font-size: 0.75rem; font-weight: 700; color: var(--muted); border: 1.5px solid var(--line); box-sizing: border-box; }
+.kol-row.done .kol-i { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+.kol-row .kol-n { flex: 1 1 auto; min-width: 0; line-height: 1.35; }
+.kol-row .kol-s { flex: none; font-size: 0.8rem; font-weight: 600; color: var(--accent); }
+.md .kol-set { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; margin: 6px 0 18px; scroll-margin-top: 110px; }
+.md .kol-set .kol-meta, .md .kol-set .kol-real { margin: 0; font-family: var(--font); font-size: 0.85rem; line-height: 1.45; color: var(--muted); }
+.md .qz-bar .qz-nextset { display: none; }
+.md .kol-set:not(:last-of-type) .qz-bar .qz-nextset { display: inline-block; padding: 9px 20px; border-radius: 99px; color: var(--surface); background: var(--accent); }
+.md .kol-set:not(:last-of-type) .qz-bar .qz-again { padding: 4px 0; color: var(--accent); background: none; }
+.ask-fab { transition: transform 0.25s ease, opacity 0.2s ease; }
+.ask-fab.away { transform: translateY(calc(100% + 28px)); opacity: 0; pointer-events: none; }
 .seg.wide { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); margin: 0; padding: 4px; border-radius: 12px; }
 .seg.wide button { font-size: 0.95rem; padding: 8px; border-radius: 9px; }
 .md .nlink { appearance: none; border: 0; background: none; padding: 0; font: inherit; color: var(--accent); text-align: left; cursor: pointer; text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--accent) 35%, transparent); text-underline-offset: 3px; }
@@ -903,7 +918,7 @@ html.rec-open { overflow: hidden; }
     var links = [];
     s = s.replace(/`([^`]+)`/g, function (_, c) { links.push("<code" + (/^\S{1,24}$/.test(c) ? ' class="nw"' : "") + ">" + c + "</code>"); return "\u0001" + (links.length - 1) + "\u0002"; });   // krótki kod bez spacji (rwxr-x---) w jednej linii
     s = s.replace(/\$(?=\S)([^$\n]*?\S)\$(?![0-9A-Za-z])([.,;:!?)\]]*)/g, function (_, m, p) {   // przecinek albo nawias zaraz po wzorze nie przeskakuje do nowej linii
-      links.push(tex(unesc(m) + (p ? "\\text{" + p + "}" : ""), disp)); return "\u0001" + (links.length - 1) + "\u0002"; });   // przecinek/kropka po wzorze w środku wzoru: nie spadnie sama do nowej linii, a długi wzór dalej łamie się po „=”, „+”
+      var h = tex(unesc(m) + (p ? "\\text{" + p + "}" : ""), disp); links.push(m.length <= 16 ? '<span class="nw">' + h + "</span>" : h); return "\u0001" + (links.length - 1) + "\u0002"; });   // krótki wzór ($y = 1$) w całości w jednej linii   // przecinek/kropka po wzorze w środku wzoru: nie spadnie sama do nowej linii, a długi wzór dalej łamie się po „=”, „+”
     s = s.replace(/\[\[m:([0-9a-f]{10})(?:\|([^\]]*))?\]\]/g, function (_, id, label) {   // materiał do ćwiczenia: dokładnie ta strona pliku
       links.push('<button type="button" class="mlink" data-m="' + id + '">' + (label || "materiał").replace(/\*/g, "") + "</button>");
       return "\u0001" + (links.length - 1) + "\u0002";
@@ -1642,6 +1657,23 @@ html.rec-open { overflow: hidden; }
     });
     flush(); return out;
   }
+  var kolRefresh = null;
+  function qzProgress() {   // po skończonym zestawie: ✓ w spisie tematów notatki i lista zestawów w Kolokwiach
+    document.querySelectorAll(".toc button").forEach(tocMark);
+    if (kolRefresh) kolRefresh();
+  }
+  function quizAfter(h) {   // blok quiz w temacie pod nagłówkiem h (do następnego nagłówka tego samego poziomu)
+    for (var n = h.nextElementSibling; n && n.tagName !== h.tagName; n = n.nextElementSibling) {
+      var q = n.classList.contains("quiz") ? n : n.querySelector(".quiz");
+      if (q) return QZ[+q.getAttribute("data-qz")];
+    }
+    return null;
+  }
+  function tocMark(b) { var p = b._h && quizAfter(b._h); b.classList.toggle("done", !!(p && qzSaved()[p.h])); }
+  function tocBtn(h) {   // pozycja spisu: przewija do tematu, ✓ gdy jego „Sprawdź się” jest zrobione
+    var b = btn("", h.textContent, function () { h.scrollIntoView({ behavior: "smooth", block: "start" }); });
+    b._h = h; tocMark(b); return b;
+  }
   function qzSaved() { try { return JSON.parse(lsGet(QZ_LS) || "{}"); } catch (e) { return {}; } }
   function quizBlock(src) {
     var p = qzParse(src); if (!p.qs.length) return "<pre><code>" + esc(src) + "</code></pre>";
@@ -1667,7 +1699,7 @@ html.rec-open { overflow: hidden; }
     if (s.k >= n) {
       var good = s.res.filter(function (r) { return r === "ok"; }).length;
       return head + '<div class="qz-sum"><p><strong>' + good + " z " + n + "</strong> za pierwszym razem" + (good === n ? ". Wszystko dobrze." : ". Pomarańczowe kropki to pytania, przy których była pomyłka albo podpowiedź – warto zrobić je jeszcze raz.") +
-        '</p><div class="qz-bar"><button type="button" class="qz-again">Jeszcze raz</button></div></div>';
+        '</p><div class="qz-bar"><button type="button" class="qz-nextset">Następny zestaw</button><button type="button" class="qz-again">Jeszcze raz</button></div></div>';
     }
     var q = p.qs[s.k], body = '<div class="qz-q"><span class="qz-n">' + (s.k + 1) + "/" + n + "</span>" + qzText(q.text) + "</div>";
     if (q.opts.length) {
@@ -1721,11 +1753,16 @@ html.rec-open { overflow: hidden; }
     if (b.classList.contains("qz-show")) { s.showAll = true; qzDraw(box); return; }
     if (b.classList.contains("qz-next")) {
       s.k++; qzReset(p, false);
-      if (s.k >= p.qs.length) { var all = qzSaved(); all[p.h] = s.res; lsSet(QZ_LS, JSON.stringify(all)); }
+      if (s.k >= p.qs.length) { var all = qzSaved(); all[p.h] = s.res; lsSet(QZ_LS, JSON.stringify(all)); qzProgress(); }
       qzDraw(box, "next"); return;
     }
     if (b.classList.contains("qz-again")) {
-      qzReset(p, true); var sv = qzSaved(); delete sv[p.h]; lsSet(QZ_LS, JSON.stringify(sv)); qzDraw(box, "next"); return;
+      qzReset(p, true); var sv = qzSaved(); delete sv[p.h]; lsSet(QZ_LS, JSON.stringify(sv)); qzProgress(); qzDraw(box, "next"); return;
+    }
+    if (b.classList.contains("qz-nextset")) {
+      var nx = box.closest(".kol-set"); do { nx = nx && nx.nextElementSibling; } while (nx && !nx.classList.contains("kol-set"));
+      if (nx) nx.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
     }
   });
   document.addEventListener("keydown", function (e) {
@@ -2698,7 +2735,7 @@ html.rec-open { overflow: hidden; }
     return out;
   }
   function drawNotes() {
-    paneN.textContent = "";
+    paneN.textContent = ""; kolRefresh = null;
     var c = view.k === "course" && courses().filter(function (x) { return x.course === view.c; })[0];
     if (c) drawCourse(c); else drawCourses();
   }
@@ -2734,11 +2771,33 @@ html.rec-open { overflow: hidden; }
     drawDays(c);
   }
   function drawKol(kol) {   // zestawy pytań pod najbliższe kolokwium (kolokwia/<przedmiot>.md z ~/SimpleAGH/tools/kolokwia_quiz.py)
-    paneN.appendChild(el("div", { class: "card day guide" }, [el("div", { class: "md", html: md(noTitle(kol)) })]));
+    var box = el("div", { class: "md", html: md(noTitle(kol)) }), set = null;
+    Array.prototype.slice.call(box.children).forEach(function (n) {   // zestaw = linia „Było na zajęciach…” + quiz + „Prawdziwe zadania: …”
+      var t = n.tagName === "P" ? n.textContent : "";
+      if (/^(Było na zajęciach|Jeszcze nie było)/.test(t)) { set = el("div", { class: "kol-set" }); box.insertBefore(set, n); n.classList.add("kol-meta"); set.appendChild(n); return; }
+      if (set && (n.classList.contains("quiz") || /^Prawdziwe zadania/.test(t))) { if (t) n.classList.add("kol-real"); set.appendChild(n); return; }
+      set = null;
+    });
+    var sets = Array.prototype.slice.call(box.querySelectorAll(".kol-set")), ov = el("nav", { class: "kol-ov", "aria-label": "Zestawy" });
+    kolRefresh = function () {
+      var saved = qzSaved(), done = 0; ov.textContent = "";
+      var rows = sets.map(function (s, i) {
+        var q = s.querySelector(".quiz"), p = q && QZ[+q.getAttribute("data-qz")]; if (!p) return null;
+        var r = saved[p.h], good = r ? r.filter(function (x) { return x === "ok"; }).length : 0; if (r) done++;
+        return btn("kol-row" + (r ? " done" : ""), null, function () { s.scrollIntoView({ behavior: "smooth", block: "start" }); }, [
+          el("span", { class: "kol-i", text: r ? "✓" : String(i + 1) }), el("span", { class: "kol-n", html: inline(esc(p.title), true) }),
+          r ? el("span", { class: "kol-s", text: good + " z " + p.qs.length }) : null]);
+      }).filter(Boolean);
+      ov.appendChild(el("p", { class: "kol-h", text: done ? "Zrobione " + done + " z " + rows.length : "Zestawy po kolei – zacznij od pierwszego" }));
+      rows.forEach(function (r) { ov.appendChild(r); });
+    };
+    kolRefresh();
+    if (sets.length) box.insertBefore(ov, sets[0]);
+    paneN.appendChild(el("div", { class: "card day guide" }, [box]));
   }
   function drawGuide(c, guide) {   // przewodnik: wykład + ćwiczenia + co bywa na kolokwiach (courses/<przedmiot>.md)
     var card = el("div", { class: "card day guide" }), box = el("div", { class: "md", html: md(noTitle(guide.md || "")) }), hs = box.querySelectorAll(":scope > h4");
-    if (hs.length >= 3) card.appendChild(el("nav", { class: "toc", "aria-label": "Tematy" }, Array.prototype.map.call(hs, function (h) { return btn("", h.textContent, function () { h.scrollIntoView({ behavior: "smooth", block: "start" }); }); })));
+    if (hs.length >= 3) card.appendChild(el("nav", { class: "toc", "aria-label": "Tematy" }, Array.prototype.map.call(hs, tocBtn)));
     card.appendChild(box);
     var up = guide.updated ? new Date(guide.updated) : null;
     var redoB = VISIT ? null : btn("", "Zrób od nowa", function () { redoB.disabled = true; redoB.textContent = "Zlecone"; redo("_kurs", c.course); });
@@ -2790,7 +2849,7 @@ html.rec-open { overflow: hidden; }
       if (note) {
         if (open) {
           var mdBox = el("div", { class: "md", html: md(noTitle(note.md || "")) }), hs = mdBox.querySelectorAll(":scope > h4");
-          if (hs.length >= 3) card.appendChild(el("nav", { class: "toc", "aria-label": "Spis" }, Array.prototype.map.call(hs, function (h) { return btn("", h.textContent, function () { h.scrollIntoView({ behavior: "smooth", block: "start" }); }); })));
+          if (hs.length >= 3) card.appendChild(el("nav", { class: "toc", "aria-label": "Spis" }, Array.prototype.map.call(hs, tocBtn)));
           card.appendChild(mdBox);
           mdBox.querySelectorAll("[data-fig]").forEach(function (b) { blobUrl(b.getAttribute("data-fig")).then(function (u) { b.firstChild.src = u; }, function () { b.closest("figure").classList.add("nofig"); }); });
           if (mdBox.querySelector(".dag, .mn, .zref, .tref")) card.appendChild(el("p", { class: "legend-n", text: "† dopisane przez Claude'a, nie było na zajęciach · zdj. N – zdjęcie, z którego to pochodzi" + (mdBox.querySelector(".tref") ? " · nagr. 09:47 – co mówił wtedy prowadzący" : "") + " (dotknij, żeby otworzyć)" }));
@@ -3033,6 +3092,12 @@ html.rec-open { overflow: hidden; }
   }, 1000);
   function grow() { askIn.style.height = "auto"; askIn.style.height = Math.min(140, askIn.scrollHeight) + "px"; }
   askFab.addEventListener("click", function () { openAsk(currentCtx()); });
+  var fabY = window.scrollY;
+  window.addEventListener("scroll", function () {   // czytasz w dół – przycisk nie zasłania tekstu; wraca przy przewijaniu w górę i na końcu strony
+    var y = window.scrollY, d = y - fabY; if (Math.abs(d) < 12) return;
+    askFab.classList.toggle("away", d > 0 && y > 120 && innerHeight + y < document.documentElement.scrollHeight - 60);
+    fabY = y;
+  }, { passive: true });
   $("ask-x").addEventListener("click", closeAsk);
   $("ask-new").addEventListener("click", function () { if (!ctxA || askBusy()) return; delete chats[ctxA.key]; saveChats(); renderAsk(); askIn.focus(); });
   askBack.addEventListener("click", closeAsk);
