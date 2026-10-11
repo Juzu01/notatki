@@ -43,10 +43,11 @@ def send(items):
         for s in subs:
             try:
                 webpush(subscription_info=s, data=json.dumps(it, ensure_ascii=False), vapid_private_key=pem.name,
-                        vapid_claims={"sub": "https://juzu01.github.io/notatki/"}, ttl=2 * 86400, headers={"Urgency": "high"})
+                        vapid_claims={"sub": "https://juzu01.github.io"}, ttl=2 * 86400, headers={"Urgency": "high"})
                 ok += 1
             except WebPushException as e:
-                bad += 1; print("push: błąd", getattr(e.response, "status_code", "?"))
+                r = getattr(e, "response", None)
+                bad += 1; print("push: błąd", getattr(r, "status_code", "?"), (getattr(r, "text", "") or "")[:80])   # np. 410 = telefon wyłączył powiadomienia
     os.unlink(pem.name)
     print(f"wysłane: {ok}, błędy: {bad}, subskrypcji: {len(subs)}")
 
