@@ -283,6 +283,7 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
 .md code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.86em; background: var(--bg); border-radius: 4px; padding: 0 4px; white-space: pre-wrap; }
 .md pre { margin: 0; background: var(--bg); border-radius: 8px; padding: 10px 12px; overflow-x: auto; font-size: 0.84rem; line-height: 1.5; }
 .md code.nw, .md .nw { white-space: nowrap; }
+.md a { color: var(--accent); text-decoration-color: color-mix(in srgb, var(--accent) 35%, transparent); text-underline-offset: 3px; }
 .md pre code { padding: 0; background: none; font-size: inherit; }
 .md .runc { display: grid; gap: 8px; }
 .md .quiz .qz-code { background: var(--surface); border: 1px solid var(--line); }
@@ -917,6 +918,9 @@ html.rec-open { overflow: hidden; }
   function inline(s, disp) {  // s już escapowane; [[folder/dzień#sekcja|opis]] – odnośnik do miejsca w notatce (przewodnik po przedmiocie)
     var links = [];
     s = s.replace(/`([^`]+)`/g, function (_, c) { links.push("<code" + (/^\S{1,24}$/.test(c) ? ' class="nw"' : "") + ">" + c + "</code>"); return "\u0001" + (links.length - 1) + "\u0002"; });   // krótki kod bez spacji (rwxr-x---) w jednej linii
+    s = s.replace(/\[([^\[\]\n]+)\]\((https?:\/\/[^\s)]+)\)/g, function (_, label, url) {   // [film](https://…) – zwykły odnośnik, otwiera się w nowej karcie
+      links.push('<a href="' + url + '" target="_blank" rel="noopener">' + label + "</a>"); return "\u0001" + (links.length - 1) + "\u0002";
+    });
     s = s.replace(/\$(?=\S)([^$\n]*?\S)\$(?![0-9A-Za-z])([.,;:!?)\]]*)/g, function (_, m, p) {   // przecinek albo nawias zaraz po wzorze nie przeskakuje do nowej linii
       var h = tex(unesc(m) + (p ? "\\text{" + p + "}" : ""), disp); links.push(m.length <= 16 ? '<span class="nw">' + h + "</span>" : h); return "\u0001" + (links.length - 1) + "\u0002"; });   // krótki wzór ($y = 1$) w całości w jednej linii   // przecinek/kropka po wzorze w środku wzoru: nie spadnie sama do nowej linii, a długi wzór dalej łamie się po „=”, „+”
     s = s.replace(/\[\[m:([0-9a-f]{10})(?:\|([^\]]*))?\]\]/g, function (_, id, label) {   // materiał do ćwiczenia: dokładnie ta strona pliku
