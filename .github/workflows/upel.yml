@@ -1,0 +1,44 @@
+# Co 15 minut sprawdza UPeL i wysyła powiadomienia na telefon (aplikacja Notatki), gdy pojawi się coś nowego. Szczegóły w .github/upel_watch.py.
+# Repo jest publiczne, więc minuty Actions są tu darmowe; log pokazuje tylko liczby, a stan to skróty identyfikatorów w pamięci podręcznej.
+name: UPeL – powiadomienia
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+    inputs:
+      test:
+        description: "Wyślij powiadomienie testowe"
+        type: boolean
+        default: false
+permissions:
+  contents: read
+concurrency:
+  group: upel
+  cancel-in-progress: false
+jobs:
+  upel:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github
+      - uses: actions/cache/restore@v4
+        with:
+          path: state
+          key: upel-state-${{ github.run_id }}
+          restore-keys: upel-state-
+      - name: Biblioteka Web Push
+        run: pip install -q pywebpush==2.5.0
+      - name: Sprawdź UPeL
+        id: watch
+        env:
+          UPEL_TOKEN: ${{ secrets.UPEL_TOKEN }}
+          VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
+          PUSH_SUBS: ${{ secrets.PUSH_SUBS }}
+        run: python3 .github/upel_watch.py ${{ inputs.test && '--test' || '' }}
+      - uses: actions/cache/save@v4
+        if: steps.watch.outputs.changed == '1'
+        with:
+          path: state
+          key: upel-state-${{ github.run_id }}

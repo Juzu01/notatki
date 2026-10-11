@@ -11,6 +11,7 @@
 <meta name="theme-color" content="#f3f5f3" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0f1311" media="(prefers-color-scheme: dark)">
 <link rel="apple-touch-icon" href="icon.png">
+<link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon.png">
 <title>Notatki z zajęć</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -420,6 +421,9 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
 .toc { display: grid; gap: 2px; padding: 2px 0 4px; border-bottom: 1px solid var(--line); }
 .toc button { appearance: none; border: 0; background: none; padding: 3px 0; text-align: left; color: var(--muted); font-weight: 500; font-size: 0.9rem; cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .toc button:hover { color: var(--accent); }
+.card.push { padding: 14px 16px; display: grid; gap: 10px; }
+.card.push p { margin: 0; }
+.card.push .tools button { background: var(--accent); border-color: var(--accent); color: var(--surface); padding: 8px 16px; font-size: 0.9rem; }
 .toc button.done::after { content: "✓"; margin-left: 0.45em; color: var(--accent); font-weight: 700; }
 .kol-ov { display: grid; gap: 2px; margin: 4px 0 8px; padding: 6px 0 10px; border-bottom: 1px solid var(--line); }
 .md .kol-ov .kol-h { margin: 0 0 4px; font-family: var(--font); font-size: 0.85rem; color: var(--muted); }
@@ -2753,8 +2757,44 @@ html.rec-open { overflow: hidden; }
         el("span", { class: "chev", "aria-hidden": "true", text: "›" })
       ]));
     });
+    var ps = pushState(), pb;
+    if (ps === "off") {
+      pb = btn("", "Włącz powiadomienia", function () { enablePush(pb); });
+      paneN.appendChild(el("div", { class: "card push" }, [el("p", { text: "Powiadomienie na telefonie, gdy na UPeL-u pojawi się coś nowego: ogłoszenie, materiał albo termin." }), el("div", { class: "tools" }, [pb])]));
+    } else if (ps === "reinstall") paneN.appendChild(el("p", { class: "hint", text: "Powiadomienia z UPeL-a zadziałają, gdy dodasz Notatki do ekranu początkowego jeszcze raz (Safari → Udostępnij → Do ekranu początkowego)." }));
+    else if (ps === "denied") paneN.appendChild(el("p", { class: "hint", text: "Powiadomienia z UPeL-a są wyłączone w Ustawieniach iPhone'a (Ustawienia → Powiadomienia → Notatki)." }));
     paneN.appendChild(el("section", { class: "sec" }, [el("div", { class: "sec-h" }, [el("h2", { text: "Przedmioty" })]), all]));
+    if (ps === "on") paneN.appendChild(el("p", { class: "legend-n", text: "Powiadomienia z UPeL-a są włączone – UPeL jest sprawdzany co kwadrans." }));
   }
+
+  /* --- powiadomienia z UPeL-a: Web Push przez sw.js; wysyła je .github/upel_watch.py (Actions co 15 min).
+     Subskrypcja telefonu trafia do push/<id>.json w prywatnym repo, a ~/SimpleAGH/tools/upel_push.py subs przenosi ją do sekretu PUSH_SUBS. --- */
+  var VAPID_PUB = "BL0yKFF6FKIxJaKvn0TikU58jLn-zz_rc3eoCZ9CUo3E-jGxqN4m7Ysbl_-qNW7SJE635-avbDPsS0bUvzpYAmc", LS_PUSH = "notatki-push";
+  function b64uBytes(s) { s = s.replace(/-/g, "+").replace(/_/g, "/"); while (s.length % 4) s += "="; var b = atob(s), u = new Uint8Array(b.length); for (var i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return u; }
+  function pushState() {   // on | off | denied | reinstall (stara ikonka bez Web Push) | none
+    if (VISIT) return "none";
+    var ios = /iPhone|iPad|iPod/.test(navigator.userAgent), home = navigator.standalone || (window.matchMedia && matchMedia("(display-mode: standalone)").matches);
+    if (!("serviceWorker" in navigator) || !("PushManager" in window) || !("Notification" in window)) return ios && home ? "reinstall" : "none";
+    if (ios && !home) return "none";   // w samym Safari iPhone nie da powiadomień – tylko z ikonki
+    return Notification.permission === "denied" ? "denied" : Notification.permission === "granted" && lsGet(LS_PUSH) ? "on" : "off";
+  }
+  function enablePush(b) {
+    b.disabled = true; b.textContent = "Włączam…";
+    Notification.requestPermission().then(function (p) {   // pierwsze wywołanie w samym dotknięciu – inaczej iPhone nie zapyta
+      if (p !== "granted") throw { code: "deny" };
+      return navigator.serviceWorker.register("sw.js").then(function () { return navigator.serviceWorker.ready; });
+    }).then(function (reg) {
+      return reg.pushManager.getSubscription().then(function (s) { return s || reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64uBytes(VAPID_PUB) }); });
+    }).then(function (sub) {
+      var path = "contents/push/" + qzHash(sub.endpoint) + ".json";
+      return api(path + "?ref=" + BRANCH).then(function () { return null; }, function () {
+        return api(path, { method: "PUT", body: { message: "Powiadomienia z UPeL-a: nowy telefon", branch: BRANCH, content: btoa(JSON.stringify(sub.toJSON())) } });
+      });
+    }).then(function () { lsSet(LS_PUSH, "1"); render(); }, function (e) {
+      b.disabled = false; b.textContent = e && e.code === "deny" ? "Bez zgody – zmień w Ustawieniach" : "Nie udało się – spróbuj jeszcze raz";
+    });
+  }
+  if (pushState() === "on") navigator.serviceWorker.register("sw.js").catch(function () {});
   function drawCourse(c) {
     var f0 = c.folders[0], guide = (INDEX.courses || {})[c.course], kol = (INDEX.kol || {})[c.course];
     if (!guide && view.t === "guide") view.t = "days";

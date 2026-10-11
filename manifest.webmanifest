@@ -1,0 +1,11 @@
+{
+  "name": "Notatki",
+  "short_name": "Notatki",
+  "id": "/notatki/",
+  "start_url": "/notatki/",
+  "scope": "/notatki/",
+  "display": "standalone",
+  "background_color": "#f3f5f3",
+  "theme_color": "#f3f5f3",
+  "icons": [{ "src": "icon.png", "sizes": "180x180", "type": "image/png", "purpose": "any" }]
+}
