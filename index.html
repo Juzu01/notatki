@@ -685,6 +685,10 @@ html.rec-open { overflow: hidden; }
   function svg(s) { return el("span", { html: s }).firstChild; }
   function pad(n) { return String(n).padStart(2, "0"); }
   function isoDay(d) { return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
+  function classesOn(d) {   // zajęcia tego dnia: z planu USOS z datami (folders.json „dated”, co drugi tydzień jest inny), a bez niego ze stałego planu tygodnia
+    var k = isoDay(d), list = CFG.dated && CFG.dated.length ? CFG.dated.filter(function (x) { return x.date === k; }) : (CFG.schedule || []).filter(function (x) { return x.day === DK[d.getDay()]; });
+    return list.filter(function (x) { return F(x.folder); }).sort(function (a, b) { return mins(a.start) - mins(b.start); });
+  }
   function dayLabel(iso) { var d = new Date(iso + "T12:00"); return DAY_L[d.getDay()] + ", " + d.getDate() + " " + MON_G[d.getMonth()]; }
   function shortDay(iso) { var t = isoDay(new Date()), y = isoDay(new Date(Date.now() - 864e5)); return iso === t ? "dziś" : iso === y ? "wczoraj" : dayLabel(iso); }
   function mins(t) { var p = t.split(":"); return (+p[0]) * 60 + (+p[1]); }
@@ -2236,7 +2240,7 @@ html.rec-open { overflow: hidden; }
     // najbliższy dzień z zajęciami: tematy z planu (czy już były w notatkach) i terminy z UPeL-a
     for (var i = 1; i <= 7; i++) {
       var dt = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i), dk = DK[dt.getDay()];
-      var cls = (CFG.schedule || []).filter(function (x) { return x.day === dk && F(x.folder); }).sort(function (a, b) { return mins(a.start) - mins(b.start); });
+      var cls = classesOn(dt);
       if (!cls.length) continue;
       var end = isoDay(dt), ul2 = el("ul", { class: "tl" }), seen = {};
       cls.forEach(function (x) {
@@ -2385,7 +2389,7 @@ html.rec-open { overflow: hidden; }
   /* --- Aparat: wybór zajęć i spust --- */
   function nowClass() {
     var now = new Date(), tk = DK[now.getDay()], nm = now.getHours() * 60 + now.getMinutes();
-    var today = (CFG.schedule || []).filter(function (x) { return x.day === tk && F(x.folder); }).sort(function (a, b) { return mins(a.start) - mins(b.start); });
+    var today = classesOn(now);
     var on = today.filter(function (x) { return nm >= mins(x.start) - 15 && nm <= mins(x.end) + 30; })[0] || null;
     return { today: today, on: on, nm: nm };
   }
