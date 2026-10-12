@@ -697,8 +697,12 @@ html.rec-open { overflow: hidden; }
   var TOKEN = "";
   // link dla gościa (#g=<plik>.<klucz>): zaszyfrowana kopia notatek z goscie/, bez klucza do GitHuba, tylko do oglądania
   var gm = /[#&]g=([0-9a-f]{12}-\d{8})\.([A-Za-z0-9_-]{20,})/.exec(location.hash), VISIT = gm ? { file: gm[1], key: gm[2] } : null, visitErr = null, visitReady = null;
+  // link dla znajomych (#z=<klucz>, ~/SimpleAGH/notatki/tools/znajomi.py): zawsze aktualne notatki „tylko do nauki”, odszyfrowywane tutaj; klucz zostaje w tym telefonie
+  var zm = VISIT ? null : /[#&]z=([A-Za-z0-9_-]{43})(?![A-Za-z0-9_-])/.exec(location.hash), LS_Z = "notatki-z";
+  if (zm) { VISIT = { live: true, key: zm[1] }; try { localStorage.setItem(LS_Z, zm[1]); } catch (e) {} }
   if (!VISIT) try { TOKEN = localStorage.getItem(LS) || ""; } catch (e) {}
-  else TOKEN = "gosc";
+  if (!VISIT && !TOKEN) try { var zk = localStorage.getItem(LS_Z); if (zk) VISIT = { live: true, key: zk }; } catch (e) {}
+  if (VISIT) TOKEN = "gosc";
   var HASH0 = location.hash;   // zanim ikonka wyczyści adres: może nieść też klucz Groq (#…&groq=gsk_…)
   var m = VISIT ? null : /[#&]t=([A-Za-z0-9_]+)/.exec(location.hash);
   // ikonka na ekranie początkowym iPhone'a ma osobną pamięć niż Safari: w Safari klucz zostaje w adresie, żeby „Do ekranu początkowego” zabrało go do ikonki
@@ -751,7 +755,26 @@ html.rec-open { overflow: hidden; }
     return h;
   }
   function b64bytes(s) { s = s.replace(/-/g, "+").replace(/_/g, "/"); while (s.length % 4) s += "="; var bin = atob(s), u = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u; }
-  if (VISIT) {
+  var RAWZ = "https://raw.githubusercontent.com/Juzu01/notatki/";
+  function zOpen(buf) {
+    return crypto.subtle.importKey("raw", b64bytes(VISIT.key), "AES-GCM", false, ["decrypt"]).then(function (k) { return crypto.subtle.decrypt({ name: "AES-GCM", iv: new Uint8Array(buf, 0, 12) }, k, new Uint8Array(buf, 12)); })
+      .catch(function () { throw { code: "badkey" }; });
+  }
+  function zGet(path) { return fetch(RAWZ + path, { cache: "no-store" }).then(function (r) { if (!r.ok) throw { code: r.status === 404 ? "gone" : "net" }; return r.arrayBuffer(); }, function () { throw { code: "net" }; }).then(zOpen); }
+  function loadLive() {   // i.bin: notatki, przewodniki, Kolokwia, Dowody, działy, spis plików (gzip w środku)
+    VISIT.at = Date.now();
+    return zGet("z/i.bin?m=" + Math.floor(Date.now() / 60000)).then(function (pt) {
+      return new Response(new Blob([pt]).stream().pipeThrough(new DecompressionStream("gzip"))).text();
+    }).then(JSON.parse);
+  }
+  function reLive() {   // po powrocie do aplikacji: świeża kopia (Actions aktualizuje ją po każdych zajęciach), stara zostaje, gdy nie ma sieci
+    if (!VISIT || !VISIT.live || visitErr || Date.now() - (VISIT.at || 0) < 120000) return;
+    loadLive().then(function (B) { visitReady = Promise.resolve(B); refresh(); }, function () {});
+  }
+  if (VISIT && VISIT.live) {
+    visitReady = loadLive();
+    visitReady.catch(function (e) { visitErr = e && e.code === "badkey" ? "Ten link nie działa. Poproś o nowy." : "Nie udało się wczytać notatek. Sprawdź internet i otwórz jeszcze raz."; render(); });
+  } else if (VISIT) {
     visitReady = fetch("goscie/" + VISIT.file + ".bin", { cache: "no-store" }).then(function (r) { if (!r.ok) throw { code: "gone" }; return r.arrayBuffer(); })
       .then(function (buf) {
         return crypto.subtle.importKey("raw", b64bytes(VISIT.key), "AES-GCM", false, ["decrypt"]).then(function (k) { return crypto.subtle.decrypt({ name: "AES-GCM", iv: new Uint8Array(buf, 0, 12) }, k, new Uint8Array(buf, 12)); });
@@ -762,12 +785,16 @@ html.rec-open { overflow: hidden; }
   function visitApi(path, o) {
     return visitReady.then(function (B) {
       if ((o.method || "GET") !== "GET") throw { code: "http", status: 403 };
+      if (/^git\/trees\//.test(path) && VISIT.live) return { tree: Object.keys(B.files).map(function (p) { return { path: p, type: "blob", sha: B.files[p] }; })
+        .concat(B.tree.map(function (p) { return { path: p, type: "blob", sha: "m" }; })).concat(["folders.json", "index.json"].map(function (p) { return { path: p, type: "blob", sha: "z:" + B.h }; })) };
       if (/^git\/trees\//.test(path)) return { tree: B.tree.concat(["folders.json", "index.json", "nauka.html"]).map(function (p) { return { path: p, type: "blob", sha: "g:" + p }; }) };
       if (/^actions\//.test(path)) return { workflow_runs: [] };
       var mm = /^contents\/([^?]+)/.exec(path), p = mm && decodeURIComponent(mm[1]);
       if (p === "folders.json") return JSON.stringify(B.folders);
       if (p === "index.json") return JSON.stringify(B.index);
-      if (p === "nauka.html") return B.nauka;
+      if (p === "nauka.html" && B.nauka) return B.nauka;
+      if (p === "materials.json" && B.mat) return JSON.stringify({ items: B.mat });
+      if (VISIT.live && B.files[p]) return zGet("zf/" + B.files[p]).then(function (buf) { return o.raw === "blob" ? new Blob([buf], { type: /\.txt$/.test(p) ? "text/plain" : "image/jpeg" }) : new TextDecoder().decode(buf); });
       if (B.files[p] && o.raw === "blob") return new Blob([b64bytes(B.files[p])], { type: "image/jpeg" });
       throw { code: "http", status: 404 };
     });
@@ -2830,7 +2857,7 @@ html.rec-open { overflow: hidden; }
   }
   function peekMat(id, label) {
     peekOpen(normSec(label || "Materiał"), "", null);
-    if (VISIT) { pkLog.appendChild(el("p", { class: "hint", text: "Materiały do ćwiczenia są tylko w Twojej aplikacji, nie w podglądzie gościa." })); return; }
+    if (VISIT && !VISIT.live) { pkLog.appendChild(el("p", { class: "hint", text: "Materiały do ćwiczenia są tylko w Twojej aplikacji, nie w podglądzie gościa." })); return; }
     pkLog.appendChild(el("p", { class: "hint", text: "Wczytuję…" }));
     (MAT ? Promise.resolve(MAT) : rawJson("materials.json").then(function (j) { return (MAT = j.items || {}); })).then(function (items) {
       var it = items[id]; pkLog.textContent = "";
@@ -2880,6 +2907,7 @@ html.rec-open { overflow: hidden; }
       paneN.appendChild(el("div", { class: "card push" }, [el("p", { text: "Powiadomienie na telefonie, gdy na UPeL-u pojawi się coś nowego: ogłoszenie, materiał albo termin." }), el("div", { class: "tools" }, [pb])]));
     } else if (ps === "reinstall") paneN.appendChild(el("p", { class: "hint", text: "Powiadomienia z UPeL-a zadziałają, gdy dodasz Notatki do ekranu początkowego jeszcze raz (Safari → Udostępnij → Do ekranu początkowego)." }));
     else if (ps === "denied") paneN.appendChild(el("p", { class: "hint", text: "Powiadomienia z UPeL-a są wyłączone w Ustawieniach iPhone'a (Ustawienia → Powiadomienia → Notatki)." }));
+    if (VISIT && VISIT.live && IOS && !STANDALONE) paneN.appendChild(el("p", { class: "hint", text: "Żeby mieć to jak aplikację: Udostępnij → „Do ekranu początkowego”. Notatki same się aktualizują po każdych zajęciach." }));
     paneN.appendChild(el("section", { class: "sec" }, [el("div", { class: "sec-h" }, [el("h2", { text: "Przedmioty" })]), all]));
     if (other.firstChild) paneN.appendChild(el("section", { class: "sec" }, [el("div", { class: "sec-h" }, [el("h2", { text: "Poza AGH" })]), other]));
     if (ps === "on") paneN.appendChild(histSec());
@@ -3883,7 +3911,12 @@ html.rec-open { overflow: hidden; }
   });
   window.addEventListener("beforeunload", function (e) { if (R || local.some(function (x) { return x.state === "prep" || x.state === "upload"; })) { e.preventDefault(); e.returnValue = ""; } });
 
-  if (VISIT) {
+  if (VISIT && VISIT.live) {
+    document.body.classList.add("visit", "znajomi"); tab = "notatki"; tabK.parentNode.hidden = true;
+    var mf = document.querySelector('link[rel="manifest"]'); if (mf) mf.remove();   // bez manifestu iPhone bierze do ikonki ten adres razem z #z=klucz (start_url by go zgubił)
+    document.querySelector(".top .brand").textContent = "SimpleAGH · notatki";
+    document.addEventListener("visibilitychange", function () { if (!document.hidden) reLive(); });
+  } else if (VISIT) {
     document.body.classList.add("visit"); tabA.hidden = true; if (tab === "aparat") tab = "nauka";
     var br = document.querySelector(".top .brand"); br.textContent = "SimpleAGH · podgląd notatek";
     visitReady.then(function () { var d = new Date(VISIT.expires); br.textContent = "SimpleAGH · podgląd do " + d.getDate() + "." + pad(d.getMonth() + 1); }, function () {});
