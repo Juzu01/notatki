@@ -26,7 +26,7 @@
 :root {
   --bg: #f3f5f3; --surface: #ffffff; --ink: #18211c; --muted: #5c6962; --faint: #89958e; --line: #e1e7e3;
   --accent: #0b6b45; --accent-soft: #e2f1e9; --hot: #b42318; --warn: #b26a00; --warn-soft: #fbefdc; --k-thm: #6a46c8; --k-ex: #2b62c9; --hl: #ffe680; --sx-s: #a3530f;
-  --c-ma: #3b6fd8; --c-ha: #7b55d0; --c-dm: #0f8a7e; --c-lcs: #b8860b; --c-ics: #cc4b73; --c-unix: #3f8f34; --c-pl1: #d65a26;
+  --c-ma: #3b6fd8; --c-ha: #7b55d0; --c-dm: #0f8a7e; --c-lcs: #b8860b; --c-ics: #cc4b73; --c-unix: #3f8f34; --c-pl1: #d65a26; --c-kor: #5b6b84;
   --serif: "Source Serif 4", "Iowan Old Style", Charter, Georgia, serif;
   --font: "Figtree", system-ui, -apple-system, "Segoe UI", Roboto, Arial, "Noto Sans Math", sans-serif;
   --r: 16px;
@@ -36,14 +36,14 @@
   :root:not([data-theme="light"]) {
     --bg: #0f1311; --surface: #171d1a; --ink: #e5ebe7; --muted: #9daaa3; --faint: #6f7c75; --line: #27312c;
     --accent: #52c48f; --accent-soft: #19322a; --hot: #ff8a7d; --warn: #f0b44c; --warn-soft: #33281a; --k-thm: #b39af5; --k-ex: #82aaf7; --hl: rgb(240 190 70 / 0.35); --sx-s: #e5a774;
-    --c-ma: #7ba3f5; --c-ha: #a98cf0; --c-dm: #42c2b4; --c-lcs: #e0b54a; --c-ics: #ee82a5; --c-unix: #82cc6e; --c-pl1: #ff9663;
+    --c-ma: #7ba3f5; --c-ha: #a98cf0; --c-dm: #42c2b4; --c-lcs: #e0b54a; --c-ics: #ee82a5; --c-unix: #82cc6e; --c-pl1: #ff9663; --c-kor: #a3b3cc;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --bg: #0f1311; --surface: #171d1a; --ink: #e5ebe7; --muted: #9daaa3; --faint: #6f7c75; --line: #27312c;
   --accent: #52c48f; --accent-soft: #19322a; --hot: #ff8a7d; --warn: #f0b44c; --warn-soft: #33281a; --k-thm: #b39af5; --k-ex: #82aaf7; --hl: rgb(240 190 70 / 0.35); --sx-s: #e5a774;
-  --c-ma: #7ba3f5; --c-ha: #a98cf0; --c-dm: #42c2b4; --c-lcs: #e0b54a; --c-ics: #ee82a5; --c-unix: #82cc6e; --c-pl1: #ff9663;
+  --c-ma: #7ba3f5; --c-ha: #a98cf0; --c-dm: #42c2b4; --c-lcs: #e0b54a; --c-ics: #ee82a5; --c-unix: #82cc6e; --c-pl1: #ff9663; --c-kor: #a3b3cc;
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
@@ -666,7 +666,7 @@ html.rec-open { overflow: hidden; }
   "use strict";
   var OWNER = "Juzu01", REPO = "simpleagh-notatki", BRANCH = "main", LS = "notatki-token", LS_F = "notatki-folder", LS_T = "notatki-tab";
   var API = "https://api.github.com/repos/" + OWNER + "/" + REPO + "/";
-  var KIND_L = { wyklad: "wykład", cwiczenia: "ćwiczenia", lab: "laboratorium" };
+  var KIND_L = { wyklad: "wykład", cwiczenia: "ćwiczenia", lab: "laboratorium", korki: "korki" };
   var DAY_L = ["niedziela", "poniedziałek", "wtorek", "środa", "czwartek", "piątek", "sobota"];
   var MON_G = ["stycznia", "lutego", "marca", "kwietnia", "maja", "czerwca", "lipca", "sierpnia", "września", "października", "listopada", "grudnia"];
   var DK = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -2455,7 +2455,8 @@ html.rec-open { overflow: hidden; }
   function nowClass() {
     var now = new Date(), tk = DK[now.getDay()], nm = now.getHours() * 60 + now.getMinutes();
     var today = classesOn(now);
-    var on = today.filter(function (x) { return nm >= mins(x.start) - 15 && nm <= mins(x.end) + 30; })[0] || null;
+    var on = today.filter(function (x) { return nm >= mins(x.start) && nm <= mins(x.end); })[0] ||   // trwające mają pierwszeństwo przed tymi, które przed chwilą się skończyły
+      today.filter(function (x) { return nm >= mins(x.start) - 15 && nm <= mins(x.end) + 30; })[0] || null;
     return { today: today, on: on, nm: nm };
   }
   var autoPicked = false, shootSig = "";
@@ -2493,14 +2494,14 @@ html.rec-open { overflow: hidden; }
     box.appendChild(el("div", { class: "trigger" }, [
       shutter,
       el("div", { class: "tri" }, [
-        el("b", { text: f ? "Zrób zdjęcie tablicy" : "Najpierw wybierz zajęcia" }),
+        el("b", { text: f ? (f.kind === "korki" ? "Zrób zdjęcie kartki" : "Zrób zdjęcie tablicy") : "Najpierw wybierz zajęcia" }),
         el("span", { class: "for", text: f ? fname(f) + " · " + KIND_L[f.kind] : "Zdjęcie trafi do notatki z tych zajęć." }),
         f ? btn("go alt", "Z galerii", function () { gal.click(); }) : null
       ])
     ]));
     if (f || R) box.appendChild(el("div", { class: "recrow" }, [
-      btn(R ? "go" : "go alt", null, recOpen, [svg(MIC_SVG), R ? "Wróć do nagrywania" : "Nagrywaj wykład"]),
-      el("span", { class: "hint", text: R ? "Nagrywanie trwa: " + fname(F(R.folder) || { course: R.folder }) + "." : "Claude zrobi notatkę także z tego, co mówi prowadzący." })
+      btn(R ? "go" : "go alt", null, recOpen, [svg(MIC_SVG), R ? "Wróć do nagrywania" : f && f.kind === "korki" ? "Nagrywaj korki" : "Nagrywaj wykład"]),
+      el("span", { class: "hint", text: R ? "Nagrywanie trwa: " + fname(F(R.folder) || { course: R.folder }) + "." : "Claude zrobi notatkę także z tego, co mówi " + (f && f.kind === "korki" ? "korepetytor." : "prowadzący.") })
     ]));
     shootBox.appendChild(box);
   }
@@ -2754,13 +2755,21 @@ html.rec-open { overflow: hidden; }
     var c = view.k === "course" && courses().filter(function (x) { return x.course === view.c; })[0];
     if (c) drawCourse(c); else drawCourses();
   }
-  function drawCourses() {   // jeden wiersz na przedmiot: wykład, ćwiczenia i laboratorium razem
-    var all = el("div", { class: "card" });
+  function isKorki(c) { return c.folders.some(function (f) { return f.kind === "korki"; }); }
+  function nextKorki(c) {   // najbliższe korki z planu (folders.json „dated”, z ~/SimpleAGH/data/korki.json)
+    var ids = c.folders.map(function (f) { return f.id; }), now = new Date(), t = isoDay(now), nm = now.getHours() * 60 + now.getMinutes();
+    return (CFG.dated || []).filter(function (x) { return ids.indexOf(x.folder) >= 0 && (x.date > t || x.date === t && mins(x.end) + 30 >= nm); })
+      .sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : mins(a.start) - mins(b.start); })[0] || null;
+  }
+  function drawCourses() {   // jeden wiersz na przedmiot: wykład, ćwiczenia i laboratorium razem; korepetycje osobno, pod przedmiotami z AGH
+    var all = el("div", { class: "card" }), other = el("div", { class: "card" });
     courses().forEach(function (c) {
       var n = Object.keys(INDEX.notes || {}).filter(function (k) { var f = F(INDEX.notes[k].folder); return f && f.course === c.course; }).length;
-      var f0 = c.folders[0];
-      all.appendChild(btn("row", null, function () { view = { k: "course", c: c.course, t: (INDEX.courses || {})[c.course] ? "guide" : "days" }; render(); window.scrollTo(0, 0); }, [
-        el("span", { class: "nm", style: fcolor(f0) }, [el("b", { text: fname(f0) }), el("span", { text: c.folders.map(function (f) { return KIND_L[f.kind]; }).join(", ") + (n ? " · " + nNotes(n) : "") })]),
+      var f0 = c.folders[0], kor = isKorki(c), nx = kor && nextKorki(c);
+      var sub = kor ? (nx ? (nx.date === isoDay(new Date()) ? "dziś" : DAY_L[new Date(nx.date + "T12:00").getDay()] + " " + new Date(nx.date + "T12:00").getDate() + "." + pad(new Date(nx.date + "T12:00").getMonth() + 1)) + ", " + nx.start : "korki")
+        : c.folders.map(function (f) { return KIND_L[f.kind]; }).join(", ");
+      (kor ? other : all).appendChild(btn("row", null, function () { view = { k: "course", c: c.course, t: (INDEX.courses || {})[c.course] ? "guide" : "days" }; render(); window.scrollTo(0, 0); }, [
+        el("span", { class: "nm", style: fcolor(f0) }, [el("b", { text: fname(f0) }), el("span", { text: sub + (n ? " · " + nNotes(n) : "") })]),
         el("span", { class: "chev", "aria-hidden": "true", text: "›" })
       ]));
     });
@@ -2771,6 +2780,7 @@ html.rec-open { overflow: hidden; }
     } else if (ps === "reinstall") paneN.appendChild(el("p", { class: "hint", text: "Powiadomienia z UPeL-a zadziałają, gdy dodasz Notatki do ekranu początkowego jeszcze raz (Safari → Udostępnij → Do ekranu początkowego)." }));
     else if (ps === "denied") paneN.appendChild(el("p", { class: "hint", text: "Powiadomienia z UPeL-a są wyłączone w Ustawieniach iPhone'a (Ustawienia → Powiadomienia → Notatki)." }));
     paneN.appendChild(el("section", { class: "sec" }, [el("div", { class: "sec-h" }, [el("h2", { text: "Przedmioty" })]), all]));
+    if (other.firstChild) paneN.appendChild(el("section", { class: "sec" }, [el("div", { class: "sec-h" }, [el("h2", { text: "Poza AGH" })]), other]));
     if (ps === "on") paneN.appendChild(histSec());
   }
 
@@ -2851,7 +2861,8 @@ html.rec-open { overflow: hidden; }
     ]));
     if (guide || kol) {
       var seg = el("div", { class: "seg wide", role: "group", "aria-label": "Widok przedmiotu" });
-      [guide && ["guide", "Przewodnik"], kol && ["kol", "Kolokwia"], ["days", "Zajęcia"]].filter(Boolean).forEach(function (o) {
+      var kor = isKorki(c);
+      [guide && ["guide", "Przewodnik"], kol && ["kol", kor ? "Powtórka" : "Kolokwia"], ["days", kor ? "Notatki" : "Zajęcia"]].filter(Boolean).forEach(function (o) {
         var b = btn("", o[1], function () { view.t = o[0]; render(); window.scrollTo(0, 0); }); b.setAttribute("aria-pressed", view.t === o[0] ? "true" : "false"); seg.appendChild(b);
       });
       paneN.appendChild(seg);
@@ -2864,8 +2875,8 @@ html.rec-open { overflow: hidden; }
     var box = el("div", { class: "md", html: md(noTitle(kol)) }), set = null;
     Array.prototype.slice.call(box.children).forEach(function (n) {   // zestaw = linia „Było na zajęciach…” + quiz + „Prawdziwe zadania: …”
       var t = n.tagName === "P" ? n.textContent : "";
-      if (/^(Było na zajęciach|Jeszcze nie było)/.test(t)) { set = el("div", { class: "kol-set" }); box.insertBefore(set, n); n.classList.add("kol-meta"); set.appendChild(n); return; }
-      if (set && (n.classList.contains("quiz") || /^Prawdziwe zadania/.test(t))) { if (t) n.classList.add("kol-real"); set.appendChild(n); return; }
+      if (/^(Było na (zajęciach|korkach)|Jeszcze nie było)/.test(t)) { set = el("div", { class: "kol-set" }); box.insertBefore(set, n); n.classList.add("kol-meta"); set.appendChild(n); return; }
+      if (set && (n.classList.contains("quiz") || /^(Prawdziwe zadania|Zadania z korków)/.test(t))) { if (t) n.classList.add("kol-real"); set.appendChild(n); return; }
       set = null;
     });
     var sets = Array.prototype.slice.call(box.querySelectorAll(".kol-set")), ov = el("nav", { class: "kol-ov", "aria-label": "Zestawy" });
@@ -2902,7 +2913,7 @@ html.rec-open { overflow: hidden; }
     photos().forEach(function (p) { if (ids.indexOf(p.folder) >= 0) D(p.folder, p.day).ps.push(p); });
     Object.keys(TREE || {}).forEach(function (p) { var mm = /^speech\/([^/]+)\/(\d{4}-\d{2}-\d{2})\//.exec(p); if (mm && ids.indexOf(mm[1]) >= 0) D(mm[1], mm[2]); });
     if (R && ids.indexOf(R.folder) >= 0) D(R.folder, R.day);
-    var KO = { wyklad: 0, cwiczenia: 1, lab: 2 };
+    var KO = { wyklad: 0, cwiczenia: 1, lab: 2, korki: 3 };
     var list = Object.keys(byKey).map(function (k) { return byKey[k]; }).sort(function (a, b) { return a.d !== b.d ? (a.d < b.d ? 1 : -1) : KO[a.f.kind] - KO[b.f.kind]; });
     if (!list.length) {
       paneN.appendChild(el("p", { class: "hint", text: "Jeszcze nie ma notatek z tego przedmiotu. Zrób zdjęcie tablicy w zakładce Aparat." }));
@@ -3584,8 +3595,8 @@ html.rec-open { overflow: hidden; }
       ]));
     } else if (view === "ready") {
       w.appendChild(el("div", { class: "rbody" }, [
-        el("h2", { text: "Nagrywaj wykład" }),
-        el("p", { text: "Telefon słucha prowadzącego i na bieżąco zamienia to na tekst. Co kilka minut Claude dopisuje to do notatki razem ze zdjęciami, a po „Zakończ” układa całą notatkę od nowa." }),
+        el("h2", { text: f && f.kind === "korki" ? "Nagrywaj korki" : "Nagrywaj wykład" }),
+        el("p", { text: "Telefon słucha " + (f && f.kind === "korki" ? "korepetytora" : "prowadzącego") + " i na bieżąco zamienia to na tekst. Co kilka minut Claude dopisuje to do notatki razem ze zdjęciami, a po „Zakończ” układa całą notatkę od nowa." }),
         el("ul", {}, [el("li", { text: "Bez dźwięków i wibracji. Ekran zostaje włączony i ciemny." }), el("li", { text: "Nie blokuj telefonu i nie wychodź z tej strony – wtedy iPhone wyłącza mikrofon." }),
           el("li", { text: "Zdjęcia rób przyciskiem „Zdjęcie” na ekranie nagrywania. Telefon przełącz na wyciszony, żeby aparat nie pstrykał." })]),
         el("div", { class: "racts" }, [rb("main", "Zacznij nagrywać", function () { if (f) recStart(f.id); }, MIC_SVG)]),
