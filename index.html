@@ -284,6 +284,9 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
 .md .tref { appearance: none; border: 0; background: var(--accent-soft); color: var(--accent); font-family: var(--font); font-size: 0.66rem; font-weight: 700; line-height: 1; padding: 2px 4px; margin-left: 2px; border-radius: 4px; vertical-align: 2px; cursor: pointer; }
 .md .tref::before { content: "nagr. "; font-weight: 500; }
 .md .tref + .tref::before { content: ""; }
+html[lang="en"] .md .zref::before { content: "photo "; } html[lang="en"] .md .tref::before { content: "rec. "; }
+html[lang="tr"] .md .zref::before { content: "foto "; } html[lang="tr"] .md .tref::before { content: "kayıt "; }
+html[lang] .md .zref + .zref::before, html[lang] .md .tref + .tref::before { content: ""; }
 .md span.tref { cursor: default; }
 .md code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.86em; background: var(--bg); border-radius: 4px; padding: 0 4px; white-space: pre-wrap; }
 .md pre { margin: 0; background: var(--bg); border-radius: 8px; padding: 10px 12px; overflow-x: auto; font-size: 0.84rem; line-height: 1.5; }
@@ -328,6 +331,7 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
 .md .qz-sum p { margin: 0 0 10px; }
 .md .dw { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; padding: 14px; border: 1px solid var(--line); border-radius: 14px; background: var(--bg); scroll-margin-top: 140px; }
 .md .dw .qz-top { flex-wrap: wrap; row-gap: 4px; }
+.top select.lang { margin-left: auto; appearance: none; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; font-size: 0.85rem; font-weight: 600; padding: 4px 10px; border-radius: 99px; }
 .md .dw .qz-name { order: 3; flex: 1 1 100%; color: var(--ink); font-weight: 600; font-size: 0.95rem; }
 .md .dw-stmt { display: grid; grid-template-columns: minmax(0, 1fr); gap: 4px; }
 .md .dw-stmt p, .md .dw-l p { margin: 0; }
@@ -703,6 +707,74 @@ html.rec-open { overflow: hidden; }
   if (!VISIT) try { TOKEN = localStorage.getItem(LS) || ""; } catch (e) {}
   if (!VISIT && !TOKEN) try { var zk = localStorage.getItem(LS_Z); if (zk) VISIT = { live: true, key: zk }; } catch (e) {}
   if (VISIT) TOKEN = "gosc";
+  /* języki dla znajomych (#z=…): polski, angielski, turecki – treść z tr/<język>/ (tools/tlumacz.py), napisy aplikacji z I18N; właściciel zawsze po polsku */
+  var LS_LANG = "notatki-lang", UILANG = "pl";
+  if (VISIT && VISIT.live) { var nl0 = (navigator.language || "").slice(0, 2).toLowerCase(); UILANG = lsGet(LS_LANG) || (nl0 === "pl" ? "pl" : nl0 === "tr" ? "tr" : "en"); }
+  if (!/^(pl|en|tr)$/.test(UILANG)) UILANG = "en";
+  var I18N = {
+    en: { "Przedmioty": "Courses", "‹ Wszystkie": "‹ All", "Przewodnik": "Guide", "Kolokwia": "Tests", "Dowody": "Proofs", "Zajęcia": "Classes", "Działy": "Topics", "‹ Działy": "‹ Topics",
+      "ostatnio · ": "latest · ", "Część tej notatki jest też w dziale: ": "Part of this note is also in: ", "Pokaż notatkę": "Show note", "Kopiuj": "Copy", "Skopiowane": "Copied", "Nie udało się": "Failed", "Zwiń": "Collapse",
+      "Nowa notatka": "New note", "Jeszcze nie ma notatek z tego przedmiotu. Zrób zdjęcie tablicy w zakładce Aparat.": "No notes for this course yet.",
+      "† dopisane przez Claude'a, nie było na zajęciach · zdj. N – zdjęcie, z którego to pochodzi": "† added by Claude, not from class · photo N – the photo it comes from",
+      " · nagr. 09:47 – co mówił wtedy prowadzący": " · 09:47 – time in the class recording", " (dotknij, żeby otworzyć)": " (tap to open)",
+      "Dopisane – tego nie było na zajęciach": "Added – this was not in class",
+      "Przewodnik łączy wykład z ćwiczeniami i ze starymi kolokwiami i egzaminami": "The guide connects lectures, classes and old tests and exams", " · stan z ": " · as of ", "Odświeża się sam po zajęciach.": "It updates itself after classes.",
+      "Zestawy po kolei – zacznij od pierwszego": "Sets in order – start with the first one", "Zrobione {a} z {b}": "Done {a} of {b}", "{a} z {b}": "{a} of {b}",
+      "Dowody po kolei – w każdym dziale pierwszy z pełną pomocą": "Proofs in order – in each part the first one has full help", "Dowód {a}": "Proof {a}",
+      "Sprawdź się": "Check yourself", "Sprawdź": "Check", "Dalej": "Next", "Zobacz wynik": "See result", "Podpowiedź": "Hint", "Następna podpowiedź": "Next hint", "Pokaż rozwiązanie": "Show solution",
+      "Wpisz wynik, np. 15 albo 2/3": "Type the answer, e.g. 15 or 2/3", "**Dobrze.**": "**Correct.**", " Za pierwszym razem.": " First try.", "**Jeszcze nie.** ": "**Not yet.** ", "Spróbuj jeszcze raz.": "Try again.",
+      "Weź podpowiedź – pokaże krok po kroku, co wstawić i gdzie.": "Take a hint – it shows step by step what to plug in where.",
+      "{a} z {b} za pierwszym razem": "{a} of {b} on the first try", ". Wszystko dobrze.": ". All correct.",
+      ". Pomarańczowe kropki to pytania, przy których była pomyłka albo podpowiedź – warto zrobić je jeszcze raz.": ". Orange dots are questions with a mistake or a hint – worth doing them again.",
+      "Następny zestaw": "Next set", "Jeszcze raz": "Again",
+      "Ułóż dowód": "Build the proof", "Krok {a} z {b}": "Step {a} of {b}", "DOWÓD": "PROOF", "Dowód gotowy.": "Proof complete.", "Pomyłki po drodze: {a}. Przeczytaj teraz cały dowód od góry – tak go zapiszesz na kolokwium.": "Mistakes on the way: {a}. Now read the whole proof from the top – this is how you write it on a test.",
+      "Bez ani jednej pomyłki.": "Not a single mistake.", "Następny dowód": "Next proof", "Ułóż jeszcze raz": "Build it again", "Zakończ dowód": "Finish the proof",
+      "od razu całe": "show all", "Następny krok ({a} z {b})": "Next step ({a} of {b})", "To całe rozwiązanie": "That is the whole solution",
+      "Otwórz w notatce": "Open in note", "Tej notatki jeszcze nie ma.": "This note does not exist yet.", "Notatka": "Note", "Materiał": "Material", "Wczytuję…": "Loading…", "Tego materiału nie ma w repo.": "This material is not available.",
+      " · strona {a} z {b}": " · page {a} of {b}", "Cały plik na UPeL-u": "Whole file on UPeL", "Nie udało się wczytać materiału.": "Could not load the material.", "Zamknij": "Close",
+      "Brak połączenia z GitHubem. Spróbuję jeszcze raz za chwilę.": "No connection. I will try again in a moment.",
+      "Ten link nie działa. Poproś o nowy.": "This link does not work. Ask for a new one.", "Nie udało się wczytać notatek. Sprawdź internet i otwórz jeszcze raz.": "Could not load the notes. Check your internet and open again.",
+      "Żeby mieć to jak aplikację: Udostępnij → „Do ekranu początkowego”. Notatki same się aktualizują po każdych zajęciach.": "To use it like an app: Share → “Add to Home Screen”. The notes update themselves after every class.",
+      "dziś": "today", "wczoraj": "yesterday", "SimpleAGH · notatki": "SimpleAGH · notes", "Język": "Language",
+      "Te notatki nie są jeszcze przetłumaczone – poniżej wersja po polsku. Tłumaczenie pojawi się wieczorem.": "This note is not translated yet – below is the Polish version. The translation appears in the evening." },
+    tr: { "Przedmioty": "Dersler", "‹ Wszystkie": "‹ Tümü", "Przewodnik": "Rehber", "Kolokwia": "Sınavlar", "Dowody": "İspatlar", "Zajęcia": "Notlar", "Działy": "Konular", "‹ Działy": "‹ Konular",
+      "ostatnio · ": "son · ", "Część tej notatki jest też w dziale: ": "Bu notun bir kısmı şurada da: ", "Pokaż notatkę": "Notu göster", "Kopiuj": "Kopyala", "Skopiowane": "Kopyalandı", "Nie udało się": "Olmadı", "Zwiń": "Daralt",
+      "Nowa notatka": "Yeni not", "Jeszcze nie ma notatek z tego przedmiotu. Zrób zdjęcie tablicy w zakładce Aparat.": "Bu ders için henüz not yok.",
+      "† dopisane przez Claude'a, nie było na zajęciach · zdj. N – zdjęcie, z którego to pochodzi": "† Claude ekledi, derste yoktu · foto N – kaynağı olan fotoğraf",
+      " · nagr. 09:47 – co mówił wtedy prowadzący": " · 09:47 – ders kaydındaki an", " (dotknij, żeby otworzyć)": " (açmak için dokun)",
+      "Dopisane – tego nie było na zajęciach": "Eklendi – derste yoktu",
+      "Przewodnik łączy wykład z ćwiczeniami i ze starymi kolokwiami i egzaminami": "Rehber dersleri, uygulamaları ve eski sınavları birleştirir", " · stan z ": " · güncelleme: ", "Odświeża się sam po zajęciach.": "Derslerden sonra kendini günceller.",
+      "Zestawy po kolei – zacznij od pierwszego": "Setler sırayla – ilkinden başla", "Zrobione {a} z {b}": "Tamamlanan {a} / {b}", "{a} z {b}": "{a} / {b}",
+      "Dowody po kolei – w każdym dziale pierwszy z pełną pomocą": "İspatlar sırayla – her bölümde ilki tam yardımlı", "Dowód {a}": "İspat {a}",
+      "Sprawdź się": "Kendini dene", "Sprawdź": "Kontrol et", "Dalej": "İleri", "Zobacz wynik": "Sonucu gör", "Podpowiedź": "İpucu", "Następna podpowiedź": "Sonraki ipucu", "Pokaż rozwiązanie": "Çözümü göster",
+      "Wpisz wynik, np. 15 albo 2/3": "Cevabı yaz, ör. 15 ya da 2/3", "**Dobrze.**": "**Doğru.**", " Za pierwszym razem.": " İlk denemede.", "**Jeszcze nie.** ": "**Henüz değil.** ", "Spróbuj jeszcze raz.": "Tekrar dene.",
+      "Weź podpowiedź – pokaże krok po kroku, co wstawić i gdzie.": "İpucu al – neyi nereye koyacağını adım adım gösterir.",
+      "{a} z {b} za pierwszym razem": "{b} sorudan {a} tanesi ilk denemede", ". Wszystko dobrze.": ". Hepsi doğru.",
+      ". Pomarańczowe kropki to pytania, przy których była pomyłka albo podpowiedź – warto zrobić je jeszcze raz.": ". Turuncu noktalar hata yaptığın ya da ipucu aldığın sorular – onları tekrar yapmaya değer.",
+      "Następny zestaw": "Sonraki set", "Jeszcze raz": "Tekrar",
+      "Ułóż dowód": "İspatı kur", "Krok {a} z {b}": "Adım {a} / {b}", "DOWÓD": "İSPAT", "Dowód gotowy.": "İspat tamam.", "Pomyłki po drodze: {a}. Przeczytaj teraz cały dowód od góry – tak go zapiszesz na kolokwium.": "Yoldaki hatalar: {a}. Şimdi tüm ispatı baştan oku – sınavda böyle yazacaksın.",
+      "Bez ani jednej pomyłki.": "Hiç hata yok.", "Następny dowód": "Sonraki ispat", "Ułóż jeszcze raz": "Tekrar kur", "Zakończ dowód": "İspatı bitir",
+      "od razu całe": "hepsini göster", "Następny krok ({a} z {b})": "Sonraki adım ({a} / {b})", "To całe rozwiązanie": "Çözümün tamamı bu",
+      "Otwórz w notatce": "Notta aç", "Tej notatki jeszcze nie ma.": "Bu not henüz yok.", "Notatka": "Not", "Materiał": "Materyal", "Wczytuję…": "Yükleniyor…", "Tego materiału nie ma w repo.": "Bu materyal mevcut değil.",
+      " · strona {a} z {b}": " · sayfa {a} / {b}", "Cały plik na UPeL-u": "UPeL'deki dosyanın tamamı", "Nie udało się wczytać materiału.": "Materyal yüklenemedi.", "Zamknij": "Kapat",
+      "Brak połączenia z GitHubem. Spróbuję jeszcze raz za chwilę.": "Bağlantı yok. Birazdan tekrar deneyeceğim.",
+      "Ten link nie działa. Poproś o nowy.": "Bu bağlantı çalışmıyor. Yenisini iste.", "Nie udało się wczytać notatek. Sprawdź internet i otwórz jeszcze raz.": "Notlar yüklenemedi. İnternetini kontrol et ve tekrar aç.",
+      "Żeby mieć to jak aplikację: Udostępnij → „Do ekranu początkowego”. Notatki same się aktualizują po każdych zajęciach.": "Uygulama gibi kullanmak için: Paylaş → “Ana Ekrana Ekle”. Notlar her dersten sonra kendini günceller.",
+      "dziś": "bugün", "wczoraj": "dün", "SimpleAGH · notatki": "SimpleAGH · notlar", "Język": "Dil",
+      "Te notatki nie są jeszcze przetłumaczone – poniżej wersja po polsku. Tłumaczenie pojawi się wieczorem.": "Bu not henüz çevrilmedi – aşağıda Lehçe hali var. Çeviri akşam gelecek." }
+  };
+  function Ln(s) { return UILANG === "pl" ? s : (I18N[UILANG] && I18N[UILANG][s]) || s; }
+  function Lf(s, a, b) { return Ln(s).replace("{a}", a).replace("{b}", b); }
+  var LOC_EL = {   // nazwy elementów w przetłumaczonych notatkach (tools/tlumacz.py GLOSS) – polska nazwa → ta w notatce
+    en: { Definicja: "Definition", Twierdzenie: "Theorem", Lemat: "Lemma", Wniosek: "Corollary", Własność: "Property", Prawo: "Law", Reguła: "Rule", Przykład: "Example", Dowód: "Proof", Uwaga: "Remark", Obserwacja: "Observation", "Jak to zrobić": "How to do it", Zadanie: "Exercise" },
+    tr: { Definicja: "Tanım", Twierdzenie: "Teorem", Lemat: "Lemma", Wniosek: "Sonuç", Własność: "Özellik", Prawo: "Yasa", Reguła: "Kural", Przykład: "Örnek", Dowód: "İspat", Uwaga: "Açıklama", Obserwacja: "Gözlem", "Jak to zrobić": "Nasıl yapılır", Zadanie: "Alıştırma" }
+  };
+  if (UILANG !== "pl") {
+    KIND_L = UILANG === "en" ? { wyklad: "lecture", cwiczenia: "class", lab: "lab", korki: "tutoring" } : { wyklad: "ders", cwiczenia: "uygulama", lab: "laboratuvar", korki: "özel ders" };
+    DAY_L = UILANG === "en" ? ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"] : ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"];
+    MON_G = UILANG === "en" ? ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"] : ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
+    document.documentElement.lang = UILANG;
+  }
   var HASH0 = location.hash;   // zanim ikonka wyczyści adres: może nieść też klucz Groq (#…&groq=gsk_…)
   var m = VISIT ? null : /[#&]t=([A-Za-z0-9_]+)/.exec(location.hash);
   // ikonka na ekranie początkowym iPhone'a ma osobną pamięć niż Safari: w Safari klucz zostaje w adresie, żeby „Do ekranu początkowego” zabrało go do ikonki
@@ -739,9 +811,9 @@ html.rec-open { overflow: hidden; }
     return list.filter(function (x) { return F(x.folder); }).sort(function (a, b) { return mins(a.start) - mins(b.start); });
   }
   function dayLabel(iso) { var d = new Date(iso + "T12:00"); return DAY_L[d.getDay()] + ", " + d.getDate() + " " + MON_G[d.getMonth()]; }
-  function shortDay(iso) { var t = isoDay(new Date()), y = isoDay(new Date(Date.now() - 864e5)); return iso === t ? "dziś" : iso === y ? "wczoraj" : dayLabel(iso); }
+  function shortDay(iso) { var t = isoDay(new Date()), y = isoDay(new Date(Date.now() - 864e5)); return iso === t ? Ln("dziś") : iso === y ? Ln("wczoraj") : dayLabel(iso); }
   function mins(t) { var p = t.split(":"); return (+p[0]) * 60 + (+p[1]); }
-  function nNotes(n) { return n === 1 ? "1 notatka" : n + (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? " notatki" : " notatek"); }
+  function nNotes(n) { if (UILANG === "en") return n + (n === 1 ? " note" : " notes"); if (UILANG === "tr") return n + " not"; return n === 1 ? "1 notatka" : n + (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? " notatki" : " notatek"); }
   function nPhotos(n) { return n === 1 ? "1 zdjęcie" : n + (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? " zdjęcia" : " zdjęć"); }
   function F(id) { return CFG ? (CFG.folders || []).filter(function (f) { return f.id === id; })[0] : null; }
   function fname(f) { return (CFG.names || {})[f.course] || f.course; }
@@ -761,11 +833,24 @@ html.rec-open { overflow: hidden; }
       .catch(function () { throw { code: "badkey" }; });
   }
   function zGet(path) { return fetch(RAWZ + path, { cache: "no-store" }).then(function (r) { if (!r.ok) throw { code: r.status === 404 ? "gone" : "net" }; return r.arrayBuffer(); }, function () { throw { code: "net" }; }).then(zOpen); }
-  function loadLive() {   // i.bin: notatki, przewodniki, Kolokwia, Dowody, działy, spis plików (gzip w środku)
+  function gunzipJson(pt) { return new Response(new Blob([pt]).stream().pipeThrough(new DecompressionStream("gzip"))).text().then(JSON.parse); }
+  function loadLive() {   // i.bin: notatki, przewodniki, Kolokwia, Dowody, działy, spis plików (gzip w środku); i-<język>.bin: tłumaczenia (tools/tlumacz.py)
     VISIT.at = Date.now();
-    return zGet("z/i.bin?m=" + Math.floor(Date.now() / 60000)).then(function (pt) {
-      return new Response(new Blob([pt]).stream().pipeThrough(new DecompressionStream("gzip"))).text();
-    }).then(JSON.parse);
+    var m = "?m=" + Math.floor(Date.now() / 60000);
+    return Promise.all([zGet("z/i.bin" + m).then(gunzipJson), UILANG === "pl" ? null : zGet("z/i-" + UILANG + ".bin" + m).then(gunzipJson, function () { return null; })])
+      .then(function (r) { r[0].trx = r[1]; return r[0]; });
+  }
+  function trIndex(B) {   // index.json w języku znajomego: przetłumaczona treść tam, gdzie już jest; polski oryginał zostaje w mdPl (odnośniki mają polskie kotwice)
+    var X = B.trx, ix = JSON.parse(JSON.stringify(B.index));
+    if (UILANG === "pl") return ix;
+    Object.keys(ix.notes || {}).forEach(function (k) {
+      var n = ix.notes[k], t = X && X.notes && X.notes[k];
+      if (t) { n.mdPl = n.md; n.md = t; var mt = /^#\s+(.+)$/m.exec(t); if (mt) n.title = mt[1].trim(); } else n.untr = true;
+    });
+    Object.keys(ix.courses || {}).forEach(function (c) { if (X && X.courses && X.courses[c]) ix.courses[c].md = X.courses[c]; });
+    Object.keys(ix.kol || {}).forEach(function (c) { if (X && X.kol && X.kol[c]) ix.kol[c] = X.kol[c]; });
+    Object.keys(ix.dzialy || {}).forEach(function (c) { var tt = X && X.dzialy && X.dzialy[c]; if (tt && tt.length === ix.dzialy[c].length) ix.dzialy[c].forEach(function (d, i) { d.t = tt[i]; }); });
+    return ix;
   }
   function reLive() {   // po powrocie do aplikacji: świeża kopia (Actions aktualizuje ją po każdych zajęciach), stara zostaje, gdy nie ma sieci
     if (!VISIT || !VISIT.live || visitErr || Date.now() - (VISIT.at || 0) < 120000) return;
@@ -773,7 +858,7 @@ html.rec-open { overflow: hidden; }
   }
   if (VISIT && VISIT.live) {
     visitReady = loadLive();
-    visitReady.catch(function (e) { visitErr = e && e.code === "badkey" ? "Ten link nie działa. Poproś o nowy." : "Nie udało się wczytać notatek. Sprawdź internet i otwórz jeszcze raz."; render(); });
+    visitReady.catch(function (e) { visitErr = e && e.code === "badkey" ? Ln("Ten link nie działa. Poproś o nowy.") : Ln("Nie udało się wczytać notatek. Sprawdź internet i otwórz jeszcze raz."); render(); });
   } else if (VISIT) {
     visitReady = fetch("goscie/" + VISIT.file + ".bin", { cache: "no-store" }).then(function (r) { if (!r.ok) throw { code: "gone" }; return r.arrayBuffer(); })
       .then(function (buf) {
@@ -786,12 +871,12 @@ html.rec-open { overflow: hidden; }
     return visitReady.then(function (B) {
       if ((o.method || "GET") !== "GET") throw { code: "http", status: 403 };
       if (/^git\/trees\//.test(path) && VISIT.live) return { tree: Object.keys(B.files).map(function (p) { return { path: p, type: "blob", sha: B.files[p] }; })
-        .concat(B.tree.map(function (p) { return { path: p, type: "blob", sha: "m" }; })).concat(["folders.json", "index.json"].map(function (p) { return { path: p, type: "blob", sha: "z:" + B.h }; })) };
+        .concat(B.tree.map(function (p) { return { path: p, type: "blob", sha: "m" }; })).concat(["folders.json", "index.json"].map(function (p) { return { path: p, type: "blob", sha: "z:" + B.h + ":" + UILANG + ":" + ((B.trx && B.trx.h) || "") }; })) };
       if (/^git\/trees\//.test(path)) return { tree: B.tree.concat(["folders.json", "index.json", "nauka.html"]).map(function (p) { return { path: p, type: "blob", sha: "g:" + p }; }) };
       if (/^actions\//.test(path)) return { workflow_runs: [] };
       var mm = /^contents\/([^?]+)/.exec(path), p = mm && decodeURIComponent(mm[1]);
       if (p === "folders.json") return JSON.stringify(B.folders);
-      if (p === "index.json") return JSON.stringify(B.index);
+      if (p === "index.json") return JSON.stringify(VISIT.live ? trIndex(B) : B.index);
       if (p === "nauka.html" && B.nauka) return B.nauka;
       if (p === "materials.json" && B.mat) return JSON.stringify({ items: B.mat });
       if (VISIT.live && B.files[p]) return zGet("zf/" + B.files[p]).then(function (buf) { return o.raw === "blob" ? new Blob([buf], { type: /\.txt$/.test(p) ? "text/plain" : "image/jpeg" }) : new TextDecoder().decode(buf); });
@@ -953,8 +1038,10 @@ html.rec-open { overflow: hidden; }
      **Zadanie 1.** treść / --- / kroki – rozwiązanie odsłaniane krok po kroku. Stare ramki „> [!DEF]” też działają. */
   var CALL = { "DEF": ["def", "Definicja"], "TW": ["thm", "Twierdzenie"], "WZÓR": ["eq", "Wzór"], "WZOR": ["eq", "Wzór"], "PRZYKŁAD": ["ex", "Przykład"], "PRZYKLAD": ["ex", "Przykład"],
     "ZADANIE": ["task", "Zadanie"], "UWAGA": ["warn", "Uwaga"], "PO LUDZKU": ["plain", "Po ludzku"], "SEDNO": ["gist", "W skrócie"], "ZAPAMIĘTAJ": ["mem", "Do zapamiętania"], "ZAPAMIETAJ": ["mem", "Do zapamiętania"] };
-  var ENV = /^\s*\*\*(Definicja|Twierdzenie|Lemat|Wniosek|Własność|Prawo|Reguła|Przykład|Dowód|Uwaga|Obserwacja|Jak to zrobić|Zadanie)(?=[\s.*(:]|$)/;   // bez \b: „ć” nie jest dla \b literą
-  var ENV_K = { Definicja: "def", Twierdzenie: "thm", Lemat: "thm", Wniosek: "thm", Własność: "thm", Prawo: "thm", Reguła: "thm", Przykład: "ex", Dowód: "proof", Uwaga: "rem", Obserwacja: "rem", "Jak to zrobić": "how", Zadanie: "task" };
+  var ENV = /^\s*\*\*(Definicja|Twierdzenie|Lemat|Wniosek|Własność|Prawo|Reguła|Przykład|Dowód|Uwaga|Obserwacja|Jak to zrobić|Zadanie|Definition|Theorem|Lemma|Corollary|Property|Law|Rule|Example|Proof|Remark|Observation|How to do it|Exercise|Tanım|Teorem|Sonuç|Özellik|Yasa|Kural|Örnek|İspat|Açıklama|Gözlem|Nasıl yapılır|Alıştırma)(?=[\s.*(:]|$)/;   // bez \b: „ć” nie jest dla \b literą
+  var ENV_K = { Definicja: "def", Twierdzenie: "thm", Lemat: "thm", Wniosek: "thm", Własność: "thm", Prawo: "thm", Reguła: "thm", Przykład: "ex", Dowód: "proof", Uwaga: "rem", Obserwacja: "rem", "Jak to zrobić": "how", Zadanie: "task",
+    Definition: "def", Theorem: "thm", Lemma: "thm", Corollary: "thm", Property: "thm", Law: "thm", Rule: "thm", Example: "ex", Proof: "proof", Remark: "rem", Observation: "rem", "How to do it": "how", Exercise: "task",
+    Tanım: "def", Teorem: "thm", Sonuç: "thm", Özellik: "thm", Yasa: "thm", Kural: "thm", Örnek: "ex", İspat: "proof", Açıklama: "rem", Gözlem: "rem", "Nasıl yapılır": "how", Alıştırma: "task" };
   function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;"); }
   /* wzory: $…$ w notatce → KaTeX (dopóki się nie wczyta – sam tekst wzoru); w linii „:: ” jak wzór wyświetlany */
   var texCache = {};
@@ -993,9 +1080,9 @@ html.rec-open { overflow: hidden; }
       .replace(/(^|[\s(])\*([^*\s][^*]*)\*/g, "$1<em>$2</em>")
       .replace(/_\{([^{}]{1,40})\}/g, "<sub>$1</sub>").replace(/\^\{([^{}]{1,40})\}/g, "<sup>$1</sup>")   // lim_{x→2}, a_{n+1}, x^{n+1}
       .replace(/\b([A-Za-z])_([A-Za-z0-9])\b/g, "$1<sub>$2</sub>")   // D_f, a_n
-      .replace(/\((Zadani[ea]) (\d+)((?:[–,-] ?\d+)*)\)/g, '<span class="nw">(<button type="button" class="zad" data-zad="$2">$1 $2$3</button>)</span>')
-      .replace(/\s*\(uzupełnione\)/g, '<sup class="dag" title="Dopisane – tego nie było na zajęciach">†</sup>')
-      .replace(/\[nieczytelne\]/g, '<span class="ill">[nieczytelne]</span>')
+      .replace(/\((Zadani[ea]|Exercises?|Alıştırma) (\d+)((?:[–,-] ?\d+)*)\)/g, '<span class="nw">(<button type="button" class="zad" data-zad="$2">$1 $2$3</button>)</span>')
+      .replace(/\s*\((?:uzupełnione|added|eklendi)\)/g, '<sup class="dag" title="' + Ln("Dopisane – tego nie było na zajęciach") + '">†</sup>')
+      .replace(/\[(nieczytelne|illegible|okunaksız)\]/g, '<span class="ill">[$1]</span>')
       .replace(/(\{(?:z\d{1,2}|t\d{1,2}:\d{2})\}\s*){2,}/g, function (run) {   // kilka odnośników z rzędu: pierwsze zdjęcie i pierwsza chwila nagrania wystarczą
         var z = /\{z\d{1,2}\}/.exec(run), t = /\{t\d{1,2}:\d{2}\}/.exec(run); return (z ? z[0] : "") + (t ? t[0] : "") + /\s*$/.exec(run)[0];
       })
@@ -1030,8 +1117,8 @@ html.rec-open { overflow: hidden; }
         return;
       }
       if (/^\s*(\{(z\d{1,2}|t\d{1,2}:\d{2})\}\s*)+$/.test(ln)) { flushP(); flushL(); out.push('<p class="zrow">' + inline(esc(ln.trim())) + "</p>"); return; }   // samo „{z1}” w linii: źródło pod elementem
-      if (/^\s*Rys\.\s*\d+\./.test(ln)) { flushP(); flushL(); out.push('<p class="fig">' + inline(esc(ln.trim())) + "</p>"); return; }
-      if (/^\s*Wynik:/.test(ln)) { flushP(); flushL(); out.push('<p class="res">' + inline(esc(ln.trim())) + "</p>"); return; }
+      if (/^\s*(Rys\.|Fig\.|Şekil)\s*\d+\./.test(ln)) { flushP(); flushL(); out.push('<p class="fig">' + inline(esc(ln.trim())) + "</p>"); return; }
+      if (/^\s*(Wynik|Answer|Cevap):/.test(ln)) { flushP(); flushL(); out.push('<p class="res">' + inline(esc(ln.trim())) + "</p>"); return; }
       flushL(); para.push(ln.trim());
     });
     flushP(); flushL(); flushT();
@@ -1047,7 +1134,7 @@ html.rec-open { overflow: hidden; }
   }
   function task(statementHtml, solLines) {
     return '<div class="env task">' + statementHtml + '<div class="sol" hidden>' + md(solLines.join("\n")) +
-      '</div><div class="sbar"><button type="button" class="s-next">Pokaż rozwiązanie</button><button type="button" class="s-all">od razu całe</button></div></div>';
+      '</div><div class="sbar"><button type="button" class="s-next">' + Ln("Pokaż rozwiązanie") + '</button><button type="button" class="s-all">' + Ln("od razu całe") + '</button></div></div>';
   }
   function env(lines) {  // **Definicja 1** … do pustej linii
     var kind = ENV_K[ENV.exec(lines[0])[1]] || "rem";
@@ -1751,12 +1838,12 @@ html.rec-open { overflow: hidden; }
   function qzInner(i) {
     var p = QZ[i], s = p.st, n = p.qs.length;
     var dots = p.qs.map(function (_, j) { return '<i class="' + (s.res[j] || (j === s.k && s.k < n ? "cur" : "")) + '"></i>'; }).join("");
-    var head = '<div class="qz-top"><span class="qz-t">Sprawdź się</span>' + (p.title ? '<span class="qz-name">' + inline(esc(p.title)) + "</span>" : "") +
+    var head = '<div class="qz-top"><span class="qz-t">' + Ln("Sprawdź się") + '</span>' + (p.title ? '<span class="qz-name">' + inline(esc(p.title)) + "</span>" : "") +
       '<span class="qz-dots" aria-label="Postęp">' + dots + "</span></div>";
     if (s.k >= n) {
       var good = s.res.filter(function (r) { return r === "ok"; }).length;
-      return head + '<div class="qz-sum"><p><strong>' + good + " z " + n + "</strong> za pierwszym razem" + (good === n ? ". Wszystko dobrze." : ". Pomarańczowe kropki to pytania, przy których była pomyłka albo podpowiedź – warto zrobić je jeszcze raz.") +
-        '</p><div class="qz-bar"><button type="button" class="qz-nextset">Następny zestaw</button><button type="button" class="qz-again">Jeszcze raz</button></div></div>';
+      return head + '<div class="qz-sum"><p><strong>' + Lf("{a} z {b} za pierwszym razem", good, n) + "</strong>" + (good === n ? Ln(". Wszystko dobrze.") : Ln(". Pomarańczowe kropki to pytania, przy których była pomyłka albo podpowiedź – warto zrobić je jeszcze raz.")) +
+        '</p><div class="qz-bar"><button type="button" class="qz-nextset">' + Ln("Następny zestaw") + '</button><button type="button" class="qz-again">' + Ln("Jeszcze raz") + "</button></div></div>";
     }
     var q = p.qs[s.k], body = '<div class="qz-q"><span class="qz-n">' + (s.k + 1) + "/" + n + "</span>" + qzText(q.text) + "</div>";
     if (q.opts.length) {
@@ -1765,14 +1852,14 @@ html.rec-open { overflow: hidden; }
         return '<button type="button" class="' + cls + '" data-o="' + j + '" role="radio" aria-checked="' + (s.sel === j) + '"' + (s.solved ? " disabled" : "") + '><span class="qz-r" aria-hidden="true"></span><span class="qz-ot">' + inline(esc(o.t), true) + "</span></button>";
       }).join("") + "</div>";
     } else {
-      body += '<div class="qz-in' + (s.solved ? " good" : s.fb ? " bad" : "") + '"><input class="qz-ans" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" placeholder="Wpisz wynik, np. 15 albo 2/3" value="' + esc(s.val) + '"' + (s.solved ? " disabled" : "") + "></div>";
+      body += '<div class="qz-in' + (s.solved ? " good" : s.fb ? " bad" : "") + '"><input class="qz-ans" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="done" placeholder="' + Ln("Wpisz wynik, np. 15 albo 2/3") + '" value="' + esc(s.val) + '"' + (s.solved ? " disabled" : "") + "></div>";
     }
     if (s.fb) body += '<div class="qz-fb ' + (s.solved ? "good" : "bad") + '">' + md(s.fb, true) + "</div>";
     var shown = s.showAll ? q.hints.length : s.hints;
     if (shown) body += '<ol class="qz-hints">' + q.hints.slice(0, shown).map(function (x) { return "<li>" + inline(esc(x), true) + "</li>"; }).join("") + "</ol>";
-    var bar = s.solved ? '<button type="button" class="qz-next">' + (s.k + 1 < n ? "Dalej" : "Zobacz wynik") + "</button>"
-      : '<button type="button" class="qz-check">Sprawdź</button>' + (shown < q.hints.length ? '<button type="button" class="qz-hint">' + (shown ? "Następna podpowiedź" : "Podpowiedź") + "</button>" : "") +
-        (s.tries >= 2 && shown < q.hints.length ? '<button type="button" class="qz-show">Pokaż rozwiązanie</button>' : "");
+    var bar = s.solved ? '<button type="button" class="qz-next">' + (s.k + 1 < n ? Ln("Dalej") : Ln("Zobacz wynik")) + "</button>"
+      : '<button type="button" class="qz-check">' + Ln("Sprawdź") + "</button>" + (shown < q.hints.length ? '<button type="button" class="qz-hint">' + (shown ? Ln("Następna podpowiedź") : Ln("Podpowiedź")) + "</button>" : "") +
+        (s.tries >= 2 && shown < q.hints.length ? '<button type="button" class="qz-show">' + Ln("Pokaż rozwiązanie") + "</button>" : "");
     return head + body + '<div class="qz-bar">' + bar + "</div>";
   }
   function qzDraw(box, focus) {
@@ -1794,9 +1881,9 @@ html.rec-open { overflow: hidden; }
     }
     if (ok) {
       s.solved = true; s.res[s.k] = s.tries === 0 && s.hints === 0 && !s.showAll ? "ok" : "meh";
-      s.fb = "**Dobrze.**" + (s.tries || s.hints ? "" : " Za pierwszym razem.");
+      s.fb = Ln("**Dobrze.**") + (s.tries || s.hints ? "" : Ln(" Za pierwszym razem."));
     } else {
-      s.tries++; s.fb = "**Jeszcze nie.** " + (fb || (s.tries >= 2 ? "Weź podpowiedź – pokaże krok po kroku, co wstawić i gdzie." : "Spróbuj jeszcze raz."));
+      s.tries++; s.fb = Ln("**Jeszcze nie.** ") + (fb || (s.tries >= 2 ? Ln("Weź podpowiedź – pokaże krok po kroku, co wstawić i gdzie.") : Ln("Spróbuj jeszcze raz.")));
     }
     qzDraw(box, !ok);
   }
@@ -1862,23 +1949,23 @@ html.rec-open { overflow: hidden; }
   function dwInner(i) {
     var p = DW[i], s = p.st, n = p.steps.length, done = s.k >= n;
     var dots = p.steps.map(function (_, j) { return '<i class="' + (s.res[j] || (j === s.k && !done ? "cur" : "")) + '"></i>'; }).join("");
-    var out = '<div class="qz-top"><span class="qz-t">Ułóż dowód</span>' + (p.title ? '<span class="qz-name">' + inline(esc(p.title)) + "</span>" : "") + '<span class="qz-dots" aria-label="Postęp">' + dots + "</span></div>";
+    var out = '<div class="qz-top"><span class="qz-t">' + Ln("Ułóż dowód") + '</span>' + (p.title ? '<span class="qz-name">' + inline(esc(p.title)) + "</span>" : "") + '<span class="qz-dots" aria-label="Postęp">' + dots + "</span></div>";
     if (p.head.length) out += '<div class="dw-stmt">' + qzText(p.head) + "</div>";
     var upto = done ? n : s.k + (s.solved ? 1 : 0), lines = "";
     for (var j = 0; j < upto; j++) if (p.steps[j].lines.length) lines += '<div class="dw-l' + (j === s.k && s.solved ? " new" : "") + '">' + qzText(p.steps[j].lines) + "</div>";
-    if (lines) out += '<div class="dw-proof"><span class="dw-h">DOWÓD</span>' + lines + "</div>";
+    if (lines) out += '<div class="dw-proof"><span class="dw-h">' + Ln("DOWÓD") + "</span>" + lines + "</div>";
     if (done) {
-      return out + '<div class="qz-sum"><p><strong>Dowód gotowy.</strong> ' + (s.miss ? "Pomyłki po drodze: " + s.miss + ". Przeczytaj teraz cały dowód od góry – tak go zapiszesz na kolokwium." : "Bez ani jednej pomyłki.") +
-        '</p><div class="qz-bar"><button type="button" class="dw-nextp qz-check">Następny dowód</button><button type="button" class="dw-again">Ułóż jeszcze raz</button></div></div>';
+      return out + '<div class="qz-sum"><p><strong>' + Ln("Dowód gotowy.") + "</strong> " + (s.miss ? Lf("Pomyłki po drodze: {a}. Przeczytaj teraz cały dowód od góry – tak go zapiszesz na kolokwium.", s.miss) : Ln("Bez ani jednej pomyłki.")) +
+        '</p><div class="qz-bar"><button type="button" class="dw-nextp qz-check">' + Ln("Następny dowód") + '</button><button type="button" class="dw-again">' + Ln("Ułóż jeszcze raz") + "</button></div></div>";
     }
     var q = p.steps[s.k];
-    out += '<div class="qz-q"><span class="qz-n">Krok ' + (s.k + 1) + " z " + n + "</span>" + qzText(q.text) + "</div>";
+    out += '<div class="qz-q"><span class="qz-n">' + Lf("Krok {a} z {b}", s.k + 1, n) + "</span>" + qzText(q.text) + "</div>";
     out += '<div class="qz-opts" role="radiogroup">' + q.order.map(function (j) {
       var o = q.opts[j], cls = "qz-opt" + (s.sel === j ? " on" : "") + (s.bad.indexOf(j) >= 0 ? " bad" : "") + (s.solved && o.ok ? " good" : "");
       return '<button type="button" class="' + cls + '" data-o="' + j + '" role="radio" aria-checked="' + (s.sel === j) + '"' + (s.solved || s.bad.indexOf(j) >= 0 ? " disabled" : "") + '><span class="qz-r" aria-hidden="true"></span><span class="qz-ot">' + inline(esc(o.t), true) + "</span></button>";
     }).join("") + "</div>";
     if (s.fb) out += '<div class="qz-fb ' + (s.solved ? "good" : "bad") + '">' + md(s.fb, true) + "</div>";
-    return out + '<div class="qz-bar">' + (s.solved ? '<button type="button" class="qz-next">' + (s.k + 1 < n ? "Dalej" : "Zakończ dowód") + "</button>" : '<button type="button" class="qz-check">Sprawdź</button>') + "</div>";
+    return out + '<div class="qz-bar">' + (s.solved ? '<button type="button" class="qz-next">' + (s.k + 1 < n ? Ln("Dalej") : Ln("Zakończ dowód")) + "</button>" : '<button type="button" class="qz-check">' + Ln("Sprawdź") + "</button>") + "</div>";
   }
   function dwDraw(box, scroll) {
     box.innerHTML = dwInner(+box.getAttribute("data-dw"));
@@ -1896,8 +1983,8 @@ html.rec-open { overflow: hidden; }
     if (b.classList.contains("qz-check")) {
       if (s.sel === null) return;
       var o = q.opts[s.sel];
-      if (o.ok) { s.solved = true; s.res[s.k] = s.bad.length ? "meh" : "ok"; s.fb = "**Dobrze.**" + (q.why ? " " + q.why : ""); }
-      else { if (s.bad.indexOf(s.sel) < 0) { s.bad.push(s.sel); s.miss++; } s.fb = "**Jeszcze nie.** " + (o.fb || "Spróbuj jeszcze raz."); s.sel = null; }
+      if (o.ok) { s.solved = true; s.res[s.k] = s.bad.length ? "meh" : "ok"; s.fb = Ln("**Dobrze.**") + (q.why ? " " + q.why : ""); }
+      else { if (s.bad.indexOf(s.sel) < 0) { s.bad.push(s.sel); s.miss++; } s.fb = Ln("**Jeszcze nie.** ") + (o.fb || Ln("Spróbuj jeszcze raz.")); s.sel = null; }
       dwDraw(box); return;
     }
     if (b.classList.contains("qz-next")) {
@@ -2280,7 +2367,7 @@ html.rec-open { overflow: hidden; }
           return (blankEnds && !x.trim()) || ENV.test(x) || /^\s*(#{1,6}\s|\+\+\+)/.test(x);
         };
         while (i < L.length && !endEl(L[i], true)) e.push(L[i++]);
-        if (/Zadanie/.test(ENV.exec(ln)[1])) while (i < L.length && !endEl(L[i], false)) e.push(L[i++]);  // rozwiązanie może mieć puste linie
+        if (ENV_K[ENV.exec(ln)[1]] === "task") while (i < L.length && !endEl(L[i], false)) e.push(L[i++]);  // rozwiązanie może mieć puste linie
         out.push(env(e)); continue;
       }
       buf.push(ln); i++;
@@ -2312,7 +2399,7 @@ html.rec-open { overflow: hidden; }
     var busyN = items().filter(function (it) { return /^(upload|queued|reading)$/.test(it.stage); }).length;
     cnt.hidden = !busyN; cnt.textContent = busyN;
     if (!CFG) {
-      var msg = netErr ? "Brak połączenia z GitHubem. Spróbuję jeszcze raz za chwilę." : "Wczytuję…";
+      var msg = netErr ? Ln("Brak połączenia z GitHubem. Spróbuję jeszcze raz za chwilę.") : Ln("Wczytuję…");
       shootBox.textContent = ""; shootBox.appendChild(el("p", { class: "hint", text: msg }));
       paneN.textContent = ""; paneN.appendChild(el("p", { class: "hint", text: msg }));
       return;
@@ -2798,9 +2885,10 @@ html.rec-open { overflow: hidden; }
     var f = F(folder);
     view = { k: "course", c: f ? f.course : folder, t: "days", dz: dzOf(f ? f.course : folder, folder + "/" + day, section) }; openDays[folder + "/" + day] = true; setTab("notatki");
     var c = document.getElementById("day-" + folder + "-" + day);
-    var h = section && c && Array.prototype.filter.call(c.querySelectorAll(".md h4, .md h5"), function (x) { return normSec(x.textContent) === normSec(section); })[0];
+    var sec2 = trSec((INDEX.notes || {})[folder + "/" + day], section);
+    var h = section && c && Array.prototype.filter.call(c.querySelectorAll(".md h4, .md h5"), function (x) { return normSec(x.textContent) === normSec(sec2); })[0];
     if (!h && section && c && ELEM_RX.test(normSec(section))) {   // element: „Zadanie 4”, „Przykład 3”
-      var em = ELEM_RX.exec(normSec(section)), rx = new RegExp("^\\s*" + stemOf(em[1]) + "\\s+" + numsOf(em[2])[0] + "(?!\\d)");
+      var em = ELEM_RX.exec(normSec(section)), rx = new RegExp("^\\s*(?:" + stemOf(em[1]) + "|" + locEl(stemOf(em[1])) + ")\\s+" + numsOf(em[2])[0] + "(?!\\d)");
       h = Array.prototype.filter.call(c.querySelectorAll(".md .env"), function (x) { return rx.test(x.textContent); })[0];
     }
     var det = h && h.closest("details"); if (det) det.open = true;
@@ -2808,17 +2896,17 @@ html.rec-open { overflow: hidden; }
   }
   /* --- podgląd w okienku: zadanie, przykład, sekcja z notatki albo strona materiału; czytasz dalej tam, gdzie byłeś --- */
   var pk = $("pk"), pkBack = $("pk-back"), pkLog = $("pk-log"), pkGo = $("pk-go"), pkKey = null, MAT = null;
-  var ELEM_RX = /^(Zadani[ea]|Zadaniu|Zadaniach|Przykład[y]?|Definicj[ae]|Twierdzeni[ea]|Wnios(?:ek|ki)|Własnoś[ćc]i?|Lemat|Uwaga)\s+(\d+(?:\s*[–,-]\s*\d+|\s+i\s+\d+)*)/;
-  function stemOf(w) { return /^Zadani/.test(w) ? "Zadanie" : /^Przykład/.test(w) ? "Przykład" : /^Definicj/.test(w) ? "Definicja" : /^Twierdzeni/.test(w) ? "Twierdzenie" : /^Wnios/.test(w) ? "Wniosek" : /^Własnoś/.test(w) ? "Własność" : w; }
+  var ELEM_RX = /^(Zadani[ea]|Zadaniu|Zadaniach|Przykład[y]?|Definicj[ae]|Twierdzeni[ea]|Wnios(?:ek|ki)|Własnoś[ćc]i?|Lemat|Uwaga|Exercises?|Alıştırma|Examples?|Örnek|Definitions?|Tanım|Theorems?|Teorem|Corollar(?:y|ies)|Sonuç|Propert(?:y|ies)|Özellik|Lemma|Remark|Açıklama)\s+(\d+(?:\s*[–,-]\s*\d+|\s+(?:i|and|ve)\s+\d+)*)/;
+  function stemOf(w) { return /^(Zadani|Exercise|Alıştırma)/.test(w) ? "Zadanie" : /^(Przykład|Example|Örnek)/.test(w) ? "Przykład" : /^(Definicj|Definition|Tanım)/.test(w) ? "Definicja" : /^(Twierdzeni|Theorem|Teorem)/.test(w) ? "Twierdzenie" : /^(Wnios|Corollar|Sonuç)/.test(w) ? "Wniosek" : /^(Własnoś|Propert|Özellik)/.test(w) ? "Własność" : /^Lemma/.test(w) ? "Lemat" : /^(Remark|Açıklama)/.test(w) ? "Uwaga" : w; }
   function numsOf(t) {   // „5–7” → [5,6,7], „1, 5”, „1 i 5” → [1,5]
-    var out = []; t.split(/\s*,\s*|\s+i\s+/).forEach(function (p) { var r = /^(\d+)\s*[–-]\s*(\d+)$/.exec(p); if (r) { for (var i = +r[1]; i <= +r[2] && out.length < 12; i++) out.push(i); } else if (+p) out.push(+p); });
+    var out = []; t.split(/\s*,\s*|\s+(?:i|and|ve)\s+/).forEach(function (p) { var r = /^(\d+)\s*[–-]\s*(\d+)$/.exec(p); if (r) { for (var i = +r[1]; i <= +r[2] && out.length < 12; i++) out.push(i); } else if (+p) out.push(+p); });
     return out;
   }
   function elemMd(md, sec) {   // „Zadanie 4”, „Zadania 5–6”, „Przykład 3” → markdown tych elementów (albo null)
     var m = ELEM_RX.exec(normSec(sec)); if (!m) return null;
     var stem = stemOf(m[1]), L = String(md).split("\n"), parts = [];
     numsOf(m[2]).forEach(function (n) {
-      var rx = new RegExp("^\\s*\\*\\*" + stem + "\\s+" + n + "(?!\\d)"), i = L.findIndex(function (x) { return rx.test(x); });
+      var rx = new RegExp("^\\s*\\*\\*(?:" + stem + "|" + locEl(stem) + ")\\s+" + n + "(?!\\d)"), i = L.findIndex(function (x) { return rx.test(x); });
       if (i < 0) return;
       var j = i + 1, fence = false, stop = function (x, blank) {
         if (/^\s*```/.test(x)) { fence = !fence; return false; }
@@ -2828,6 +2916,13 @@ html.rec-open { overflow: hidden; }
       parts.push(L.slice(i, j).join("\n").replace(/\s+$/, ""));
     });
     return parts.length ? parts.join("\n\n") : null;
+  }
+  function locEl(w) { return UILANG === "pl" ? w : (LOC_EL[UILANG] || {})[w] || w; }
+  function trSec(note, sec) {   // polski nagłówek z odnośnika → nagłówek o tym samym numerze w przetłumaczonej notatce (tools/tlumacz.py pilnuje tej samej liczby nagłówków)
+    if (!note || !note.mdPl || !sec) return sec;
+    var want = normSec(sec), H = function (md) { return String(md).split("\n").filter(function (x) { return /^#{1,6}\s/.test(x); }).map(function (x) { return normSec(x.replace(/^#{1,6}\s+/, "")); }); };
+    var hp = H(note.mdPl), ht = H(note.md), i = hp.findIndex(function (h) { return h === want || h.indexOf(want) === 0; });
+    return i >= 0 && ht[i] ? ht[i] : sec;
   }
   function secMd(md, sec) {   // treść sekcji o tym nagłówku (bez samego nagłówka), do następnego nagłówka tego samego albo wyższego poziomu
     var L = String(md).split("\n"), want = normSec(sec), i = -1, lv = 0;
@@ -2847,30 +2942,30 @@ html.rec-open { overflow: hidden; }
   function peekRef(folder, day, sec, label) {
     var key = folder + "/" + day, note = (INDEX.notes || {})[key], f = F(folder);
     var ctx = (f ? fname(f) + " · " + KIND_L[f.kind] + " · " : "") + shortDay(day);
-    var src = note && sec ? (elemMd(note.md, sec) || secMd(note.md, sec)) : null;
-    peekOpen(normSec(label || sec || (note && note.title) || "Notatka"), ctx, function () { openNote(folder, day, sec); });
-    if (!note) { pkLog.appendChild(el("p", { class: "hint", text: "Tej notatki jeszcze nie ma." })); return; }
+    var src = note && sec ? (elemMd(note.md, sec) || secMd(note.md, trSec(note, sec))) : null;
+    peekOpen(normSec(label || sec || (note && note.title) || Ln("Notatka")), ctx, function () { openNote(folder, day, sec); });
+    if (!note) { pkLog.appendChild(el("p", { class: "hint", text: Ln("Tej notatki jeszcze nie ma.") })); return; }
     if (!src) src = noTitle(note.md);   // całej sekcji nie znaleziono: cała notatka
     pkKey = key;
     var box = el("div", { class: "md", html: md(src) }); pkLog.appendChild(box);
     box.querySelectorAll("[data-fig]").forEach(function (b) { blobUrl(b.getAttribute("data-fig")).then(function (u) { b.firstChild.src = u; }, function () { b.closest("figure").classList.add("nofig"); }); });
   }
   function peekMat(id, label) {
-    peekOpen(normSec(label || "Materiał"), "", null);
+    peekOpen(normSec(label || Ln("Materiał")), "", null);
     if (VISIT && !VISIT.live) { pkLog.appendChild(el("p", { class: "hint", text: "Materiały do ćwiczenia są tylko w Twojej aplikacji, nie w podglądzie gościa." })); return; }
-    pkLog.appendChild(el("p", { class: "hint", text: "Wczytuję…" }));
+    pkLog.appendChild(el("p", { class: "hint", text: Ln("Wczytuję…") }));
     (MAT ? Promise.resolve(MAT) : rawJson("materials.json").then(function (j) { return (MAT = j.items || {}); })).then(function (items) {
       var it = items[id]; pkLog.textContent = "";
-      if (!it) { pkLog.appendChild(el("p", { class: "hint", text: "Tego materiału nie ma w repo." })); return; }
-      $("pk-ctx").textContent = it.t + (it.k === "img" && it.n > 1 ? " · strona " + it.p + " z " + it.n : "");
-      var meta = el("p", { class: "mat-meta" }, [it.u ? el("a", { href: it.u, target: "_blank", rel: "noopener", text: "Cały plik na UPeL-u" }) : null]);
+      if (!it) { pkLog.appendChild(el("p", { class: "hint", text: Ln("Tego materiału nie ma w repo.") })); return; }
+      $("pk-ctx").textContent = it.t + (it.k === "img" && it.n > 1 ? Lf(" · strona {a} z {b}", it.p, it.n) : "");
+      var meta = el("p", { class: "mat-meta" }, [it.u ? el("a", { href: it.u, target: "_blank", rel: "noopener", text: Ln("Cały plik na UPeL-u") }) : null]);
       if (it.k === "txt") {
         return api("contents/materials/" + id + ".txt?ref=" + BRANCH, { raw: true }).then(function (t) { pkLog.appendChild(el("pre", { class: "mat-txt", text: t })); if (it.u) pkLog.appendChild(meta); });
       }
       var img = el("img", { class: "mat-img", alt: it.t }); pkLog.appendChild(img); if (it.u) pkLog.appendChild(meta);
       img.addEventListener("click", function () { lbPath = null; wantDel = false; lbDel.hidden = true; lb.classList.remove("zoom"); lbImg.src = img.src; lb.hidden = false; });
       return blobUrl("materials/" + id + ".jpg").then(function (u) { img.src = u; });
-    }).catch(function () { pkLog.textContent = ""; pkLog.appendChild(el("p", { class: "hint", text: "Nie udało się wczytać materiału." })); });
+    }).catch(function () { pkLog.textContent = ""; pkLog.appendChild(el("p", { class: "hint", text: Ln("Nie udało się wczytać materiału.") })); });
   }
 
   function courses() {   // przedmioty w kolejności z planu: [{course, folders: [...]}]
@@ -2907,8 +3002,8 @@ html.rec-open { overflow: hidden; }
       paneN.appendChild(el("div", { class: "card push" }, [el("p", { text: "Powiadomienie na telefonie, gdy na UPeL-u pojawi się coś nowego: ogłoszenie, materiał albo termin." }), el("div", { class: "tools" }, [pb])]));
     } else if (ps === "reinstall") paneN.appendChild(el("p", { class: "hint", text: "Powiadomienia z UPeL-a zadziałają, gdy dodasz Notatki do ekranu początkowego jeszcze raz (Safari → Udostępnij → Do ekranu początkowego)." }));
     else if (ps === "denied") paneN.appendChild(el("p", { class: "hint", text: "Powiadomienia z UPeL-a są wyłączone w Ustawieniach iPhone'a (Ustawienia → Powiadomienia → Notatki)." }));
-    if (VISIT && VISIT.live && IOS && !STANDALONE) paneN.appendChild(el("p", { class: "hint", text: "Żeby mieć to jak aplikację: Udostępnij → „Do ekranu początkowego”. Notatki same się aktualizują po każdych zajęciach." }));
-    paneN.appendChild(el("section", { class: "sec" }, [el("div", { class: "sec-h" }, [el("h2", { text: "Przedmioty" })]), all]));
+    if (VISIT && VISIT.live && IOS && !STANDALONE) paneN.appendChild(el("p", { class: "hint", text: Ln("Żeby mieć to jak aplikację: Udostępnij → „Do ekranu początkowego”. Notatki same się aktualizują po każdych zajęciach.") }));
+    paneN.appendChild(el("section", { class: "sec" }, [el("div", { class: "sec-h" }, [el("h2", { text: Ln("Przedmioty") })]), all]));
     if (other.firstChild) paneN.appendChild(el("section", { class: "sec" }, [el("div", { class: "sec-h" }, [el("h2", { text: "Poza AGH" })]), other]));
     if (ps === "on") paneN.appendChild(histSec());
   }
@@ -2986,13 +3081,13 @@ html.rec-open { overflow: hidden; }
     if (!guide && view.t === "guide") view.t = "days";
     if (!kol && view.t === "kol") view.t = guide ? "guide" : "days";
     paneN.appendChild(el("div", { class: "fh" }, [
-      btn("back", "‹ Wszystkie", function () { view = { k: "home" }; render(); window.scrollTo(0, 0); }),
+      btn("back", Ln("‹ Wszystkie"), function () { view = { k: "home" }; render(); window.scrollTo(0, 0); }),
       el("div", { class: "t" }, [el("b", { text: fname(f0) }), el("span", { text: c.folders.map(function (f) { return KIND_L[f.kind]; }).join(" · ") })])
     ]));
     if (guide || kol || dow) {
       var seg = el("div", { class: "seg wide", role: "group", "aria-label": "Widok przedmiotu" });
       var kor = isKorki(c);
-      [guide && ["guide", "Przewodnik"], kol && ["kol", kor ? "Powtórka" : "Kolokwia"], dow && ["dow", "Dowody"], ["days", kor ? "Notatki" : "Zajęcia"]].filter(Boolean).forEach(function (o) {
+      [guide && ["guide", Ln("Przewodnik")], kol && ["kol", kor ? "Powtórka" : Ln("Kolokwia")], dow && ["dow", Ln("Dowody")], ["days", kor ? "Notatki" : Ln("Zajęcia")]].filter(Boolean).forEach(function (o) {
         var b = btn("", o[1], function () { if (o[0] === "days" && view.t === "days") view.dz = null; view.t = o[0]; render(); window.scrollTo(0, 0); }); b.setAttribute("aria-pressed", view.t === o[0] ? "true" : "false"); seg.appendChild(b);
       });
       paneN.appendChild(seg);
@@ -3007,11 +3102,11 @@ html.rec-open { overflow: hidden; }
     var blocks = Array.prototype.slice.call(box.querySelectorAll(".dw"));
     dwRefresh = function () {
       var sv = dwSaved(); ov.textContent = "";
-      ov.appendChild(el("p", { class: "kol-h", text: "Dowody po kolei – w każdym dziale pierwszy z pełną pomocą" }));
+      ov.appendChild(el("p", { class: "kol-h", text: Ln("Dowody po kolei – w każdym dziale pierwszy z pełną pomocą") }));
       blocks.forEach(function (b, i) {
         var p = DW[+b.getAttribute("data-dw")], ok = !!sv[p.h];
         ov.appendChild(btn("kol-row" + (ok ? " done" : ""), null, function () { b.scrollIntoView({ behavior: "smooth", block: "start" }); }, [
-          el("span", { class: "kol-i", text: ok ? "✓" : String(i + 1) }), el("span", { class: "kol-n", html: inline(esc(p.title || "Dowód " + (i + 1))) })
+          el("span", { class: "kol-i", text: ok ? "✓" : String(i + 1) }), el("span", { class: "kol-n", html: inline(esc(p.title || Lf("Dowód {a}", i + 1))) })
         ]));
       });
     };
@@ -3022,8 +3117,8 @@ html.rec-open { overflow: hidden; }
     var box = el("div", { class: "md", html: md(noTitle(kol)) }), set = null;
     Array.prototype.slice.call(box.children).forEach(function (n) {   // zestaw = linia „Było na zajęciach…” + quiz + „Prawdziwe zadania: …”
       var t = n.tagName === "P" ? n.textContent : "";
-      if (/^(Było na (zajęciach|korkach)|Jeszcze nie było)/.test(t)) { set = el("div", { class: "kol-set" }); box.insertBefore(set, n); n.classList.add("kol-meta"); set.appendChild(n); return; }
-      if (set && (n.classList.contains("quiz") || /^(Prawdziwe zadania|Zadania z korków)/.test(t))) { if (t) n.classList.add("kol-real"); set.appendChild(n); return; }
+      if (/^(Było na (zajęciach|korkach)|Jeszcze nie było|In class:|Not covered in class|Derste:|Henüz derste)/.test(t)) { set = el("div", { class: "kol-set" }); box.insertBefore(set, n); n.classList.add("kol-meta"); set.appendChild(n); return; }
+      if (set && (n.classList.contains("quiz") || /^(Prawdziwe zadania|Zadania z korków|Real tasks|Gerçek sorular)/.test(t))) { if (t) n.classList.add("kol-real"); set.appendChild(n); return; }
       set = null;
     });
     var sets = Array.prototype.slice.call(box.querySelectorAll(".kol-set")), ov = el("nav", { class: "kol-ov", "aria-label": "Zestawy" });
@@ -3034,9 +3129,9 @@ html.rec-open { overflow: hidden; }
         var r = saved[p.h], good = r ? r.filter(function (x) { return x === "ok"; }).length : 0; if (r) done++;
         return btn("kol-row" + (r ? " done" : ""), null, function () { s.scrollIntoView({ behavior: "smooth", block: "start" }); }, [
           el("span", { class: "kol-i", text: r ? "✓" : String(i + 1) }), el("span", { class: "kol-n", html: inline(esc(p.title), true) }),
-          r ? el("span", { class: "kol-s", text: good + " z " + p.qs.length }) : null]);
+          r ? el("span", { class: "kol-s", text: Lf("{a} z {b}", good, p.qs.length) }) : null]);
       }).filter(Boolean);
-      ov.appendChild(el("p", { class: "kol-h", text: done ? "Zrobione " + done + " z " + rows.length : "Zestawy po kolei – zacznij od pierwszego" }));
+      ov.appendChild(el("p", { class: "kol-h", text: done ? Lf("Zrobione {a} z {b}", done, rows.length) : Ln("Zestawy po kolei – zacznij od pierwszego") }));
       rows.forEach(function (r) { ov.appendChild(r); });
     };
     kolRefresh();
@@ -3049,7 +3144,7 @@ html.rec-open { overflow: hidden; }
     card.appendChild(box);
     var up = guide.updated ? new Date(guide.updated) : null;
     var redoB = VISIT ? null : btn("", "Zrób od nowa", function () { redoB.disabled = true; redoB.textContent = "Zlecone"; redo("_kurs", c.course); });
-    card.appendChild(el("p", { class: "legend-n", text: "Przewodnik łączy wykład z ćwiczeniami i ze starymi kolokwiami i egzaminami" + (up && !isNaN(up) ? " · stan z " + up.getDate() + "." + pad(up.getMonth() + 1) + " " + pad(up.getHours()) + ":" + pad(up.getMinutes()) : "") + ". Odświeża się sam po zajęciach." }));
+    card.appendChild(el("p", { class: "legend-n", text: Ln("Przewodnik łączy wykład z ćwiczeniami i ze starymi kolokwiami i egzaminami") + (up && !isNaN(up) ? Ln(" · stan z ") + up.getDate() + "." + pad(up.getMonth() + 1) + " " + pad(up.getHours()) + ":" + pad(up.getMinutes()) : "") + ". " + Ln("Odświeża się sam po zajęciach.") }));
     if (redoB) card.appendChild(el("div", { class: "tools" }, [redoB]));
     paneN.appendChild(card);
   }
@@ -3063,7 +3158,7 @@ html.rec-open { overflow: hidden; }
     var KO = { wyklad: 0, cwiczenia: 1, lab: 2, korki: 3 };
     var list = Object.keys(byKey).map(function (k) { return byKey[k]; }).sort(function (a, b) { return a.d !== b.d ? (a.d < b.d ? 1 : -1) : KO[a.f.kind] - KO[b.f.kind]; });
     if (!list.length) {
-      paneN.appendChild(el("p", { class: "hint", text: "Jeszcze nie ma notatek z tego przedmiotu. Zrób zdjęcie tablicy w zakładce Aparat." }));
+      paneN.appendChild(el("p", { class: "hint", text: Ln("Jeszcze nie ma notatek z tego przedmiotu. Zrób zdjęcie tablicy w zakładce Aparat.") }));
       return;
     }
     var G = dzGroups(c.course, list);
@@ -3071,7 +3166,7 @@ html.rec-open { overflow: hidden; }
       var g = G.filter(function (x) { return x.t === view.dz; })[0];
       if (!g) { view.dz = null; drawDzList(G); return; }
       paneN.appendChild(el("div", { class: "fh dz-h" }, [
-        btn("back", "‹ Działy", function () { view.dz = null; render(); window.scrollTo(0, 0); }),
+        btn("back", Ln("‹ Działy"), function () { view.dz = null; render(); window.scrollTo(0, 0); }),
         el("div", { class: "t" }, [el("b", { text: g.t }), el("span", { text: dzSub(g) })])
       ]));
       list = g.items;
@@ -3080,14 +3175,15 @@ html.rec-open { overflow: hidden; }
       var f = e.f, d = e.d, key = f.id + "/" + d, note = (INDEX.notes || {})[key], ps = e.ps;
       var open = key in openDays ? openDays[key] : di === 0;
       ps.sort(function (x, y) { return x.name < y.name ? -1 : 1; });
-      var card = el("div", { class: "card day", id: "day-" + f.id + "-" + d, "data-key": key }, [el("div", { class: "dh" }, [el("small", { text: dayLabel(d) + " · " + KIND_L[f.kind] }), el("h3", { text: note ? note.title : "Nowa notatka" })])]);
-      var tops = (note && note.topics || []).filter(function (t, i, a) { return a.findIndex(function (x) { return x.t === t.t; }) === i; });
+      var card = el("div", { class: "card day", id: "day-" + f.id + "-" + d, "data-key": key }, [el("div", { class: "dh" }, [el("small", { text: dayLabel(d) + " · " + KIND_L[f.kind] }), el("h3", { text: note ? note.title : Ln("Nowa notatka") })])]);
+      if (note && note.untr) card.appendChild(el("p", { class: "plan-l", text: Ln("Te notatki nie są jeszcze przetłumaczone – poniżej wersja po polsku. Tłumaczenie pojawi się wieczorem.") }));
+      var tops = (VISIT && VISIT.live ? [] : note && note.topics || []).filter(function (t, i, a) { return a.findIndex(function (x) { return x.t === t.t; }) === i; });
       if (tops.length) card.appendChild(el("p", { class: "plan-l" }, ["W planie nauki: "].concat(tops.map(function (t, i) {
         return el("span", {}, [i ? " · " : null, btn("pl", t.t, function () { goToTopic(t.t); })]);
       }))));
       card._ps = ps;
       var also = G ? G.filter(function (x) { return x.t !== view.dz && x.items.indexOf(e) >= 0; }) : [];
-      if (also.length) card.appendChild(el("p", { class: "plan-l" }, ["Część tej notatki jest też w dziale: "].concat(also.map(function (x, i) {
+      if (also.length) card.appendChild(el("p", { class: "plan-l" }, [Ln("Część tej notatki jest też w dziale: ")].concat(also.map(function (x, i) {
         return el("span", {}, [i ? " · " : null, btn("pl", x.t, function () { view.dz = x.t; render(); window.scrollTo(0, 0); })]);
       }))));
       var sp = note && note.speech, spN = speechPaths(f.id, d).length, recHere = !!(R && R.folder === f.id && R.day === d);
@@ -3114,14 +3210,14 @@ html.rec-open { overflow: hidden; }
           if (hs.length >= 3) card.appendChild(el("nav", { class: "toc", "aria-label": "Spis" }, Array.prototype.map.call(hs, tocBtn)));
           card.appendChild(mdBox);
           mdBox.querySelectorAll("[data-fig]").forEach(function (b) { blobUrl(b.getAttribute("data-fig")).then(function (u) { b.firstChild.src = u; }, function () { b.closest("figure").classList.add("nofig"); }); });
-          if (mdBox.querySelector(".dag, .mn, .zref, .tref")) card.appendChild(el("p", { class: "legend-n", text: "† dopisane przez Claude'a, nie było na zajęciach · zdj. N – zdjęcie, z którego to pochodzi" + (mdBox.querySelector(".tref") ? " · nagr. 09:47 – co mówił wtedy prowadzący" : "") + " (dotknij, żeby otworzyć)" }));
-          var copyB = btn("", "Kopiuj", function () {
-            try { navigator.clipboard.writeText(note.md).then(function () { copyB.textContent = "Skopiowane"; }, function () { copyB.textContent = "Nie udało się"; }); } catch (e) { copyB.textContent = "Nie udało się"; }
+          if (mdBox.querySelector(".dag, .mn, .zref, .tref")) card.appendChild(el("p", { class: "legend-n", text: Ln("† dopisane przez Claude'a, nie było na zajęciach · zdj. N – zdjęcie, z którego to pochodzi") + (mdBox.querySelector(".tref") ? Ln(" · nagr. 09:47 – co mówił wtedy prowadzący") : "") + Ln(" (dotknij, żeby otworzyć)") }));
+          var copyB = btn("", Ln("Kopiuj"), function () {
+            try { navigator.clipboard.writeText(note.md).then(function () { copyB.textContent = Ln("Skopiowane"); }, function () { copyB.textContent = Ln("Nie udało się"); }); } catch (e) { copyB.textContent = Ln("Nie udało się"); }
           });
           var redoB = btn("", "Zrób od nowa", function () { redoB.disabled = true; redoB.textContent = "Zlecone"; redo(f.id, d); });
           if (VISIT) redoB = null;
-          card.appendChild(el("div", { class: "tools" }, [copyB, redoB, di ? btn("", "Zwiń", function () { openDays[key] = false; render(); }) : null]));
-        } else card.appendChild(btn("more", "Pokaż notatkę", function () { openDays[key] = true; render(); }));
+          card.appendChild(el("div", { class: "tools" }, [copyB, redoB, di ? btn("", Ln("Zwiń"), function () { openDays[key] = false; render(); }) : null]));
+        } else card.appendChild(btn("more", Ln("Pokaż notatkę"), function () { openDays[key] = true; render(); }));
       }
       paneN.appendChild(card);
     });
@@ -3147,7 +3243,7 @@ html.rec-open { overflow: hidden; }
   function dzSub(g) {
     var ds = g.items.map(function (e) { return e.d; }).sort(), a = ds[0], b = ds[ds.length - 1];
     function dm(x) { var d = new Date(x + "T12:00"); return d.getDate() + "." + pad(d.getMonth() + 1); }
-    return (g.cur ? "ostatnio · " : "") + nNotes(g.items.length) + " · " + (a === b ? dm(a) : dm(a) + "–" + dm(b));
+    return (g.cur ? Ln("ostatnio · ") : "") + nNotes(g.items.length) + " · " + (a === b ? dm(a) : dm(a) + "–" + dm(b));
   }
   function drawDzList(G) {
     var card = el("div", { class: "card" });
@@ -3157,7 +3253,7 @@ html.rec-open { overflow: hidden; }
         el("span", { class: "chev", "aria-hidden": "true", text: "›" })
       ]));
     });
-    paneN.appendChild(el("section", { class: "sec" }, [el("div", { class: "sec-h" }, [el("h2", { text: "Działy" })]), card]));
+    paneN.appendChild(el("section", { class: "sec" }, [el("div", { class: "sec-h" }, [el("h2", { text: Ln("Działy") })]), card]));
   }
   function dzOf(course, key, section) {   // dział, w którym jest ta notatka (przy podzielonej – ten z tą sekcją)
     var DZ = (INDEX.dzialy || {})[course] || [], hit = DZ.filter(function (d) { return (d.n || []).some(function (x) { return x.k === key; }); });
@@ -3192,7 +3288,7 @@ html.rec-open { overflow: hidden; }
     if (b.classList.contains("s-all")) steps.forEach(function (x) { x.classList.remove("hid"); });
     else { var h = steps.filter(function (x) { return x.classList.contains("hid"); })[0]; if (h) { h.classList.remove("hid"); h.classList.add("shown"); } }
     var left = steps.filter(function (x) { return x.classList.contains("hid"); }).length;
-    next.textContent = left ? "Następny krok (" + (steps.length - left) + " z " + steps.length + ")" : "To całe rozwiązanie";
+    next.textContent = left ? Lf("Następny krok ({a} z {b})", steps.length - left, steps.length) : Ln("To całe rozwiązanie");
     next.disabled = !left; task.querySelector(".s-all").hidden = !left;
   });
 
@@ -3914,7 +4010,11 @@ html.rec-open { overflow: hidden; }
   if (VISIT && VISIT.live) {
     document.body.classList.add("visit", "znajomi"); tab = "notatki"; tabK.parentNode.hidden = true;
     var mf = document.querySelector('link[rel="manifest"]'); if (mf) mf.remove();   // bez manifestu iPhone bierze do ikonki ten adres razem z #z=klucz (start_url by go zgubił)
-    document.querySelector(".top .brand").textContent = "SimpleAGH · notatki";
+    document.querySelector(".top .brand").textContent = Ln("SimpleAGH · notatki");
+    var langSel = el("select", { class: "lang", "aria-label": Ln("Język") }, [["pl", "Polski"], ["en", "English"], ["tr", "Türkçe"]].map(function (o) { var op = el("option", { value: o[0], text: o[1] }); if (o[0] === UILANG) op.selected = true; return op; }));
+    langSel.addEventListener("change", function () { lsSet(LS_LANG, langSel.value); location.reload(); });
+    document.querySelector(".top").appendChild(langSel);
+    $("pk-go").textContent = Ln("Otwórz w notatce"); $("lb-x").textContent = Ln("Zamknij");
     document.addEventListener("visibilitychange", function () { if (!document.hidden) reLive(); });
   } else if (VISIT) {
     document.body.classList.add("visit"); tabA.hidden = true; if (tab === "aparat") tab = "nauka";
