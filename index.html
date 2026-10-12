@@ -326,6 +326,15 @@ button.row { appearance: none; width: 100%; text-align: left; background: none; 
 .md .qz-bar button { appearance: none; border: 0; background: none; padding: 4px 0; font-family: var(--font); font-size: 0.92rem; font-weight: 600; color: var(--accent); cursor: pointer; }
 .md .qz-bar .qz-check, .md .qz-bar .qz-next, .md .qz-bar .qz-again { padding: 9px 20px; border-radius: 99px; color: var(--surface); background: var(--accent); }
 .md .qz-sum p { margin: 0 0 10px; }
+.md .dw { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; padding: 14px; border: 1px solid var(--line); border-radius: 14px; background: var(--bg); scroll-margin-top: 140px; }
+.md .dw-stmt { display: grid; grid-template-columns: minmax(0, 1fr); gap: 4px; }
+.md .dw-stmt p, .md .dw-l p { margin: 0; }
+.md .dw-proof { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; padding: 10px 12px; border-radius: 10px; background: var(--surface); border: 1px solid var(--line); }
+.md .dw-proof .dw-h { font-family: var(--font); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.02em; color: var(--faint); }
+.md .dw-l { display: grid; grid-template-columns: minmax(0, 1fr); gap: 2px; }
+.md .dw-l.new { border-radius: 6px; }
+@media (prefers-reduced-motion: no-preference) { .md .dw-l.new { animation: dwin 0.9s ease-out; } }
+@keyframes dwin { from { background: var(--accent-soft); transform: translateY(-3px); } to { background: transparent; transform: none; } }
 .md .run-bar { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
 .md .run-bar button { appearance: none; border: 0; background: none; padding: 4px 0; font-family: var(--font); font-size: 0.9rem; font-weight: 600; color: var(--accent); cursor: pointer; }
 .md .run-bar .run-go { background: var(--accent); color: #fff; padding: 6px 14px; border-radius: 99px; }
@@ -1788,8 +1797,94 @@ html.rec-open { overflow: hidden; }
     if (e.key !== "Enter" || !e.target.classList || !e.target.classList.contains("qz-ans")) return;
     e.preventDefault(); qzCheck(e.target.closest(".quiz"));
   });
+  /* --- „Ułóż dowód” (blok ```dowod z ~/SimpleAGH/tools/dowody.py): dowód rośnie linijka po linijce, przy każdym kroku wybierasz, co robisz dalej.
+     „? ” pytanie kroku, „* ”/„- … >> czemu źle” odpowiedzi, „bo: …” czemu dobrze, „+ …” linie dopisywane do dowodu („+ :: $…$” – wzór). --- */
+  var DW = [], DW_LS = "notatki-dowod-v1", dwRefresh = null;
+  function dwSaved() { try { return JSON.parse(lsGet(DW_LS) || "{}"); } catch (e) { return {}; } }
+  function dwParse(src) {
+    var out = { title: "", head: [], steps: [] }, st = null;
+    src.split("\n").forEach(function (ln) {
+      var t = ln.trim(), m;
+      if (!t) return;
+      if (/^#\s+/.test(t) && !st && !out.title) { out.title = t.replace(/^#\s+/, ""); return; }
+      if (/^\?\s+/.test(t)) { st = { text: [t.replace(/^\?\s+/, "")], opts: [], why: "", lines: [] }; out.steps.push(st); return; }
+      if (!st) { out.head.push(t); return; }
+      if ((m = /^\+\s?(.*)$/.exec(t))) { st.lines.push(m[1]); return; }
+      if ((m = /^bo\s*:\s*(.*)$/i.exec(t))) { st.why = m[1]; return; }
+      if ((m = /^([*-])\s+(.*)$/.exec(t))) { var p = m[2].split(/\s+>>\s+/); st.opts.push({ t: p[0], ok: m[1] === "*", fb: p.slice(1).join(" ") }); return; }
+      st.text.push(t);
+    });
+    out.steps = out.steps.filter(function (x) { return x.opts.some(function (o) { return o.ok; }); });
+    return out;
+  }
+  function dowodBlock(src) {
+    var p = dwParse(src); if (!p.steps.length) return "<pre><code>" + esc(src) + "</code></pre>";
+    var h = "d" + qzHash(src), i = DW.findIndex(function (x) { return x.h === h; });
+    if (i < 0) {
+      var seed = parseInt(h.slice(1), 36) || 1, rnd = function () { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+      p.steps.forEach(function (q) { q.order = q.opts.map(function (_, j) { return j; }).sort(function () { return rnd() - 0.5; }); });
+      var sv = dwSaved()[h];
+      p.h = h; p.st = { k: sv ? p.steps.length : 0, miss: sv ? sv.miss : 0, res: p.steps.map(function () { return sv ? "ok" : null; }) };
+      dwReset(p); DW.push(p); i = DW.length - 1;
+    }
+    return '<div class="dw" data-dw="' + i + '">' + dwInner(i) + "</div>";
+  }
+  function dwReset(p) { var s = p.st; s.sel = null; s.bad = []; s.solved = false; s.fb = ""; }
+  function dwInner(i) {
+    var p = DW[i], s = p.st, n = p.steps.length, done = s.k >= n;
+    var dots = p.steps.map(function (_, j) { return '<i class="' + (s.res[j] || (j === s.k && !done ? "cur" : "")) + '"></i>'; }).join("");
+    var out = '<div class="qz-top"><span class="qz-t">Ułóż dowód</span>' + (p.title ? '<span class="qz-name">' + inline(esc(p.title)) + "</span>" : "") + '<span class="qz-dots" aria-label="Postęp">' + dots + "</span></div>";
+    if (p.head.length) out += '<div class="dw-stmt">' + qzText(p.head) + "</div>";
+    var upto = done ? n : s.k + (s.solved ? 1 : 0), lines = "";
+    for (var j = 0; j < upto; j++) if (p.steps[j].lines.length) lines += '<div class="dw-l' + (j === s.k && s.solved ? " new" : "") + '">' + qzText(p.steps[j].lines) + "</div>";
+    if (lines) out += '<div class="dw-proof"><span class="dw-h">DOWÓD</span>' + lines + "</div>";
+    if (done) {
+      return out + '<div class="qz-sum"><p><strong>Dowód gotowy.</strong> ' + (s.miss ? "Pomyłki po drodze: " + s.miss + ". Przeczytaj teraz cały dowód od góry – tak go zapiszesz na kolokwium." : "Bez ani jednej pomyłki.") +
+        '</p><div class="qz-bar"><button type="button" class="dw-nextp qz-check">Następny dowód</button><button type="button" class="dw-again">Ułóż jeszcze raz</button></div></div>';
+    }
+    var q = p.steps[s.k];
+    out += '<div class="qz-q"><span class="qz-n">Krok ' + (s.k + 1) + " z " + n + "</span>" + qzText(q.text) + "</div>";
+    out += '<div class="qz-opts" role="radiogroup">' + q.order.map(function (j) {
+      var o = q.opts[j], cls = "qz-opt" + (s.sel === j ? " on" : "") + (s.bad.indexOf(j) >= 0 ? " bad" : "") + (s.solved && o.ok ? " good" : "");
+      return '<button type="button" class="' + cls + '" data-o="' + j + '" role="radio" aria-checked="' + (s.sel === j) + '"' + (s.solved || s.bad.indexOf(j) >= 0 ? " disabled" : "") + '><span class="qz-r" aria-hidden="true"></span><span class="qz-ot">' + inline(esc(o.t), true) + "</span></button>";
+    }).join("") + "</div>";
+    if (s.fb) out += '<div class="qz-fb ' + (s.solved ? "good" : "bad") + '">' + md(s.fb, true) + "</div>";
+    return out + '<div class="qz-bar">' + (s.solved ? '<button type="button" class="qz-next">' + (s.k + 1 < n ? "Dalej" : "Zakończ dowód") + "</button>" : '<button type="button" class="qz-check">Sprawdź</button>') + "</div>";
+  }
+  function dwDraw(box, scroll) {
+    box.innerHTML = dwInner(+box.getAttribute("data-dw"));
+    if (scroll) { var r = box.querySelector(".qz-q, .qz-sum"), t = r && r.getBoundingClientRect(); if (t && (t.top < 70 || t.top > window.innerHeight - 160)) window.scrollBy({ top: t.top - 160, behavior: "smooth" }); }
+  }
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest && e.target.closest(".dw button"); if (!b) return;
+    var box = b.closest(".dw"), p = DW[+box.getAttribute("data-dw")], s = p.st, q = p.steps[s.k];
+    if (b.classList.contains("qz-opt")) { s.sel = +b.getAttribute("data-o"); dwDraw(box); return; }
+    if (b.classList.contains("dw-nextp")) {
+      var all = Array.prototype.slice.call(document.querySelectorAll(".dw")), nx = all[all.indexOf(box) + 1];
+      if (nx) nx.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+    if (b.classList.contains("qz-check")) {
+      if (s.sel === null) return;
+      var o = q.opts[s.sel];
+      if (o.ok) { s.solved = true; s.res[s.k] = s.bad.length ? "meh" : "ok"; s.fb = "**Dobrze.**" + (q.why ? " " + q.why : ""); }
+      else { if (s.bad.indexOf(s.sel) < 0) { s.bad.push(s.sel); s.miss++; } s.fb = "**Jeszcze nie.** " + (o.fb || "Spróbuj jeszcze raz."); s.sel = null; }
+      dwDraw(box); return;
+    }
+    if (b.classList.contains("qz-next")) {
+      s.k++; dwReset(p);
+      if (s.k >= p.steps.length) { var sv = dwSaved(); sv[p.h] = { miss: s.miss }; lsSet(DW_LS, JSON.stringify(sv)); if (dwRefresh) dwRefresh(); }
+      dwDraw(box, true); return;
+    }
+    if (b.classList.contains("dw-again")) {
+      s.k = 0; s.miss = 0; s.res = p.steps.map(function () { return null; }); dwReset(p);
+      var sv2 = dwSaved(); delete sv2[p.h]; lsSet(DW_LS, JSON.stringify(sv2)); if (dwRefresh) dwRefresh();
+      dwDraw(box, true); return;
+    }
+  });
   function codeBlock(lang, src) {
     if (lang === "quiz") return quizBlock(src);
+    if (lang === "dowod") return dowodBlock(src);
     if (/^(console|terminal|shell|sh|bash)$/.test(lang)) {
       return '<div class="term static">' + src.split("\n").map(function (l) {
         return /^\$ /.test(l) ? '<div class="tl-cmd"><span class="pr">$</span> ' + esc(l.slice(2)) + "</div>" : '<div class="tl-out">' + (esc(l) || "&nbsp;") + "</div>";
@@ -2755,7 +2850,7 @@ html.rec-open { overflow: hidden; }
     return out;
   }
   function drawNotes() {
-    paneN.textContent = ""; kolRefresh = null;
+    paneN.textContent = ""; kolRefresh = null; dwRefresh = null;
     var c = view.k === "course" && courses().filter(function (x) { return x.course === view.c; })[0];
     if (c) drawCourse(c); else drawCourses();
   }
@@ -2856,24 +2951,42 @@ html.rec-open { overflow: hidden; }
   if ("serviceWorker" in navigator) navigator.serviceWorker.addEventListener("message", function (e) { if (e.data && e.data.upel && histCard) loadHist(); });
   document.addEventListener("visibilitychange", function () { if (!document.hidden && histCard) loadHist(); });
   function drawCourse(c) {
-    var f0 = c.folders[0], guide = (INDEX.courses || {})[c.course], kol = (INDEX.kol || {})[c.course];
+    var f0 = c.folders[0], guide = (INDEX.courses || {})[c.course], kol = (INDEX.kol || {})[c.course], dow = (INDEX.kol || {})[c.course + ".dowody"];
+    if (!dow && view.t === "dow") view.t = "days";
     if (!guide && view.t === "guide") view.t = "days";
     if (!kol && view.t === "kol") view.t = guide ? "guide" : "days";
     paneN.appendChild(el("div", { class: "fh" }, [
       btn("back", "‹ Wszystkie", function () { view = { k: "home" }; render(); window.scrollTo(0, 0); }),
       el("div", { class: "t" }, [el("b", { text: fname(f0) }), el("span", { text: c.folders.map(function (f) { return KIND_L[f.kind]; }).join(" · ") })])
     ]));
-    if (guide || kol) {
+    if (guide || kol || dow) {
       var seg = el("div", { class: "seg wide", role: "group", "aria-label": "Widok przedmiotu" });
       var kor = isKorki(c);
-      [guide && ["guide", "Przewodnik"], kol && ["kol", kor ? "Powtórka" : "Kolokwia"], ["days", kor ? "Notatki" : "Zajęcia"]].filter(Boolean).forEach(function (o) {
+      [guide && ["guide", "Przewodnik"], kol && ["kol", kor ? "Powtórka" : "Kolokwia"], dow && ["dow", "Dowody"], ["days", kor ? "Notatki" : "Zajęcia"]].filter(Boolean).forEach(function (o) {
         var b = btn("", o[1], function () { if (o[0] === "days" && view.t === "days") view.dz = null; view.t = o[0]; render(); window.scrollTo(0, 0); }); b.setAttribute("aria-pressed", view.t === o[0] ? "true" : "false"); seg.appendChild(b);
       });
       paneN.appendChild(seg);
     }
     if (view.t === "guide") return drawGuide(c, guide);
     if (view.t === "kol") return drawKol(kol);
+    if (view.t === "dow") return drawDow(dow);
     drawDays(c);
+  }
+  function drawDow(src) {   // dowody do ułożenia (kolokwia/<przedmiot>.dowody.md z ~/SimpleAGH/tools/dowody.py): spis z ✓ i bloki ```dowod
+    var box = el("div", { class: "md", html: md(noTitle(src)) }), ov = el("nav", { class: "kol-ov", "aria-label": "Dowody" });
+    var blocks = Array.prototype.slice.call(box.querySelectorAll(".dw"));
+    dwRefresh = function () {
+      var sv = dwSaved(); ov.textContent = "";
+      ov.appendChild(el("p", { class: "kol-h", text: "Dowody po kolei – w każdym dziale pierwszy z pełną pomocą" }));
+      blocks.forEach(function (b, i) {
+        var p = DW[+b.getAttribute("data-dw")], ok = !!sv[p.h];
+        ov.appendChild(btn("kol-row" + (ok ? " done" : ""), null, function () { b.scrollIntoView({ behavior: "smooth", block: "start" }); }, [
+          el("span", { class: "kol-i", text: ok ? "✓" : String(i + 1) }), el("span", { class: "kol-n", html: inline(esc(p.title || "Dowód " + (i + 1))) })
+        ]));
+      });
+    };
+    if (blocks.length) { dwRefresh(); box.insertBefore(ov, box.firstChild); }
+    paneN.appendChild(el("div", { class: "card day guide" }, [box]));
   }
   function drawKol(kol) {   // zestawy pytań pod najbliższe kolokwium (kolokwia/<przedmiot>.md z ~/SimpleAGH/tools/kolokwia_quiz.py)
     var box = el("div", { class: "md", html: md(noTitle(kol)) }), set = null;
