@@ -67,6 +67,12 @@ button { font: inherit; color: inherit; }
 .tab svg { width: 19px; height: 19px; flex: none; }
 .tab[aria-selected="true"] { background: var(--accent); color: var(--surface); }
 .visit .tabs { grid-template-columns: repeat(2, 1fr); }
+/* pasek postępu notatki pod górnym paskiem: jasny – najdalej, dokąd już doczytałeś; ciemny – gdzie jesteś teraz */
+.rd { position: absolute; left: 0; right: 0; bottom: -1px; height: 3px; background: var(--line); pointer-events: none; }
+.rd i { position: absolute; left: 0; top: 0; bottom: 0; width: 0; transition: width 0.15s; }
+.rd .mx { background: var(--accent); opacity: 0.35; }
+.rd .now { background: var(--accent); }
+.rd-t { margin-left: auto; color: var(--muted); font-size: 0.78rem; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .tab .cnt { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 99px; background: var(--warn); color: var(--surface); font-size: 0.75rem; font-weight: 800; display: inline-grid; place-items: center; }
 main { max-width: 680px; margin: 0 auto; padding-inline: 16px; padding-block: 18px calc(48px + env(safe-area-inset-bottom, 0px)); display: grid; gap: 26px; }
 .pane { display: grid; gap: 26px; }
@@ -623,14 +629,14 @@ html.rec-open { overflow: hidden; }
 </head>
 <body>
 <header class="bar"><div class="in">
-  <div class="top"><span class="brand">SimpleAGH</span></div>
+  <div class="top"><span class="brand">SimpleAGH</span><span class="rd-t" id="rd-t" hidden></span></div>
   <div class="tabs" role="tablist" aria-label="Widok">
     <button class="tab" type="button" role="tab" id="tab-nauka" aria-controls="pane-nauka" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5zM20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5z"/></svg>Nauka</button>
     <button class="tab" type="button" role="tab" id="tab-aparat" aria-controls="pane-aparat" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8.5A2.5 2.5 0 0 1 5.5 6h1.6l1.4-2h7l1.4 2h1.6A2.5 2.5 0 0 1 21 8.5v9a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 17.5z"/><circle cx="12" cy="13" r="3.6"/></svg>Aparat<span class="cnt" id="cnt" hidden></span></button>
     <button class="tab" type="button" role="tab" id="tab-notatki" aria-controls="pane-notatki" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3h7l5 5v11.5A1.5 1.5 0 0 1 17.5 21h-10A1.5 1.5 0 0 1 6 19.5v-15A1.5 1.5 0 0 1 7.5 3z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg>Notatki</button>
   </div>
   <div class="recbar" id="recbar" hidden></div>
-</div></header>
+</div><div class="rd" id="rd" hidden><i class="mx"></i><i class="now"></i></div></header>
 <main>
   <div id="keybox-slot"></div>
   <section class="pane" id="pane-nauka" role="tabpanel" aria-labelledby="tab-nauka" hidden><p class="hint">Wczytuję…</p></section>
@@ -721,7 +727,7 @@ html.rec-open { overflow: hidden; }
       "Przewodnik łączy wykład z ćwiczeniami i ze starymi kolokwiami i egzaminami": "The guide connects lectures, classes and old tests and exams", " · stan z ": " · as of ", "Odświeża się sam po zajęciach.": "It updates itself after classes.",
       "Zestawy po kolei – zacznij od pierwszego": "Sets in order – start with the first one", "Zrobione {a} z {b}": "Done {a} of {b}", "{a} z {b}": "{a} of {b}",
       "Dowody po kolei – w każdym dziale pierwszy z pełną pomocą": "Proofs in order – in each part the first one has full help", "Dowód {a}": "Proof {a}",
-      "Sprawdź się": "Check yourself", "Sprawdź": "Check", "Dalej": "Next", "Zobacz wynik": "See result", "Podpowiedź": "Hint", "Następna podpowiedź": "Next hint", "Pokaż rozwiązanie": "Show solution",
+      "Sprawdź się": "Check yourself", "Przeczytane {a}%": "Read {a}%", "Sprawdź się {a}/{b}": "Check yourself {a}/{b}", "Sprawdź": "Check", "Dalej": "Next", "Zobacz wynik": "See result", "Podpowiedź": "Hint", "Następna podpowiedź": "Next hint", "Pokaż rozwiązanie": "Show solution",
       "Wpisz wynik, np. 15 albo 2/3": "Type the answer, e.g. 15 or 2/3", "**Dobrze.**": "**Correct.**", " Za pierwszym razem.": " First try.", "**Jeszcze nie.** ": "**Not yet.** ", "Spróbuj jeszcze raz.": "Try again.",
       "Weź podpowiedź – pokaże krok po kroku, co wstawić i gdzie.": "Take a hint – it shows step by step what to plug in where.",
       "{a} z {b} za pierwszym razem": "{a} of {b} on the first try", ". Wszystko dobrze.": ". All correct.",
@@ -746,7 +752,7 @@ html.rec-open { overflow: hidden; }
       "Przewodnik łączy wykład z ćwiczeniami i ze starymi kolokwiami i egzaminami": "Rehber dersleri, uygulamaları ve eski sınavları birleştirir", " · stan z ": " · güncelleme: ", "Odświeża się sam po zajęciach.": "Derslerden sonra kendini günceller.",
       "Zestawy po kolei – zacznij od pierwszego": "Setler sırayla – ilkinden başla", "Zrobione {a} z {b}": "Tamamlanan {a} / {b}", "{a} z {b}": "{a} / {b}",
       "Dowody po kolei – w każdym dziale pierwszy z pełną pomocą": "İspatlar sırayla – her bölümde ilki tam yardımlı", "Dowód {a}": "İspat {a}",
-      "Sprawdź się": "Kendini dene", "Sprawdź": "Kontrol et", "Dalej": "İleri", "Zobacz wynik": "Sonucu gör", "Podpowiedź": "İpucu", "Następna podpowiedź": "Sonraki ipucu", "Pokaż rozwiązanie": "Çözümü göster",
+      "Sprawdź się": "Kendini dene", "Przeczytane {a}%": "Okundu %{a}", "Sprawdź się {a}/{b}": "Kendini dene {a}/{b}", "Sprawdź": "Kontrol et", "Dalej": "İleri", "Zobacz wynik": "Sonucu gör", "Podpowiedź": "İpucu", "Następna podpowiedź": "Sonraki ipucu", "Pokaż rozwiązanie": "Çözümü göster",
       "Wpisz wynik, np. 15 albo 2/3": "Cevabı yaz, ör. 15 ya da 2/3", "**Dobrze.**": "**Doğru.**", " Za pierwszym razem.": " İlk denemede.", "**Jeszcze nie.** ": "**Henüz değil.** ", "Spróbuj jeszcze raz.": "Tekrar dene.",
       "Weź podpowiedź – pokaże krok po kroku, co wstawić i gdzie.": "İpucu al – neyi nereye koyacağını adım adım gösterir.",
       "{a} z {b} za pierwszym razem": "{b} sorudan {a} tanesi ilk denemede", ". Wszystko dobrze.": ". Hepsi doğru.",
@@ -1805,6 +1811,7 @@ html.rec-open { overflow: hidden; }
   function qzProgress() {   // po skończonym zestawie: ✓ w spisie tematów notatki i lista zestawów w Kolokwiach
     document.querySelectorAll(".toc button").forEach(tocMark);
     if (kolRefresh) kolRefresh();
+    if (typeof rdLater === "function") rdLater();
   }
   function quizAfter(h) {   // blok quiz w temacie pod nagłówkiem h (do następnego nagłówka tego samego poziomu)
     for (var n = h.nextElementSibling; n && n.tagName !== h.tagName; n = n.nextElementSibling) {
@@ -2411,6 +2418,7 @@ html.rec-open { overflow: hidden; }
       if (sig !== notesSig || !paneN.firstChild) { notesSig = sig; drawNotes(); }
     }
     if (typeof updateAskFab === "function" && askFab) updateAskFab();
+    if (typeof rdLater === "function" && rdBar) rdLater();
   }
 
   /* --- Nauka: strona SimpleAGH (nauka.html w prywatnym repo, wgrywa ją ~/SimpleAGH/tools/nauka_sync.sh po każdym przebudowaniu) --- */
@@ -3308,6 +3316,24 @@ html.rec-open { overflow: hidden; }
     });
     return best;
   }
+  /* pasek postępu notatki (pod górnym paskiem): ile notatki już przeczytane (najdalsze miejsce zapamiętane w przeglądarce) i ile „Sprawdź się” zrobione */
+  var RD_LS = "notatki-czytane", rdBar = $("rd"), rdT = $("rd-t"), rdRaf = 0;
+  function rdSaved() { try { return JSON.parse(lsGet(RD_LS) || "{}"); } catch (e) { return {}; } }
+  function rdUpdate() {
+    rdRaf = 0; if (!rdBar) return;
+    var key = tab === "notatki" && view.k === "course" ? visibleNoteKey() : null, card = key && document.querySelector('.day[data-key="' + key + '"]'), box = card && card.querySelector(".md");
+    if (!box || !box.offsetHeight) { rdBar.hidden = rdT.hidden = true; return; }
+    var r = box.getBoundingClientRect(), now = Math.max(0, Math.min(1, (innerHeight - r.top) / r.height));   // część notatki, która już była na ekranie
+    var all = rdSaved(), prev = all[key] || 0, mx = Math.max(now, prev);
+    if (mx - prev >= 0.01 || (mx === 1 && prev < 1)) { all[key] = Math.floor(mx * 100) / 100; lsSet(RD_LS, JSON.stringify(all)); }
+    rdBar.firstChild.style.width = mx * 100 + "%"; rdBar.lastChild.style.width = now * 100 + "%";
+    var qs = box.querySelectorAll(".quiz[data-qz]"), sv = qzSaved(), done = Array.prototype.filter.call(qs, function (q) { var p = QZ[+q.getAttribute("data-qz")]; return p && sv[p.h]; }).length;
+    rdT.textContent = Lf("Przeczytane {a}%", Math.floor(mx * 100)) + (qs.length ? " · " + Lf("Sprawdź się {a}/{b}", done, qs.length) : "");
+    rdBar.hidden = rdT.hidden = false;
+  }
+  function rdLater() { if (!rdRaf) rdRaf = requestAnimationFrame(rdUpdate); }
+  window.addEventListener("scroll", rdLater, { passive: true });
+  window.addEventListener("resize", rdLater);
   function visibleTopic() {  // temat z Nauki najbliżej środka ekranu
     var d = naukaDoc(), fr = paneK.querySelector("iframe"); if (!d || !fr) return null;
     var off = fr.getBoundingClientRect().top, mid = innerHeight * 0.45, best = null, bd = 1e9;
