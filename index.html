@@ -337,6 +337,54 @@ html[lang] .md .zref + .zref::before, html[lang] .md .tref + .tref::before { con
 .md .qz-sum p { margin: 0 0 10px; }
 .md .dw { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; padding: 14px; border: 1px solid var(--line); border-radius: 14px; background: var(--bg); scroll-margin-top: 140px; }
 .md .dw .qz-top { flex-wrap: wrap; row-gap: 4px; }
+.md .gt { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; padding: 14px; border: 1px solid var(--line); border-radius: 14px; background: var(--bg); scroll-margin-top: 140px; }
+.md .gt .qz-dots { gap: 3px; }
+.md .gt-dot { appearance: none; width: 22px; height: 22px; padding: 0; border: 0; background: none; cursor: pointer; display: grid; place-items: center; }
+.md .gt-dot::before { content: ""; width: 10px; height: 10px; border-radius: 50%; box-sizing: border-box; border: 1.5px solid var(--faint); }
+.md .gt-dot.cur::before { border: 2px solid var(--accent); }
+.md .gt-dot.ok::before { background: var(--accent); border-color: var(--accent); }
+.md .gt-goal { margin: 0; }
+.md .gt-sub { font-family: var(--font); font-size: 0.85rem; color: var(--muted); }
+.md .gt-sv { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 6px 0; }
+.md .gt-sv svg { display: block; margin: 0 auto; font-family: var(--font); }
+.md .gt-w { fill: none; stroke: var(--faint); stroke-width: 2; }
+.md .gt-w.on { stroke: var(--accent); stroke-width: 2.8; }
+.md .gt-w.nc { stroke-dasharray: 3 4; }
+.md .gt-b { fill: var(--surface); stroke: var(--ink); stroke-width: 1.6; }
+.md .gt-arc { fill: none; }
+.md .gt-gl { font-size: 10px; fill: var(--faint); text-anchor: middle; }
+.md .gt-gt { font-size: 7.5px; font-weight: 700; fill: var(--muted); text-anchor: middle; }
+.md .gt-in circle { fill: var(--surface); stroke: var(--faint); stroke-width: 1.6; }
+.md .gt-in.sim { cursor: pointer; }
+.md .gt-in.sim circle { stroke: var(--accent); }
+.md .gt-in.on circle { fill: var(--accent); }
+.md .gt-in text { font-size: 12px; font-weight: 700; text-anchor: middle; fill: var(--ink); }
+.md .gt-in.on text:not(.gt-nm) { fill: var(--surface); }
+.md .gt-out rect { fill: var(--surface); stroke: var(--faint); stroke-width: 1.6; }
+.md .gt-out.on rect { fill: var(--accent-soft); stroke: var(--accent); }
+.md .gt-out text { font-size: 12px; font-weight: 700; text-anchor: middle; fill: var(--ink); }
+.md .gt-list { display: grid; gap: 8px; }
+.md .gt-row { display: flex; align-items: center; gap: 6px; font-family: var(--font); }
+.md .gt-row b { flex: none; width: 2.2em; font-size: 0.9rem; }
+.md .gt-row select[data-f="t"] { flex: 0 0 5.6em; }
+  .md .gt-more { margin: -4px 0 14px; font-size: 0.9rem; text-align: right; }
+  .md .gt-more a { color: var(--accent); font-weight: 600; text-decoration: none; }
+.md .gt-row select { flex: 1 1 0; min-width: 0; min-height: 40px; padding: 6px 8px; font: inherit; font-size: 0.95rem; color: var(--ink); background: var(--surface); border: 1.5px solid var(--line); border-radius: 10px; }
+.md .gt-row select:focus { outline: none; border-color: var(--accent); }
+.md .gt-orow span { flex: none; color: var(--muted); }
+.md .gt-del { flex: none; appearance: none; width: 40px; height: 40px; border: 0; border-radius: 10px; background: none; font-size: 1.3rem; color: var(--muted); cursor: pointer; }
+.md .gt-add { justify-self: start; appearance: none; padding: 8px 16px; border: 1.5px dashed var(--accent); border-radius: 99px; background: none; font-family: var(--font); font-size: 0.92rem; font-weight: 600; color: var(--accent); cursor: pointer; }
+.md .gt-tt { border-collapse: collapse; font-family: var(--font); font-variant-numeric: tabular-nums; justify-self: start; }
+.md .gt-tt th, .md .gt-tt td { padding: 5px 10px; text-align: center; border-bottom: 1px solid var(--line); }
+.md .gt-tt th { font-size: 0.8rem; font-weight: 600; color: var(--muted); }
+.md .gt-tt .gt-sep { border-left: 1.5px solid var(--line); }
+.md .gt-tt tr[data-row] { cursor: pointer; }
+.md .gt-tt tr.cur td { background: var(--accent-soft); }
+.md .gt-tt tr.bad td:last-child { color: var(--hot); font-weight: 700; }
+.md .gt-cell { appearance: none; width: 40px; height: 34px; border: 1.5px solid var(--line); border-radius: 8px; background: var(--surface); font: inherit; font-weight: 700; color: var(--ink); cursor: pointer; }
+.md .gt-cell.bad { border-color: var(--hot); color: var(--hot); }
+.md .gt-cell.good { border-color: var(--accent); background: var(--accent-soft); }
+.md .gt-cell:disabled { cursor: default; }
 .top select.lang { margin-left: auto; appearance: none; border: 1px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; font-size: 0.85rem; font-weight: 600; padding: 4px 10px; border-radius: 99px; }
 .md .dw .qz-name { order: 3; flex: 1 1 100%; color: var(--ink); font-weight: 600; font-size: 0.95rem; }
 .md .dw-stmt { display: grid; grid-template-columns: minmax(0, 1fr); gap: 4px; }
@@ -2005,8 +2053,244 @@ html.rec-open { overflow: hidden; }
       dwDraw(box, true); return;
     }
   });
+  /* ```bramki – ćwiczenia z bramek logicznych (jedno zadanie naraz, kropki = postęp):
+     # tytuł zestawu
+     ? treść zadania
+     tabela: A nand B            ← gotowy schemat, uzupełnij tabelę prawdy (kilka wyjść: S = A xor B ; C = A and B)
+     cel: A xor B                ← zbuduj układ sam: lista bramek, schemat rysuje się sam, tabela sprawdza na bieżąco
+     bramki: NAND                ← jakie bramki wolno (domyślnie AND OR NOT)
+     max: 4                      ← najwyżej tyle bramek
+     wejścia: A B C              ← kolejność wejść (domyślnie alfabetycznie)
+     podpowiedź: …               ← po kolei
+     Wyrażenia: and or not xor nand nor xnor, też · + ¬ ' ⊕ ! & | ^, nawiasy. */
+  var GT = [], GT_LS = "notatki-bramki-v1", GT_ALL = ["AND", "OR", "NOT", "NAND", "NOR", "XOR", "XNOR"];
+  var GT_F = { and: function (a, b) { return a & b; }, or: function (a, b) { return a | b; }, xor: function (a, b) { return a ^ b; },
+    nand: function (a, b) { return 1 - (a & b); }, nor: function (a, b) { return 1 - (a | b); }, xnor: function (a, b) { return 1 - (a ^ b); }, not: function (a) { return 1 - a; } };
+  function gtLex(s) {
+    var out = [], re = /\s*(?:([A-Za-z_][A-Za-z0-9_]*)|([01])|(\()|(\))|(¬|!|~)|(')|(&&?|·|\*|∧|⋅)|(\|\|?|\+|∨)|(\^|⊕)|(\S))/g, m;
+    while ((m = re.exec(s)) && m[0].length) {
+      if (m[1]) { var k = m[1].toLowerCase(); out.push(/^(and|or|not|xor|nand|nor|xnor)$/.test(k) ? { op: k } : { v: m[1] }); }
+      else if (m[2]) out.push({ c: +m[2] });
+      else if (m[3]) out.push({ op: "(" }); else if (m[4]) out.push({ op: ")" });
+      else if (m[5]) out.push({ op: "not" }); else if (m[6]) out.push({ op: "'" });
+      else if (m[7]) out.push({ op: "and" }); else if (m[8]) out.push({ op: "or" }); else if (m[9]) out.push({ op: "xor" });
+      else throw new Error(m[10]);
+    }
+    return out;
+  }
+  function gtParse(s) {   // kolejność: not, potem and/nand, xor/xnor, or/nor
+    var t = gtLex(s), i = 0;
+    function peek() { return t[i] && t[i].op; }
+    function bin(next, ops) { return function () { var a = next(); while (ops.indexOf(peek()) >= 0) { var o = t[i++].op; a = { o: o, a: [a, next()] }; } return a; }; }
+    function un() {
+      var x = t[i++], r; if (!x) throw new Error("koniec");
+      if (x.op === "not") r = { o: "not", a: [un()] };
+      else if (x.op === "(") { r = orE(); if (peek() !== ")") throw new Error(")"); i++; }
+      else if (x.v) r = { v: x.v }; else if (x.c != null) r = { c: x.c };
+      else throw new Error(x.op);
+      while (peek() === "'") { i++; r = { o: "not", a: [r] }; }
+      return r;
+    }
+    var andE = bin(un, ["and", "nand"]), xorE = bin(andE, ["xor", "xnor"]), orE = bin(xorE, ["or", "nor"]);
+    var r = orE(); if (i < t.length) throw new Error("reszta"); return r;
+  }
+  function gtEval(n, env) { return n.v ? env[n.v] : n.c != null ? n.c : GT_F[n.o].apply(null, n.a.map(function (x) { return gtEval(x, env); })); }
+  function gtVars(n, acc) { if (n.v) { if (acc.indexOf(n.v) < 0) acc.push(n.v); } else if (n.a) n.a.forEach(function (x) { gtVars(x, acc); }); return acc; }
+  function gtBlock(src) {
+    var out = { title: "", ts: [] }, q = null;
+    src.split("\n").forEach(function (ln) {
+      var t = ln.trim(), m; if (!t) return;
+      if (/^#\s+/.test(t) && !q) { out.title = t.replace(/^#\s+/, ""); return; }
+      if (/^\?\s+/.test(t)) { q = { text: [t.replace(/^\?\s+/, "")], outs: [], vars: null, allow: null, max: 0, hints: [], mode: "" }; out.ts.push(q); return; }
+      if (!q) return;
+      if ((m = /^(tabela|cel)\s*:\s*(.+)$/i.exec(t))) {
+        q.mode = m[1].toLowerCase() === "cel" ? "build" : "tab";
+        try {
+          var ds = m[2].split(/\s*;\s*/).filter(Boolean);
+          q.outs = ds.map(function (d, k) { var mm = /^([A-Za-z_]\w*)\s*=\s*(.+)$/.exec(d); return { n: mm ? mm[1] : ds.length > 1 ? "Y" + (k + 1) : "Y", e: gtParse(mm ? mm[2] : d), src: mm ? mm[2] : d }; });
+        } catch (e) { q.bad = true; }
+        return;
+      }
+      if ((m = /^wej[śs]cia\s*:\s*(.+)$/i.exec(t))) { q.vars = m[1].split(/[\s,]+/).filter(Boolean); return; }
+      if ((m = /^bramki\s*:\s*(.+)$/i.exec(t))) { q.allow = m[1].toUpperCase().split(/[\s,]+/).filter(function (x) { return GT_ALL.indexOf(x) >= 0; }); return; }
+      if ((m = /^max\s*:\s*(\d+)/i.exec(t))) { q.max = +m[1]; return; }
+      if ((m = /^podpowied[źz]\s*:\s*(.*)$/i.exec(t))) { q.hints.push(m[1]); return; }
+      q.text.push(t);
+    });
+    out.ts = out.ts.filter(function (q) { return q.mode && !q.bad && q.outs.length; });
+    out.ts.forEach(function (q) {
+      var vs = []; q.outs.forEach(function (o) { gtVars(o.e, vs); });
+      if (!q.vars) q.vars = vs.sort(); else vs.forEach(function (v) { if (q.vars.indexOf(v) < 0) q.vars.push(v); });
+      if (!q.allow || !q.allow.length) q.allow = ["AND", "OR", "NOT"];
+      q.rows = [];
+      for (var r = 0; r < 1 << q.vars.length; r++) { var env = {}; q.vars.forEach(function (v, j) { env[v] = (r >> (q.vars.length - 1 - j)) & 1; }); q.rows.push(env); }
+      q.want = q.rows.map(function (env) { return q.outs.map(function (o) { return gtEval(o.e, env); }); });
+      if (q.mode === "tab") q.shown = gtFromExpr(q);
+    });
+    return out;
+  }
+  function gtFromExpr(q) {   // wyrażenie → bramki (do narysowania gotowego schematu)
+    var c = { g: [], o: [] };
+    function walk(n) { if (n.v) return n.v; if (n.c != null) return null; var a = n.a.map(walk); c.g.push({ t: n.o.toUpperCase(), a: a }); return "#" + (c.g.length - 1); }
+    q.outs.forEach(function (o) { c.o.push(walk(o.e)); });
+    return c;
+  }
+  function gtArity(t) { return t === "NOT" ? 1 : 2; }
+  function gtRun(c, env) {   // wartość każdego węzła; null = coś niepodłączone
+    var val = {}; for (var v in env) val[v] = env[v];
+    c.g.forEach(function (g, k) {
+      var ins = g.a.slice(0, gtArity(g.t)).map(function (s) { return s == null || val[s] == null ? null : val[s]; });
+      val["#" + k] = ins.some(function (x) { return x == null; }) ? null : GT_F[g.t.toLowerCase()].apply(null, ins);
+    });
+    return val;
+  }
+  var GT_SHAPE = { AND: "M0 -15H16A15 15 0 0 1 16 15H0Z", OR: "M0 -15Q10 0 0 15Q22 15 32 0Q22 -15 0 -15Z", NOT: "M0 -13L30 0L0 13Z" };
+  function gtSvg(q, c, env, canSim) {
+    var val = gtRun(c, env), dep = {}, maxD = 0, cols, pos = {}, H = 58, W = 78;
+    q.vars.forEach(function (v) { dep[v] = 0; });
+    c.g.forEach(function (g, k) {
+      var d = 1; g.a.slice(0, gtArity(g.t)).forEach(function (s) { if (s != null && dep[s] != null) d = Math.max(d, dep[s] + 1); });
+      dep["#" + k] = d; maxD = Math.max(maxD, d);
+    });
+    cols = []; for (var d = 0; d <= maxD; d++) cols.push([]);
+    q.vars.forEach(function (v) { cols[0].push(v); });
+    c.g.forEach(function (_, k) { cols[dep["#" + k]].push("#" + k); });
+    var n = Math.max(c.o.length, Math.max.apply(null, cols.map(function (x) { return x.length; }))), h = n * H + 12, OX = 30 + (maxD + 1) * W - 30, w = OX + 58;
+    cols.forEach(function (list, d) { var off = (h - list.length * H) / 2; list.forEach(function (id, j) { pos[id] = { x: d ? 30 + d * W - 40 : 22, y: off + j * H + H / 2 }; }); });
+    function outPin(id) { return id.charAt(0) === "#" ? { x: pos[id].x + 40, y: pos[id].y } : { x: pos[id].x + 13, y: pos[id].y }; }
+    function wcls(id) { if (!canSim) return "gt-w"; var v = id == null ? null : val[id]; return "gt-w" + (v === 1 ? " on" : v == null ? " nc" : ""); }
+    var wires = "", body = "";
+    c.g.forEach(function (g, k) {
+      var id = "#" + k, p = pos[id], ar = gtArity(g.t);
+      g.a.slice(0, ar).forEach(function (s, j) {
+        var ty = ar === 1 ? p.y : p.y + (j ? 8 : -8), tx = p.x + 4;
+        if (s == null || !pos[s]) { wires += '<path class="gt-w nc" d="M' + (tx - 16) + " " + ty + "H" + tx + '"/>'; return; }
+        var a = outPin(s), mx = p.x - 12 - j * 7;
+        wires += '<path class="' + wcls(s) + '" d="M' + a.x + " " + a.y + "H" + mx + "V" + ty + "H" + tx + '"/>';
+      });
+      var bub = /^(NOT|NAND|NOR|XNOR)$/.test(g.t), base = g.t === "NOT" ? "NOT" : /AND/.test(g.t) ? "AND" : "OR";
+      body += '<g transform="translate(' + p.x + " " + p.y + ')">' + (bub ? "" : '<path class="' + wcls(id) + '" d="M30 0H40"/>') +
+        (/XOR|XNOR/.test(g.t) ? '<path class="gt-b gt-arc" d="M-5 -15Q5 0 -5 15"/>' : "") + '<path class="gt-b" d="' + GT_SHAPE[base] + '"/>' +
+        (bub ? '<circle class="gt-b" cx="36" cy="0" r="4"/>' : "") +
+        '<text class="gt-gl" x="14" y="-20">G' + (k + 1) + '</text><text class="gt-gt" x="' + (base === "NOT" ? 9 : 13) + '" y="3.5">' + g.t + "</text></g>";
+    });
+    q.vars.forEach(function (v) {
+      var p = pos[v], on = canSim && env[v] === 1;
+      body += '<g class="gt-in' + (on ? " on" : "") + (canSim ? " sim" : "") + '"' + (canSim ? ' data-sim="' + esc(v) + '" role="button" tabindex="0"' : "") + ' transform="translate(' + p.x + " " + p.y + ')"><circle r="12"/><text y="4">' + (canSim ? env[v] : "") + '</text><text class="gt-nm" x="-1" y="-17">' + esc(v) + "</text></g>";
+    });
+    c.o.forEach(function (s, i) {
+      var y = (h - c.o.length * H) / 2 + i * H + H / 2, v = s == null ? null : val[s];
+      if (s != null && pos[s]) { var a = outPin(s); wires += '<path class="' + wcls(s) + '" d="M' + a.x + " " + a.y + "H" + (OX - 14) + "V" + y + "H" + OX + '"/>'; }
+      body += '<g class="gt-out' + (canSim && v === 1 ? " on" : "") + '" transform="translate(' + OX + " " + y + ')"><rect x="0" y="-13" width="50" height="26" rx="7"/><text x="25" y="4">' + esc(q.outs[i].n) + " = " + (v == null || !canSim ? "?" : v) + "</text></g>";
+    });
+    return '<div class="gt-sv"><svg viewBox="0 0 ' + w + " " + h + '" width="' + w + '" height="' + h + '" role="img" aria-label="' + Ln("Schemat układu") + '">' + wires + body + "</svg></div>";
+  }
+  function gtSaved() { try { return JSON.parse(lsGet(GT_LS) || "{}"); } catch (e) { return {}; } }
+  function gtSave(p) { var sv = gtSaved(); sv[p.h] = { done: p.st.done, c: p.st.c }; lsSet(GT_LS, JSON.stringify(sv)); }
+  function gtBlockHtml(src) {
+    var p = gtBlock(src); if (!p.ts.length) return "<pre><code>" + esc(src) + "</code></pre>";
+    var h = qzHash("gt" + src), i = GT.findIndex(function (x) { return x.h === h; });
+    if (i < 0) {
+      var sv = gtSaved()[h] || {};
+      p.h = h;
+      p.st = { k: 0, done: p.ts.map(function (_, j) { return !!(sv.done && sv.done[j]); }), c: p.ts.map(function (q, j) { return q.mode === "build" ? (sv.c && sv.c[j]) || { g: [], o: q.outs.map(function () { return null; }) } : null; }),
+        ui: p.ts.map(function (q) { var e = {}; q.vars.forEach(function (v) { e[v] = 0; }); return { env: e, tab: q.rows.map(function () { return q.outs.map(function () { return null; }); }), fb: "", ok: null, hints: 0, bad: [] }; }) };
+      p.st.k = Math.max(0, p.st.done.indexOf(false));
+      GT.push(p); i = GT.length - 1;
+    }
+    return '<div class="gt" data-gt="' + i + '">' + gtInner(i) + '</div><p class="gt-more"><a href="uklady.html">Pełny edytor układów (jak Logisim) →</a></p>';
+  }
+  function gtOpts(list, cur) { return list.map(function (o) { return '<option value="' + esc(o[0]) + '"' + (o[0] === cur ? " selected" : "") + ">" + esc(o[1]) + "</option>"; }).join(""); }
+  function gtInner(i) {
+    var p = GT[i], s = p.st, q = p.ts[s.k], u = s.ui[s.k], n = p.ts.length, solved = u.ok === true || u.ok == null && s.done[s.k];
+    var dots = p.ts.map(function (_, j) { return '<button type="button" class="gt-dot' + (s.done[j] ? " ok" : "") + (j === s.k ? " cur" : "") + '" data-go="' + j + '" aria-label="' + Ln("Zadanie") + " " + (j + 1) + '"></button>'; }).join("");
+    var out = '<div class="qz-top"><span class="qz-t">' + Ln("Bramki") + "</span>" + (p.title ? '<span class="qz-name">' + inline(esc(p.title)) + "</span>" : "") + '<span class="qz-dots">' + dots + "</span></div>";
+    out += '<div class="qz-q"><span class="qz-n">' + (s.k + 1) + "/" + n + "</span>" + qzText(q.text) + "</div>";
+    var c = q.mode === "build" ? s.c[s.k] : q.shown, val0 = q.rows.map(function (env) { var v = gtRun(c, env); return c.o.map(function (o) { return o == null ? null : v[o]; }); });
+    if (q.mode === "build") {
+      out += '<p class="gt-goal">' + Ln("Cel") + ": " + q.outs.map(function (o) { return "<code>" + esc(o.n + " = " + o.src) + "</code>"; }).join(", ") + '<br><span class="gt-sub">' + Ln("Bramki") + ": " + q.allow.join(", ") + (q.max ? " · " + Lf("najwyżej {a}", q.max) : "") + "</span></p>";
+    }
+    out += gtSvg(q, c, u.env, q.mode === "build" || solved);
+    if (q.mode === "build") {
+      var src = function (k) { return [["", "—"]].concat(q.vars.map(function (v) { return [v, v]; }), c.g.slice(0, k).map(function (_, j) { return ["#" + j, "G" + (j + 1)]; })); };
+      out += '<div class="gt-list">' + c.g.map(function (g, k) {
+        var r = '<div class="gt-row"><b>G' + (k + 1) + '</b><select data-k="' + k + '" data-f="t" aria-label="' + Ln("Rodzaj bramki") + '">' + gtOpts(q.allow.concat(q.allow.indexOf(g.t) < 0 ? [g.t] : []).map(function (t) { return [t, t]; }), g.t) + "</select>";
+        for (var j = 0; j < gtArity(g.t); j++) r += '<select data-k="' + k + '" data-f="' + j + '" aria-label="' + Ln("Wejście") + " " + (j + 1) + '">' + gtOpts(src(k), g.a[j] || "") + "</select>";
+        return r + '<button type="button" class="gt-del" data-k="' + k + '" aria-label="' + Ln("Usuń bramkę") + '">×</button></div>';
+      }).join("") +
+        (!q.max || c.g.length < q.max ? '<button type="button" class="gt-add">+ ' + Ln("bramka") + "</button>" : "") +
+        q.outs.map(function (o, j) { return '<div class="gt-row gt-orow"><b>' + esc(o.n) + '</b><span>=</span><select data-o="' + j + '" aria-label="' + Ln("Wyjście") + '">' + gtOpts(src(c.g.length), c.o[j] || "") + "</select></div>"; }).join("") + "</div>";
+    }
+    var cur = q.rows.findIndex(function (env) { return q.vars.every(function (v) { return env[v] === u.env[v]; }); });
+    out += '<table class="gt-tt"><thead><tr>' + q.vars.map(function (v) { return "<th>" + esc(v) + "</th>"; }).join("") +
+      q.outs.map(function (o) { return q.mode === "build" ? '<th class="gt-sep">' + Ln("cel") + " " + esc(o.n) + "</th><th>" + Ln("twój") + " " + esc(o.n) + "</th>" : '<th class="gt-sep">' + esc(o.n) + "</th>"; }).join("") + "</tr></thead><tbody>" +
+      q.rows.map(function (env, r) {
+        var bad = q.mode === "build" ? q.want[r].some(function (x, j) { return val0[r][j] !== x; }) : false;
+        return '<tr data-row="' + r + '" class="' + (r === cur ? "cur" : "") + (bad ? " bad" : "") + '">' + q.vars.map(function (v) { return "<td>" + env[v] + "</td>"; }).join("") +
+          q.outs.map(function (o, j) {
+            if (q.mode === "build") return '<td class="gt-sep">' + q.want[r][j] + "</td><td>" + (val0[r][j] == null ? "?" : val0[r][j]) + "</td>";
+            var x = solved ? q.want[r][j] : u.tab[r][j];
+            return '<td class="gt-sep"><button type="button" class="gt-cell' + (u.bad.indexOf(r + "," + j) >= 0 ? " bad" : "") + (solved ? " good" : "") + '" data-c="' + r + "," + j + '"' + (solved ? " disabled" : "") + ">" + (x == null ? "?" : x) + "</button></td>";
+          }).join("") + "</tr>";
+      }).join("") + "</tbody></table>";
+    if (u.fb) out += '<div class="qz-fb ' + (u.ok ? "good" : "bad") + '">' + md(u.fb, true) + "</div>";
+    if (u.hints) out += '<ol class="qz-hints">' + q.hints.slice(0, u.hints).map(function (x) { return "<li>" + inline(esc(x), true) + "</li>"; }).join("") + "</ol>";
+    out += '<div class="qz-bar">' + (solved ? (s.k + 1 < n ? '<button type="button" class="qz-next gt-next">' + Ln("Dalej") + "</button>" : "") : '<button type="button" class="qz-check gt-check">' + Ln("Sprawdź") + "</button>") +
+      (!solved && u.hints < q.hints.length ? '<button type="button" class="gt-hint">' + Ln("Podpowiedź") + "</button>" : "") +
+      (q.mode === "build" && c.g.length ? '<button type="button" class="gt-clear">' + Ln("Wyczyść") + "</button>" : "") + "</div>";
+    return out;
+  }
+  function gtDraw(box) { box.innerHTML = gtInner(+box.getAttribute("data-gt")); }
+  function gtCheck(p) {
+    var s = p.st, q = p.ts[s.k], u = s.ui[s.k];
+    if (q.mode === "tab") {
+      if (u.tab.some(function (r) { return r.some(function (x) { return x == null; }); })) { u.ok = false; u.fb = Ln("Uzupełnij wszystkie pola – stuknij „?”, żeby wpisać 0 albo 1."); return; }
+      u.bad = []; q.want.forEach(function (r, i) { r.forEach(function (x, j) { if (u.tab[i][j] !== x) u.bad.push(i + "," + j); }); });
+      u.ok = !u.bad.length;
+      u.fb = u.ok ? Ln("**Dobrze.** Teraz możesz stukać w wejścia na schemacie i patrzeć, jak płynie prąd.") : Lf("**Jeszcze nie.** Źle w {a} z {b} pól (czerwone). Policz jeszcze raz bramka po bramce.", u.bad.length, q.want.length * q.outs.length);
+    } else {
+      var c = s.c[s.k];
+      if (c.o.some(function (o) { return o == null; })) { u.ok = false; u.fb = Ln("**Jeszcze nie.** Wybierz, z czego bierze się wyjście (wiersz na dole listy)."); return; }
+      var miss = q.rows.filter(function (env, r) { var v = gtRun(c, env); return c.o.some(function (o, j) { return v[o] !== q.want[r][j]; }); }).length;
+      var open = c.g.some(function (g) { return g.a.slice(0, gtArity(g.t)).some(function (x) { return x == null; }); });
+      u.ok = !miss && (!q.max || c.g.length <= q.max);
+      u.fb = u.ok ? Lf("**Dobrze!** Układ działa dla wszystkich {a} wierszy tabeli.", q.rows.length) :
+        miss ? Lf("**Jeszcze nie.** Nie zgadza się w {a} z {b} wierszy (czerwone w tabeli).", miss, q.rows.length) + (open ? Ln(" Część wejść bramek nie jest podłączona („—”).") : Ln(" Stuknij czerwony wiersz – wejścia ustawią się tak jak w nim i zobaczysz na schemacie, gdzie wychodzi źle.")) :
+        Lf("**Za dużo bramek** – wolno najwyżej {a}.", q.max);
+    }
+    if (u.ok) { s.done[s.k] = true; gtSave(p); }
+  }
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest && e.target.closest(".gt button, .gt [data-sim], .gt tr[data-row]"); if (!b) return;
+    var box = b.closest(".gt"), p = GT[+box.getAttribute("data-gt")], s = p.st, q = p.ts[s.k], u = s.ui[s.k], c = s.c[s.k];
+    if (b.hasAttribute("data-go")) { s.k = +b.getAttribute("data-go"); }
+    else if (b.hasAttribute("data-sim")) { var v = b.getAttribute("data-sim"); u.env[v] = 1 - u.env[v]; }
+    else if (b.hasAttribute("data-row")) { var env = q.rows[+b.getAttribute("data-row")]; if (q.mode === "build" || s.done[s.k]) for (var k in env) u.env[k] = env[k]; else return; }
+    else if (b.hasAttribute("data-c")) { var rc = b.getAttribute("data-c").split(","), x = u.tab[+rc[0]][+rc[1]]; u.tab[+rc[0]][+rc[1]] = x == null ? 0 : 1 - x; u.bad = u.bad.filter(function (y) { return y !== rc.join(","); }); u.fb = ""; }
+    else if (b.classList.contains("gt-add")) { c.g.push({ t: q.allow[0], a: [null, null] }); u.fb = ""; gtSave(p); }
+    else if (b.classList.contains("gt-del")) {
+      var d = +b.getAttribute("data-k"), fix = function (x) { if (x == null || x.charAt(0) !== "#") return x; var j = +x.slice(1); return j === d ? null : j > d ? "#" + (j - 1) : x; };
+      c.g.splice(d, 1); c.g.forEach(function (g) { g.a = g.a.map(fix); }); c.o = c.o.map(fix); u.fb = ""; gtSave(p);
+    }
+    else if (b.classList.contains("gt-clear")) { c.g = []; c.o = c.o.map(function () { return null; }); u.fb = ""; u.ok = false; gtSave(p); }
+    else if (b.classList.contains("gt-check")) gtCheck(p);
+    else if (b.classList.contains("gt-hint")) u.hints++;
+    else if (b.classList.contains("gt-next")) s.k = Math.min(p.ts.length - 1, s.k + 1);
+    gtDraw(box);
+  });
+  document.addEventListener("keydown", function (e) {
+    if ((e.key === "Enter" || e.key === " ") && e.target.closest && e.target.closest(".gt [data-sim]")) { e.preventDefault(); e.target.dispatchEvent(new MouseEvent("click", { bubbles: true })); }
+  });
+  document.addEventListener("change", function (e) {
+    var sel = e.target.closest && e.target.closest(".gt select"); if (!sel) return;
+    var box = sel.closest(".gt"), p = GT[+box.getAttribute("data-gt")], s = p.st, c = s.c[s.k], u = s.ui[s.k], v = sel.value || null;
+    if (sel.hasAttribute("data-o")) c.o[+sel.getAttribute("data-o")] = v;
+    else { var g = c.g[+sel.getAttribute("data-k")], f = sel.getAttribute("data-f"); if (f === "t") g.t = v; else g.a[+f] = v; }
+    u.fb = ""; u.ok = false; gtSave(p); gtDraw(box);
+  });
   function codeBlock(lang, src) {
     if (lang === "quiz") return quizBlock(src);
+    if (lang === "bramki") return gtBlockHtml(src);
     if (lang === "dowod") return dowodBlock(src);
     if (/^(console|terminal|shell|sh|bash)$/.test(lang)) {
       return '<div class="term static">' + src.split("\n").map(function (l) {
