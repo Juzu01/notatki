@@ -573,6 +573,8 @@ button.nl { appearance: none; border: 0; background: none; padding: 0; font: inh
 html.ask-open { overflow: hidden; }
 .ask-fab { position: fixed; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 30; appearance: none; border: 0; display: inline-flex; align-items: center; gap: 8px; background: var(--ink); color: var(--bg); font-weight: 700; font-size: 0.95rem; padding: 12px 18px 12px 15px; border-radius: 99px; cursor: pointer; box-shadow: 0 8px 24px rgb(0 0 0 / 0.22); }
 .ask-fab svg { width: 19px; height: 19px; }
+.updbar { position: fixed; left: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 32; max-width: calc(100% - 172px); appearance: none; border: 0; background: var(--accent); color: var(--surface); font-weight: 700; font-size: 0.9rem; line-height: 1.3; text-align: left; padding: 11px 16px; border-radius: 22px; cursor: pointer; box-shadow: 0 8px 24px rgb(0 0 0 / 0.22); }
+.updbar[hidden] { display: none; }
 .ask-sel { position: fixed; z-index: 31; appearance: none; border: 0; background: var(--ink); color: var(--bg); font-weight: 600; font-size: 0.88rem; padding: 8px 12px; border-radius: 10px; cursor: pointer; box-shadow: 0 4px 14px rgb(0 0 0 / 0.25); white-space: nowrap; }
 .ask-back { position: fixed; inset: 0; z-index: 39; background: rgb(0 0 0 / 0.32); }
 .ask { position: fixed; z-index: 40; left: 0; right: 0; bottom: 0; margin: 0 auto; width: 100%; max-width: 680px; height: min(86vh, 820px); background: var(--bg); border-radius: 20px 20px 0 0; box-shadow: 0 -12px 40px rgb(0 0 0 / 0.25); display: flex; flex-direction: column; overflow: hidden; }
@@ -796,7 +798,7 @@ html.rec-open { overflow: hidden; }
       "Ułóż dowód": "Build the proof", "Krok {a} z {b}": "Step {a} of {b}", "DOWÓD": "PROOF", "Dowód gotowy.": "Proof complete.", "Pomyłki po drodze: {a}. Przeczytaj teraz cały dowód od góry – tak go zapiszesz na kolokwium.": "Mistakes on the way: {a}. Now read the whole proof from the top – this is how you write it on a test.",
       "Bez ani jednej pomyłki.": "Not a single mistake.", "Następny dowód": "Next proof", "Ułóż jeszcze raz": "Build it again", "Zakończ dowód": "Finish the proof",
       "od razu całe": "show all", "Następny krok ({a} z {b})": "Next step ({a} of {b})", "To całe rozwiązanie": "That is the whole solution",
-      "Otwórz w notatce": "Open in note", "Tej notatki jeszcze nie ma.": "This note does not exist yet.", "Notatka": "Note", "Materiał": "Material", "Wczytuję…": "Loading…", "Tego materiału nie ma w repo.": "This material is not available.",
+      "Otwórz w notatce": "Open in note", "Nowa wersja notatek – pokaż": "New version of the notes – show", "Tej notatki jeszcze nie ma.": "This note does not exist yet.", "Notatka": "Note", "Materiał": "Material", "Wczytuję…": "Loading…", "Tego materiału nie ma w repo.": "This material is not available.",
       " · strona {a} z {b}": " · page {a} of {b}", "Cały plik na UPeL-u": "Whole file on UPeL", "Nie udało się wczytać materiału.": "Could not load the material.", "Zamknij": "Close",
       "Brak połączenia z GitHubem. Spróbuję jeszcze raz za chwilę.": "No connection. I will try again in a moment.",
       "Ten link nie działa. Poproś o nowy.": "This link does not work. Ask for a new one.", "Nie udało się wczytać notatek. Sprawdź internet i otwórz jeszcze raz.": "Could not load the notes. Check your internet and open again.",
@@ -824,7 +826,7 @@ html.rec-open { overflow: hidden; }
       "Ułóż dowód": "İspatı kur", "Krok {a} z {b}": "Adım {a} / {b}", "DOWÓD": "İSPAT", "Dowód gotowy.": "İspat tamam.", "Pomyłki po drodze: {a}. Przeczytaj teraz cały dowód od góry – tak go zapiszesz na kolokwium.": "Yoldaki hatalar: {a}. Şimdi tüm ispatı baştan oku – sınavda böyle yazacaksın.",
       "Bez ani jednej pomyłki.": "Hiç hata yok.", "Następny dowód": "Sonraki ispat", "Ułóż jeszcze raz": "Tekrar kur", "Zakończ dowód": "İspatı bitir",
       "od razu całe": "hepsini göster", "Następny krok ({a} z {b})": "Sonraki adım ({a} / {b})", "To całe rozwiązanie": "Çözümün tamamı bu",
-      "Otwórz w notatce": "Notta aç", "Tej notatki jeszcze nie ma.": "Bu not henüz yok.", "Notatka": "Not", "Materiał": "Materyal", "Wczytuję…": "Yükleniyor…", "Tego materiału nie ma w repo.": "Bu materyal mevcut değil.",
+      "Otwórz w notatce": "Notta aç", "Nowa wersja notatek – pokaż": "Notların yeni sürümü – göster", "Tej notatki jeszcze nie ma.": "Bu not henüz yok.", "Notatka": "Not", "Materiał": "Materyal", "Wczytuję…": "Yükleniyor…", "Tego materiału nie ma w repo.": "Bu materyal mevcut değil.",
       " · strona {a} z {b}": " · sayfa {a} / {b}", "Cały plik na UPeL-u": "UPeL'deki dosyanın tamamı", "Nie udało się wczytać materiału.": "Materyal yüklenemedi.", "Zamknij": "Kapat",
       "Brak połączenia z GitHubem. Spróbuję jeszcze raz za chwilę.": "Bağlantı yok. Birazdan tekrar deneyeceğim.",
       "Ten link nie działa. Poproś o nowy.": "Bu bağlantı çalışmıyor. Yenisini iste.", "Nie udało się wczytać notatek. Sprawdź internet i otwórz jeszcze raz.": "Notlar yüklenemedi. İnternetini kontrol et ve tekrar aç.",
@@ -857,6 +859,7 @@ html.rec-open { overflow: hidden; }
   function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
 
+  var NEWIDX = null, updB = null;
   var CFG = null, INDEX = { notes: {} }, TREE = null, RUN = null, JOB = null, RUNSET = {}, idxSha = null, cfgSha = null;
   var local = [], chain = Promise.resolve(), blobs = {}, tab = startTab ? startTab[1] : /^(nauka|aparat|notatki)$/.test(lsGet(LS_T) || "") ? lsGet(LS_T) : "nauka";
   var view = { k: "home" }, target = lsGet(LS_F), openDays = {}, lbPath = null, wantDel = false, timer = null, authErr = false, netErr = false;
@@ -873,6 +876,10 @@ html.rec-open { overflow: hidden; }
     }
     (kids || []).forEach(function (c) { if (c != null) e.appendChild(typeof c === "string" ? document.createTextNode(c) : c); });
     return e;
+  }
+  function updBar() {   // „Nowa wersja notatek – pokaż”: dopiero po stuknięciu INDEX = NEWIDX (miejsce na stronie zostaje)
+    if (!updB) { updB = btn("updbar", "", function () { if (!NEWIDX) return; var y = window.scrollY; INDEX = NEWIDX; NEWIDX = null; updBar(); render(); window.scrollTo(0, y); }); document.body.appendChild(updB); }
+    updB.textContent = Ln("Nowa wersja notatek – pokaż"); updB.hidden = !NEWIDX;
   }
   function btn(cls, text, fn, kids) { var b = el("button", { class: cls, type: "button", text: kids ? null : text }, kids); b.addEventListener("click", fn); return b; }
   function svg(s) { return el("span", { html: s }).firstChild; }
@@ -996,7 +1003,7 @@ html.rec-open { overflow: hidden; }
       if (TREE["folders.json"] !== cfgSha) jobs.push(rawJson("folders.json").then(function (c) { CFG = c; cfgSha = TREE["folders.json"]; }));
       if (TREE["progress.json"] && TREE["progress.json"] !== progSha) jobs.push(rawJson("progress.json").then(function (x) { PROG = x; progSha = TREE["progress.json"]; applyProgress(); }, function () {}));
       if (TREE["groq.json"] && TREE["groq.json"] !== gkSha) jobs.push(rawJson("groq.json").then(function (x) { gkSha = TREE["groq.json"]; groqKeys(x); }, function () {}));
-      if (TREE["index.json"] !== idxSha) jobs.push(rawJson("index.json").then(function (x) { INDEX = x || { notes: {} }; idxSha = TREE["index.json"]; }));
+      if (TREE["index.json"] !== idxSha) { var ish = TREE["index.json"]; jobs.push(rawJson("index.json").then(function (x) { if (ish === idxSha) return; idxSha = ish; x = x || { notes: {} }; if (Object.keys(INDEX.notes || {}).length) NEWIDX = x; else INDEX = x; updBar(); })); }   // nowa wersja nie podmienia notatki pod czytającym – czeka na przycisk
       if (active(RUN)) {
         jobs.push(api("actions/runs/" + RUN.id + "/jobs").then(function (j) { JOB = (j.jobs || [])[0] || null; }, function () { JOB = null; }));
         if (!RUNSET[RUN.head_sha]) jobs.push(treeOf(RUN.head_sha).then(function (t) { RUNSET[RUN.head_sha] = t; }, function () {}));
