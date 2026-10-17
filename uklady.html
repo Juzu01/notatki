@@ -800,7 +800,7 @@ var TASKS = [
     d: "Build Q = NOT A using only NAND gates.", hints: ["Look at the NAND truth table in the rows where both inputs are equal.", "Solution: one NAND with A connected to both of its inputs → Q (A NAND A = NOT A)."] },
   { id: "en-not-xor", en: 1, t: "2. Can gate G make a NOT?", tab: [["A", "B", "G"], [0, 0, 0], [0, 1, 1], [1, 0, 1], [1, 1, 0]], ins: ["A"], outs: ["Q"], only: ["XOR"], f: function (v) { return { Q: 1 - v.A }; },
     d: "Gate G is given by its truth table. (a) Name G. (b) Can you build NOT A from G alone? Build it – constant inputs 0/1 are allowed.",
-    hints: ["G = 1 exactly when the inputs differ, so G is XOR.", "A XOR A = 0 and A XOR 0 = A – useless. But A XOR 1 = NOT A, so yes: with a constant 1.", "Solution: Add → Stała (constant), set it to 1; one XOR with inputs A and the constant → Q."] },
+    hints: ["G = 1 exactly when the inputs differ, so G is XOR.", "A XOR A = 0 and A XOR 0 = A – useless. But A XOR 1 = NOT A, so yes: with a constant 1.", "Solution: Dodaj (Add) → Stała (constant), set it to 1; one XOR with inputs A and the constant → Q."] },
   { id: "en-and-nand", en: 1, t: "3. Name the gate, then build AND", tab: [["A", "B", "H"], [0, 0, 1], [0, 1, 1], [1, 0, 1], [1, 1, 0]], ins: ["A", "B"], outs: ["Q"], only: ["NAND"], f: function (v) { return { Q: v.A & v.B }; },
     d: "Gate H is given by its truth table. Name H and build Q = A AND B using only H gates (2 are enough).",
     hints: ["H = 0 only when A = B = 1, so H is NAND = NOT (A AND B).", "Negate it once more – NOT from NAND is task 1.", "Solution: G1 = A NAND B, Q = G1 NAND G1 (G1 to both inputs)."] },
@@ -814,10 +814,10 @@ var TASKS = [
     d: "Build a 2-to-4 decoder: exactly one output is 1 – the one whose number is the binary number A1 A0 (e.g. A1 A0 = 10 → D2 = 1).",
     hints: ["Each output is one row of the truth table: an AND of A1 or NOT A1 with A0 or NOT A0.", "Solution: N1 = NOT A1, N0 = NOT A0; D0 = N1 AND N0, D1 = N1 AND A0, D2 = A1 AND N0, D3 = A1 AND A0."] },
   { id: "en-mux2", en: 1, t: "7. 2-to-1 MUX from basic gates", ins: ["I0", "I1", "S"], outs: ["Q"], only: ["AND", "OR", "NOT"], f: function (v) { return { Q: v.S ? v.I1 : v.I0 }; },
-    d: "Build a 2-to-1 multiplexer: Q = I0 when S = 0, Q = I1 when S = 1. Use only AND, OR and NOT (no Multiplexer block).",
+    d: "Build a 2-to-1 multiplexer: Q = I0 when S = 0, Q = I1 when S = 1. Use only AND, OR and NOT (no Multiplexer block). Note: the lab's Mux (Step 1) names its inputs I1, I2 and passes I1 when SELECT = 1 – here the inputs are I0, I1.",
     hints: ["Q = (NOT S AND I0) OR (S AND I1).", "Solution: N = NOT S; G1 = N AND I0; G2 = S AND I1; Q = G1 OR G2."] },
   { id: "en-mux4", en: 1, t: "8. 4-to-1 MUX from 2-to-1 MUXes", ins: bits("I", 4).concat(["S1", "S0"]), outs: ["Q"], f: function (v) { return { Q: v["I" + (v.S1 * 2 + v.S0)] }; },
-    d: "Build a 4-to-1 multiplexer – Q = I0, I1, I2 or I3, chosen by the 2-bit number S1 S0 – from three 2-to-1 multiplexers (Dodaj → Multiplekser, or your block from task 7).",
+    d: "Build a 4-to-1 multiplexer – Q = I0, I1, I2 or I3, chosen by the 2-bit number S1 S0 – from three 2-to-1 multiplexers (Dodaj → Multiplekser, or your block from task 7). The built-in Multiplexer passes its top input when the select pin is 0 – the opposite of the lab's Mux, which passes its top input I1 when SELECT = 1.",
     hints: ["Built-in Multiplexer: top input = 0, middle input = 1, bottom pin = select.", "Two MUXes on the first level, both selected by S0; one MUX on the second level, selected by S1.", "Solution: M1 = MUX(S0: 0 → I0, 1 → I1), M2 = MUX(S0: 0 → I2, 1 → I3), Q = MUX(S1: 0 → M1, 1 → M2)."] },
   { id: "en-ha", en: 1, t: "9. Half adder", ins: ["A", "B"], outs: ["S", "C"], f: function (v) { return { S: v.A ^ v.B, C: v.A & v.B }; },
     d: "Build a half adder: S is the sum bit and C the carry of A + B.",
@@ -829,10 +829,10 @@ var TASKS = [
     f: function (v) { var s = num(v, "A", 4) + (num(v, "B", 4) ^ (v.SUB ? 15 : 0)) + v.SUB, o = { COUT: s >> 4 & 1 }; for (var i = 0; i < 4; i++) o["S" + i] = s >> i & 1; return o; },
     d: "Build a 4-bit ADD/SUB unit: SUB = 0 → S = A + B, SUB = 1 → S = A − B (two's complement, mod 16). COUT is the carry out of bit 3 (for SUB it is 1 when A ≥ B). Use four full adders as blocks (task 10 or lab Krok 3).",
     hints: ["In two's complement A − B = A + NOT B + 1.", "B XOR SUB is a controlled NOT: B XOR 0 = B, B XOR 1 = NOT B. The + 1 enters as the carry-in of bit 0.", "Solution: four full adders in a chain (COUT of bit i → CIN of bit i+1); adder i gets Ai and Bi XOR SUB; CIN of bit 0 = SUB; outputs S0…S3 and COUT of bit 3."] },
-  { id: "en-alu", en: 1, t: "12. 1-bit ALU", tab: [["OP1", "OP0", "R"], [0, 0, "A AND B"], [0, 1, "A OR B"], [1, 0, "A + B + CIN"], [1, 1, "A + NOT B + CIN"]], ins: ["A", "B", "CIN", "OP1", "OP0"], outs: ["R", "COUT"],
-    f: function (v) { var op = v.OP1 * 2 + v.OP0, s = v.A + (op === 3 ? 1 - v.B : v.B) + v.CIN; return op < 2 ? { R: op ? v.A | v.B : v.A & v.B, COUT: 0 } : { R: s & 1, COUT: s >> 1 }; },
-    d: "Build a 1-bit ALU slice. OP1 OP0 choose the operation (table). For ADD/SUB, R is the sum bit of a full adder and COUT its carry; for AND/OR, COUT = 0. (In a 4-bit ALU, SUB feeds CIN = 1 into bit 0.)",
-    hints: ["The adder's B input is B XOR OP0: OP0 = 0 → B (ADD), OP0 = 1 → NOT B (SUB). For AND/OR the adder is ignored.", "A MUX selected by OP0 picks AND or OR; a second MUX selected by OP1 picks that or the adder's sum.", "Solution: X = B XOR OP0; full adder FA(A, X, CIN) → SUM, CARRY; M = MUX(OP0: 0 → A AND B, 1 → A OR B); R = MUX(OP1: 0 → M, 1 → SUM); COUT = CARRY AND OP1."] }
+  { id: "en-alu", en: 1, t: "12. 1-bit ALU (lab command table)", tab: [["CTRL1", "CTRL2", "R"], [1, 0, "A + B + CIN"], [1, 1, "A + NOT B + CIN"], [0, 0, "A OR B"], [0, 1, "A AND B"]], ins: ["A", "B", "CIN", "CTRL1", "CTRL2"], outs: ["R", "COUT"],
+    f: function (v) { var s = v.A + (v.CTRL2 ? 1 - v.B : v.B) + v.CIN; return v.CTRL1 ? { R: s & 1, COUT: s >> 1 } : { R: v.CTRL2 ? v.A & v.B : v.A | v.B, COUT: 0 }; },
+    d: "Build a 1-bit slice of the lab ALU, with the same command table as Step 4 of the lab sheet: CTRL1 picks the block (1 – ADD-SUB, 0 – AND-OR), CTRL2 the operation in it (0 – ADD or OR, 1 – SUB or AND). For ADD/SUB, R is the sum bit of a full adder and COUT its carry; for AND/OR, COUT = 0. (In the 4-bit ALU, CTRL2 = 1 also feeds CIN = 1 into bit 0.)",
+    hints: ["The adder's B input is B XOR CTRL2: CTRL2 = 0 → B (ADD), CTRL2 = 1 → NOT B (SUB). For AND/OR the adder is ignored.", "A MUX selected by CTRL2 picks OR or AND; a second MUX selected by CTRL1 picks that or the adder's sum.", "Solution: X = B XOR CTRL2; full adder FA(A, X, CIN) → SUM, CARRY; M = MUX(CTRL2: 0 → A OR B, 1 → A AND B); R = MUX(CTRL1: 0 → M, 1 → SUM); COUT = CARRY AND CTRL1."] }
 ];
 function norm(s) { return String(s || "").toUpperCase().replace(/\s+/g, ""); }
 function tdone() { try { return JSON.parse(lsGet(LS_T) || "{}"); } catch (e) { return {}; } }
@@ -844,9 +844,11 @@ function checkTask(T) {
   if (miss.length) return { ok: false, m: en ? "Missing pins: " + miss.join(", ") + ". Name a pin in the Etykieta (label) field after tapping it in Edycja (edit) mode." : "Brakuje pinów: " + miss.join(", ") + ". Pin wejścia albo wyjścia nazywa się w polu „Etykieta” po stuknięciu go w trybie Edycja." };
   if (dupl.length) return { ok: false, m: (en ? "Two pins have the same name: " : "Dwa piny mają tę samą nazwę: ") + dupl.join(", ") + "." };
   if (T.only) {   // tylko dozwolone bramki; podukład liczy się po tym, z czego jest zrobiony
-    var extra = {}; compile(P.cur).nodes.forEach(function (nd) { if (nd.t !== "BUF" && T.only.indexOf(nd.t) < 0) extra[nd.t] = 1; });
+    var extra = {}, free = 0; compile(P.cur).nodes.forEach(function (nd) { if (nd.t !== "BUF" && T.only.indexOf(nd.t) < 0) extra[nd.t] = 1; free += nd.ins.filter(function (i) { return i < 0; }).length; });
     var ex = Object.keys(extra);
     if (ex.length) return { ok: false, m: en ? "Use only " + T.only.join(", ") + " – the circuit also has: " + ex.join(", ") + "." : "Wolno tylko " + T.only.join(", ") + ", a w układzie jest też: " + ex.join(", ") + "." };
+    // wolne wejście bramka pomija (jak w Logisimie), więc NAND z jednym wejściem to po cichu NOT – w tych zadaniach każde wejście ma być podłączone
+    if (free) return { ok: false, m: en ? "Connect every gate input or delete unused gates (" + free + " free). A gate ignores a free input, so a NAND with one wired input is just a NOT. For a NOT, wire the same signal to both inputs." : "Podłącz każde wejście bramki albo usuń niepotrzebne bramki (wolnych: " + free + "). Bramka pomija wolne wejście, więc NAND z jednym podłączonym wejściem to po prostu NOT." };
   }
   var bad = null, t = runTable(P.cur, ins, outs, function (row) {
     var v = {}; T.ins.forEach(function (n, j) { v[n] = row.ins[j]; });
