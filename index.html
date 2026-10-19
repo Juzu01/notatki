@@ -3529,6 +3529,7 @@ html.rec-open { overflow: hidden; }
   }
   function drawKol(kol) {   // zestawy pytań pod najbliższe kolokwium (kolokwia/<przedmiot>.md z ~/SimpleAGH/tools/kolokwia_quiz.py)
     var box = el("div", { class: "md", html: md(noTitle(kol)) }), set = null;
+    loadFigs(box);
     Array.prototype.slice.call(box.children).forEach(function (n) {   // zestaw = linia „Było na zajęciach…” + quiz + „Prawdziwe zadania: …”
       var t = n.tagName === "P" ? n.textContent : "";
       if (/^(Było na (zajęciach|korkach)|Jeszcze nie było|In class:|Not covered in class|Derste:|Henüz derste)/.test(t)) { set = el("div", { class: "kol-set" }); box.insertBefore(set, n); n.classList.add("kol-meta"); set.appendChild(n); return; }
@@ -3554,6 +3555,7 @@ html.rec-open { overflow: hidden; }
   }
   function drawGuide(c, guide) {   // przewodnik: wykład + ćwiczenia + co bywa na kolokwiach (courses/<przedmiot>.md)
     var card = el("div", { class: "card day guide" }), box = el("div", { class: "md", html: md(noTitle(guide.md || "")) }), hs = box.querySelectorAll(":scope > h4");
+    loadFigs(box);
     if (hs.length >= 3) card.appendChild(el("nav", { class: "toc", "aria-label": "Tematy" }, Array.prototype.map.call(hs, tocBtn)));
     card.appendChild(box);
     var up = guide.updated ? new Date(guide.updated) : null;
