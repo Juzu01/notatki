@@ -325,6 +325,9 @@ html[lang] .md .zref + .zref::before, html[lang] .md .tref + .tref::before { con
 .md .qz-dots i.meh { background: var(--warn); border-color: var(--warn); }
 .md .qz-q { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; }
 .md .qz-n { font-family: var(--font); font-size: 0.75rem; font-weight: 600; color: var(--faint); }
+.md .quiz figure.fg { margin: 0; }
+.md .quiz .fgb img { max-height: 42vh; }
+.md .quiz figcaption { font-size: 0.82rem; }
 .md .qz-opts { display: grid; gap: 8px; }
 .md .qz-opt { appearance: none; display: flex; align-items: center; gap: 12px; width: 100%; min-height: 46px; box-sizing: border-box; padding: 9px 12px; text-align: left; font: inherit; color: var(--ink); background: var(--surface); border: 1.5px solid var(--line); border-radius: 10px; cursor: pointer; opacity: 1; }
 .md .qz-opt .qz-r { flex: none; width: 18px; height: 18px; box-sizing: border-box; border-radius: 50%; border: 1.5px solid var(--faint); }
@@ -1066,6 +1069,12 @@ html.rec-open { overflow: hidden; }
   function blobUrl(path) {
     if (blobs[path]) return Promise.resolve(blobs[path]);
     return api("contents/" + path + "?ref=" + BRANCH, { raw: "blob" }).then(function (b) { return (blobs[path] = URL.createObjectURL(b)); });
+  }
+  function loadFigs(root) {   // rysunki notatki (data-fig); bez obrazka zostaje sam podpis
+    root.querySelectorAll("[data-fig]").forEach(function (b) {
+      if (b.firstChild.src) return;
+      blobUrl(b.getAttribute("data-fig")).then(function (u) { b.firstChild.src = u; }, function () { b.closest("figure").classList.add("nofig"); });
+    });
   }
 
   /* --- dodawanie zdjęć --- */
@@ -1921,11 +1930,25 @@ html.rec-open { overflow: hidden; }
       p.h = h; p.st = { k: saved ? p.qs.length : 0, res: saved && saved.length === p.qs.length ? saved : p.qs.map(function () { return null; }) };
       qzReset(p, false); QZ.push(p); i = QZ.length - 1;
     }
+    var pf = QZ[i].figs = QZ[i].figs || {}; for (var fk in mdFigs || {}) pf[fk] = mdFigs[fk];
     return '<div class="quiz" data-qz="' + i + '">' + qzInner(i) + "</div>";
   }
   function qzReset(p, all) {
     var s = p.st; s.tries = 0; s.hints = 0; s.sel = null; s.val = ""; s.solved = false; s.fb = ""; s.bad = []; s.showAll = false;
     if (all) { s.k = 0; s.res = p.qs.map(function () { return null; }); }
+  }
+  function qzFigs(p, txt, seen) {   // „w kadrze 3”, „Kadr 4:”, „kadry 4 i 5”, „schemacie 2”, „Rys. 3” → te rysunki z notatki (pytanie ich nie powtarza)
+    var out = "";
+    String(txt).replace(/(^|[^a-ząćęłńóśźż])(kadr|schema|rys)[a-ząćęłńóśźż]*\.?\s+(\d+(?:\s*(?:,|i|oraz|–|-)\s*\d+)*)/gi, function (_, b, w, ns) {
+      var r = /(\d+)(?:\s*[–-]\s*(\d+))?/g, m;
+      while ((m = r.exec(ns))) for (var n = +m[1], e = m[2] ? Math.min(+m[2], n + 3) : n; n <= e; n++) {
+        var k = w.charAt(0).toLowerCase() + n, g = p.figs && p.figs[k];
+        if (!g || seen[k]) continue;
+        seen[k] = 1;
+        out += '<figure class="fg"><button type="button" class="fgb" data-fig="' + esc(g.path) + '" aria-label="Powiększ rysunek"><img alt="' + esc(g.cap) + '"' + (blobs[g.path] ? ' src="' + blobs[g.path] + '"' : "") + "></button><figcaption>" + inline(esc(g.cap)) + "</figcaption></figure>";
+      }
+    });
+    return out;
   }
   function qzInner(i) {
     var p = QZ[i], s = p.st, n = p.qs.length;
@@ -1937,7 +1960,8 @@ html.rec-open { overflow: hidden; }
       return head + '<div class="qz-sum"><p><strong>' + Lf("{a} z {b} za pierwszym razem", good, n) + "</strong>" + (good === n ? Ln(". Wszystko dobrze.") : Ln(". Pomarańczowe kropki to pytania, przy których była pomyłka albo podpowiedź – warto zrobić je jeszcze raz.")) +
         '</p><div class="qz-bar"><button type="button" class="qz-nextset">' + Ln("Następny zestaw") + '</button><button type="button" class="qz-again">' + Ln("Jeszcze raz") + "</button></div></div>";
     }
-    var q = p.qs[s.k], body = '<div class="qz-q"><span class="qz-n">' + (s.k + 1) + "/" + n + "</span>" + qzText(q.text) + "</div>";
+    var q = p.qs[s.k], seen = {};
+    var body = qzFigs(p, q.text.filter(function (l) { return typeof l === "string"; }).join(" "), seen) + '<div class="qz-q"><span class="qz-n">' + (s.k + 1) + "/" + n + "</span>" + qzText(q.text) + "</div>";
     if (q.opts.length) {
       body += '<div class="qz-opts" role="radiogroup">' + q.order.map(function (j) {
         var o = q.opts[j], cls = "qz-opt" + (s.sel === j ? " on" : "") + (s.bad.indexOf(j) >= 0 ? " bad" : "") + (s.solved && o.ok ? " good" : "");
@@ -1948,14 +1972,14 @@ html.rec-open { overflow: hidden; }
     }
     if (s.fb) body += '<div class="qz-fb ' + (s.solved ? "good" : "bad") + '">' + md(s.fb, true) + "</div>";
     var shown = s.showAll ? q.hints.length : s.hints;
-    if (shown) body += '<ol class="qz-hints">' + q.hints.slice(0, shown).map(function (x) { return "<li>" + inline(esc(x), true) + "</li>"; }).join("") + "</ol>";
+    if (shown) body += '<ol class="qz-hints">' + q.hints.slice(0, shown).map(function (x) { return "<li>" + inline(esc(x), true) + qzFigs(p, x, seen) + "</li>"; }).join("") + "</ol>";
     var bar = s.solved ? '<button type="button" class="qz-next">' + (s.k + 1 < n ? Ln("Dalej") : Ln("Zobacz wynik")) + "</button>"
       : '<button type="button" class="qz-check">' + Ln("Sprawdź") + "</button>" + (shown < q.hints.length ? '<button type="button" class="qz-hint">' + (shown ? Ln("Następna podpowiedź") : Ln("Podpowiedź")) + "</button>" : "") +
         (s.tries >= 2 && shown < q.hints.length ? '<button type="button" class="qz-show">' + Ln("Pokaż rozwiązanie") + "</button>" : "");
     return head + body + '<div class="qz-bar">' + bar + "</div>";
   }
   function qzDraw(box, focus) {
-    box.innerHTML = qzInner(+box.getAttribute("data-qz"));
+    box.innerHTML = qzInner(+box.getAttribute("data-qz")); loadFigs(box);
     var inp = box.querySelector(".qz-ans");
     if (focus && inp && !inp.disabled) inp.focus({ preventScroll: true });
     if (focus === "next") { var r = box.getBoundingClientRect(); if (r.top < 70) window.scrollBy(0, r.top - 90); }
@@ -2718,7 +2742,18 @@ html.rec-open { overflow: hidden; }
       }
     }
   });
+  var mdFigs = null;   // rysunki „Kadr N.”, „Schemat N.”, „Rys. N.” notatki, którą właśnie zamienia md() – dla pytań „Sprawdź się”
+  function figMap(src) {
+    var m = {}, r = /^\s*!\[((Kadr|Schemat|Rys\.)\s*(\d+)\.[^\]]*)\]\((figs\/[A-Za-z0-9_\/.-]+\.jpg)\)/gm, x;
+    while ((x = r.exec(src))) m[x[2].charAt(0).toLowerCase() + x[3]] = { path: x[4], cap: x[1] };
+    return m;
+  }
   function md(src, inner) {
+    if (mdFigs) return mdBody(src, inner);
+    mdFigs = figMap(String(src || ""));
+    try { return mdBody(src, inner); } finally { mdFigs = null; }
+  }
+  function mdBody(src, inner) {
     var L = String(src || "").replace(/\r/g, "").split("\n"), out = [], buf = [], i = 0;
     function flush() { if (buf.length) { out.push(plain(buf)); buf = []; } }
     while (i < L.length) {
@@ -3327,7 +3362,7 @@ html.rec-open { overflow: hidden; }
     if (!src) src = noTitle(note.md);   // całej sekcji nie znaleziono: cała notatka
     pkKey = key;
     var box = el("div", { class: "md", html: md(src) }); pkLog.appendChild(box);
-    box.querySelectorAll("[data-fig]").forEach(function (b) { blobUrl(b.getAttribute("data-fig")).then(function (u) { b.firstChild.src = u; }, function () { b.closest("figure").classList.add("nofig"); }); });
+    loadFigs(box);
   }
   function peekMat(id, label) {
     peekOpen(normSec(label || Ln("Materiał")), "", null);
@@ -3588,7 +3623,7 @@ html.rec-open { overflow: hidden; }
           var mdBox = el("div", { class: "md", html: md(noTitle(note.md || "")) }), hs = mdBox.querySelectorAll(":scope > h4");
           if (hs.length >= 3) card.appendChild(el("nav", { class: "toc", "aria-label": "Spis" }, Array.prototype.map.call(hs, tocBtn)));
           card.appendChild(mdBox);
-          mdBox.querySelectorAll("[data-fig]").forEach(function (b) { blobUrl(b.getAttribute("data-fig")).then(function (u) { b.firstChild.src = u; }, function () { b.closest("figure").classList.add("nofig"); }); });
+          loadFigs(mdBox);
           if (mdBox.querySelector(".dag, .mn, .zref, .tref")) card.appendChild(el("p", { class: "legend-n", text: Ln("† dopisane przez Claude'a, nie było na zajęciach · zdj. N – zdjęcie, z którego to pochodzi") + (mdBox.querySelector(".tref") ? Ln(" · nagr. 09:47 – co mówił wtedy prowadzący") : "") + Ln(" (dotknij, żeby otworzyć)") }));
           var copyB = btn("", Ln("Kopiuj"), function () {
             try { navigator.clipboard.writeText(note.md).then(function () { copyB.textContent = Ln("Skopiowane"); }, function () { copyB.textContent = Ln("Nie udało się"); }); } catch (e) { copyB.textContent = Ln("Nie udało się"); }
