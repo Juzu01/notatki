@@ -824,8 +824,8 @@ html.rec-open { overflow: hidden; }
       "**Dobrze.** Wszystkie kolumny się zgadzają.": "**Correct.** Every column is right.", "Uzupełnij wszystkie pola – stuknij „?”, żeby wpisać 0 albo 1.": "Fill in every cell – tap “?” to enter 0 or 1.",
       "**Jeszcze nie.** Źle w {a} z {b} pól (czerwone). Licz kolumna po kolumnie – każda bierze wartości z kolumn na lewo od niej.": "**Not yet.** {a} of {b} cells are wrong (red). Go column by column – each one takes its values from the columns to its left.",
       "dziś": "today", "wczoraj": "yesterday", "SimpleAGH · notatki": "SimpleAGH · notes", "Język": "Language", "Tryb jasny": "Light mode", "Tryb ciemny": "Dark mode",
-      "Te notatki nie są jeszcze przetłumaczone – poniżej wersja po polsku. Tłumaczenie pojawi się wieczorem.": "This note is not translated yet – below is the Polish version. The translation appears in the evening.",
-      "Ta notatka zmieniła się po tłumaczeniu – poniżej aktualna wersja po polsku. Nowe tłumaczenie pojawi się wieczorem.": "This note changed after it was translated – below is the current Polish version. The new translation appears in the evening.",
+      "Te notatki nie są jeszcze przetłumaczone – poniżej wersja po polsku. Tłumaczenie pojawi się po zajęciach, najpóźniej wieczorem.": "This note is not translated yet – below is the Polish version. The translation appears after class, in the evening at the latest.",
+      "Ta notatka zmieniła się po tłumaczeniu – poniżej aktualna wersja po polsku. Nowe tłumaczenie pojawi się po zajęciach, najpóźniej wieczorem.": "This note changed after it was translated – below is the current Polish version. The new translation appears after class, in the evening at the latest.",
       "Nauka": "Study", "Aparat": "Camera", "Notatki": "Notes", "W planie nauki: ": "In the study plan: ",
       "Nagranie ": "Recording ", "teraz": "now", "Nagranie trwa": "Recording in progress", "Nagranie z zajęć": "Class recording", "co mówił prowadzący": "what the lecturer said",
       // właściciel: Aparat, nagrywanie, Zapytaj, klucze, powiadomienia, uruchamianie programów i bramki
@@ -961,8 +961,8 @@ html.rec-open { overflow: hidden; }
       "**Dobrze.** Wszystkie kolumny się zgadzają.": "**Doğru.** Bütün sütunlar doğru.", "Uzupełnij wszystkie pola – stuknij „?”, żeby wpisać 0 albo 1.": "Bütün hücreleri doldur – 0 ya da 1 yazmak için “?” işaretine dokun.",
       "**Jeszcze nie.** Źle w {a} z {b} pól (czerwone). Licz kolumna po kolumnie – każda bierze wartości z kolumn na lewo od niej.": "**Henüz değil.** {b} hücreden {a} tanesi yanlış (kırmızı). Sütun sütun ilerle – her sütun değerlerini solundaki sütunlardan alır.",
       "dziś": "bugün", "wczoraj": "dün", "SimpleAGH · notatki": "SimpleAGH · notlar", "Język": "Dil", "Tryb jasny": "Açık mod", "Tryb ciemny": "Koyu mod",
-      "Te notatki nie są jeszcze przetłumaczone – poniżej wersja po polsku. Tłumaczenie pojawi się wieczorem.": "Bu not henüz çevrilmedi – aşağıda Lehçe hali var. Çeviri akşam gelecek.",
-      "Ta notatka zmieniła się po tłumaczeniu – poniżej aktualna wersja po polsku. Nowe tłumaczenie pojawi się wieczorem.": "Bu not çevrildikten sonra değişti – aşağıda güncel Lehçe hali var. Yeni çeviri akşam gelecek.",
+      "Te notatki nie są jeszcze przetłumaczone – poniżej wersja po polsku. Tłumaczenie pojawi się po zajęciach, najpóźniej wieczorem.": "Bu not henüz çevrilmedi – aşağıda Lehçe hali var. Çeviri dersten sonra, en geç akşam gelecek.",
+      "Ta notatka zmieniła się po tłumaczeniu – poniżej aktualna wersja po polsku. Nowe tłumaczenie pojawi się po zajęciach, najpóźniej wieczorem.": "Bu not çevrildikten sonra değişti – aşağıda güncel Lehçe hali var. Yeni çeviri dersten sonra, en geç akşam gelecek.",
       "Nauka": "Çalışma", "Aparat": "Kamera", "Notatki": "Notlar", "W planie nauki: ": "Çalışma planında: ",
       "Nagranie ": "Kayıt ", "teraz": "şimdi", "Nagranie trwa": "Kayıt sürüyor", "Nagranie z zajęć": "Ders kaydı", "co mówił prowadzący": "hocanın anlattıkları" }
   };
@@ -3842,7 +3842,7 @@ html.rec-open { overflow: hidden; }
       var open = key in openDays ? openDays[key] : di === 0;
       ps.sort(function (x, y) { return x.name < y.name ? -1 : 1; });
       var card = el("div", { class: "card day", id: "day-" + f.id + "-" + d, "data-key": key }, [el("div", { class: "dh" }, [el("small", { text: dayLabel(d) + " · " + KIND_L[f.kind] }), el("h3", { text: note ? note.title : Ln("Nowa notatka") })])]);
-      if (note && note.untr) card.appendChild(el("p", { class: "plan-l", text: Ln(note.untr === "old" ? "Ta notatka zmieniła się po tłumaczeniu – poniżej aktualna wersja po polsku. Nowe tłumaczenie pojawi się wieczorem." : "Te notatki nie są jeszcze przetłumaczone – poniżej wersja po polsku. Tłumaczenie pojawi się wieczorem.") }));
+      if (note && note.untr) card.appendChild(el("p", { class: "plan-l", text: Ln(note.untr === "old" ? "Ta notatka zmieniła się po tłumaczeniu – poniżej aktualna wersja po polsku. Nowe tłumaczenie pojawi się po zajęciach, najpóźniej wieczorem." : "Te notatki nie są jeszcze przetłumaczone – poniżej wersja po polsku. Tłumaczenie pojawi się po zajęciach, najpóźniej wieczorem.") }));
       var tops = (VISIT && VISIT.live ? [] : note && note.topics || []).filter(function (t, i, a) { return a.findIndex(function (x) { return x.t === t.t; }) === i; });
       if (tops.length) card.appendChild(el("p", { class: "plan-l" }, [Ln("W planie nauki: ")].concat(tops.map(function (t, i) {
         return el("span", {}, [i ? " · " : null, btn("pl", t.t, function () { goToTopic(t.t); })]);
