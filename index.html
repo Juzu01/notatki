@@ -790,9 +790,11 @@ html.rec-open { overflow: hidden; }
   if (!VISIT) try { TOKEN = localStorage.getItem(LS) || ""; } catch (e) {}
   if (!VISIT && !TOKEN) try { var zk = localStorage.getItem(LS_Z); if (zk) VISIT = { live: true, key: zk }; } catch (e) {}
   if (VISIT) TOKEN = "gosc";
-  /* języki dla znajomych (#z=…): polski, angielski, turecki – treść z tr/<język>/ (tools/tlumacz.py), napisy aplikacji z I18N; właściciel zawsze po polsku */
+  /* języki: polski, angielski, turecki – treść z tr/<język>/ (tools/tlumacz.py), napisy aplikacji z I18N; znajomi (#z=…) domyślnie w języku telefonu,
+     właściciel domyślnie po polsku (wybór w nagłówku; Nauka, Aparat i nagrywanie zostają po polsku) */
   var LS_LANG = "notatki-lang", UILANG = "pl";
   if (VISIT && VISIT.live) { var nl0 = (navigator.language || "").slice(0, 2).toLowerCase(); UILANG = lsGet(LS_LANG) || (nl0 === "pl" ? "pl" : nl0 === "tr" ? "tr" : "en"); }
+  else if (!VISIT) UILANG = lsGet(LS_LANG) || "pl";
   if (!/^(pl|en|tr)$/.test(UILANG)) UILANG = "en";
   var I18N = {
     en: { "Przedmioty": "Courses", "‹ Wszystkie": "‹ All", "Przewodnik": "Guide", "Kolokwia": "Tests", "Dowody": "Proofs", "Zajęcia": "Classes", "Działy": "Topics", "‹ Działy": "‹ Topics",
@@ -822,7 +824,10 @@ html.rec-open { overflow: hidden; }
       "**Dobrze.** Wszystkie kolumny się zgadzają.": "**Correct.** Every column is right.", "Uzupełnij wszystkie pola – stuknij „?”, żeby wpisać 0 albo 1.": "Fill in every cell – tap “?” to enter 0 or 1.",
       "**Jeszcze nie.** Źle w {a} z {b} pól (czerwone). Licz kolumna po kolumnie – każda bierze wartości z kolumn na lewo od niej.": "**Not yet.** {a} of {b} cells are wrong (red). Go column by column – each one takes its values from the columns to its left.",
       "dziś": "today", "wczoraj": "yesterday", "SimpleAGH · notatki": "SimpleAGH · notes", "Język": "Language", "Tryb jasny": "Light mode", "Tryb ciemny": "Dark mode",
-      "Te notatki nie są jeszcze przetłumaczone – poniżej wersja po polsku. Tłumaczenie pojawi się wieczorem.": "This note is not translated yet – below is the Polish version. The translation appears in the evening." },
+      "Te notatki nie są jeszcze przetłumaczone – poniżej wersja po polsku. Tłumaczenie pojawi się wieczorem.": "This note is not translated yet – below is the Polish version. The translation appears in the evening.",
+      "Ta notatka zmieniła się po tłumaczeniu – poniżej aktualna wersja po polsku. Nowe tłumaczenie pojawi się wieczorem.": "This note changed after it was translated – below is the current Polish version. The new translation appears in the evening.",
+      "Nauka": "Study", "Aparat": "Camera", "Notatki": "Notes", "W planie nauki: ": "In the study plan: ",
+      "Nagranie ": "Recording ", "teraz": "now", "Nagranie trwa": "Recording in progress", "Nagranie z zajęć": "Class recording", "co mówił prowadzący": "what the lecturer said" },
     tr: { "Przedmioty": "Dersler", "‹ Wszystkie": "‹ Tümü", "Przewodnik": "Rehber", "Kolokwia": "Sınavlar", "Dowody": "İspatlar", "Zajęcia": "Notlar", "Działy": "Konular", "‹ Działy": "‹ Konular",
       "ostatnio · ": "son · ", "Część tej notatki jest też w dziale: ": "Bu notun bir kısmı şurada da: ", "Pokaż notatkę": "Notu göster", "Kopiuj": "Kopyala", "Skopiowane": "Kopyalandı", "Nie udało się": "Olmadı", "Zwiń": "Daralt",
       "Nowa notatka": "Yeni not", "Jeszcze nie ma notatek z tego przedmiotu. Zrób zdjęcie tablicy w zakładce Aparat.": "Bu ders için henüz not yok.",
@@ -850,7 +855,10 @@ html.rec-open { overflow: hidden; }
       "**Dobrze.** Wszystkie kolumny się zgadzają.": "**Doğru.** Bütün sütunlar doğru.", "Uzupełnij wszystkie pola – stuknij „?”, żeby wpisać 0 albo 1.": "Bütün hücreleri doldur – 0 ya da 1 yazmak için “?” işaretine dokun.",
       "**Jeszcze nie.** Źle w {a} z {b} pól (czerwone). Licz kolumna po kolumnie – każda bierze wartości z kolumn na lewo od niej.": "**Henüz değil.** {b} hücreden {a} tanesi yanlış (kırmızı). Sütun sütun ilerle – her sütun değerlerini solundaki sütunlardan alır.",
       "dziś": "bugün", "wczoraj": "dün", "SimpleAGH · notatki": "SimpleAGH · notlar", "Język": "Dil", "Tryb jasny": "Açık mod", "Tryb ciemny": "Koyu mod",
-      "Te notatki nie są jeszcze przetłumaczone – poniżej wersja po polsku. Tłumaczenie pojawi się wieczorem.": "Bu not henüz çevrilmedi – aşağıda Lehçe hali var. Çeviri akşam gelecek." }
+      "Te notatki nie są jeszcze przetłumaczone – poniżej wersja po polsku. Tłumaczenie pojawi się wieczorem.": "Bu not henüz çevrilmedi – aşağıda Lehçe hali var. Çeviri akşam gelecek.",
+      "Ta notatka zmieniła się po tłumaczeniu – poniżej aktualna wersja po polsku. Nowe tłumaczenie pojawi się wieczorem.": "Bu not çevrildikten sonra değişti – aşağıda güncel Lehçe hali var. Yeni çeviri akşam gelecek.",
+      "Nauka": "Çalışma", "Aparat": "Kamera", "Notatki": "Notlar", "W planie nauki: ": "Çalışma planında: ",
+      "Nagranie ": "Kayıt ", "teraz": "şimdi", "Nagranie trwa": "Kayıt sürüyor", "Nagranie z zajęć": "Ders kaydı", "co mówił prowadzący": "hocanın anlattıkları" }
   };
   function Ln(s) { return UILANG === "pl" ? s : (I18N[UILANG] && I18N[UILANG][s]) || s; }
   function Lf(s, a, b) { return Ln(s).replace("{a}", a).replace("{b}", b); }
@@ -875,7 +883,7 @@ html.rec-open { overflow: hidden; }
   function lsSet(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
 
   var NEWIDX = null, updB = null;
-  var CFG = null, INDEX = { notes: {} }, TREE = null, RUN = null, JOB = null, RUNSET = {}, idxSha = null, cfgSha = null;
+  var CFG = null, INDEX = { notes: {} }, TREE = null, RUN = null, JOB = null, RUNSET = {}, idxSha = null, cfgSha = null, IDXPL = null, TRX = null, trSha = null;
   var local = [], chain = Promise.resolve(), blobs = {}, tab = startTab ? startTab[1] : /^(nauka|aparat|notatki)$/.test(lsGet(LS_T) || "") ? lsGet(LS_T) : "nauka";
   var view = { k: "home" }, target = lsGet(LS_F), openDays = {}, lbPath = null, wantDel = false, timer = null, authErr = false, netErr = false;
   var range = "week", cards = {}, prevStage = {}, firstFlow = true;
@@ -934,15 +942,17 @@ html.rec-open { overflow: hidden; }
     return Promise.all([zGet("z/i.bin" + m).then(gunzipJson), UILANG === "pl" ? null : zGet("z/i-" + UILANG + ".bin" + m).then(gunzipJson, function () { return null; })])
       .then(function (r) { r[0].trx = r[1]; return r[0]; });
   }
-  function trIndex(B) {   // index.json w języku znajomego: przetłumaczona treść tam, gdzie już jest; polski oryginał zostaje w mdPl (odnośniki mają polskie kotwice)
+  function trIndex(B, tree) {   // index.json w wybranym języku: przetłumaczona treść tam, gdzie już jest; polski oryginał zostaje w mdPl (odnośniki mają polskie kotwice)
     var X = B.trx, ix = JSON.parse(JSON.stringify(B.index));
     if (UILANG === "pl") return ix;
+    // u właściciela (tree = drzewo repo) tłumaczenie starsze niż notatka odpada: X.src to sha źródła, z którego tłumaczono
+    function fresh(p) { return !tree || !X.src || tree[p] === X.src[p]; }
     Object.keys(ix.notes || {}).forEach(function (k) {
       var n = ix.notes[k], t = X && X.notes && X.notes[k];
-      if (t) { n.mdPl = n.md; n.md = t; var mt = /^#\s+(.+)$/m.exec(t); if (mt) n.title = mt[1].trim(); } else n.untr = true;
+      if (t && fresh("notes/" + k + ".md")) { n.mdPl = n.md; n.md = t; var mt = /^#\s+(.+)$/m.exec(t); if (mt) n.title = mt[1].trim(); } else n.untr = t ? "old" : true;
     });
-    Object.keys(ix.courses || {}).forEach(function (c) { if (X && X.courses && X.courses[c]) ix.courses[c].md = X.courses[c]; });
-    Object.keys(ix.kol || {}).forEach(function (c) { if (X && X.kol && X.kol[c]) ix.kol[c] = X.kol[c]; });
+    Object.keys(ix.courses || {}).forEach(function (c) { if (X && X.courses && X.courses[c] && fresh("courses/" + c + ".md")) ix.courses[c].md = X.courses[c]; });
+    Object.keys(ix.kol || {}).forEach(function (c) { if (X && X.kol && X.kol[c] && fresh("kolokwia/" + c + ".md")) ix.kol[c] = X.kol[c]; });
     Object.keys(ix.dzialy || {}).forEach(function (c) { var tt = X && X.dzialy && X.dzialy[c]; if (tt && tt.length === ix.dzialy[c].length) ix.dzialy[c].forEach(function (d, i) { d.t = tt[i]; }); });
     return ix;
   }
@@ -1018,7 +1028,17 @@ html.rec-open { overflow: hidden; }
       if (TREE["folders.json"] !== cfgSha) jobs.push(rawJson("folders.json").then(function (c) { CFG = c; cfgSha = TREE["folders.json"]; }));
       if (TREE["progress.json"] && TREE["progress.json"] !== progSha) jobs.push(rawJson("progress.json").then(function (x) { PROG = x; progSha = TREE["progress.json"]; applyProgress(); }, function () {}));
       if (TREE["groq.json"] && TREE["groq.json"] !== gkSha) jobs.push(rawJson("groq.json").then(function (x) { gkSha = TREE["groq.json"]; groqKeys(x); }, function () {}));
-      if (TREE["index.json"] !== idxSha) { var ish = TREE["index.json"]; jobs.push(rawJson("index.json").then(function (x) { if (ish === idxSha) return; idxSha = ish; x = x || { notes: {} }; if (Object.keys(INDEX.notes || {}).length) NEWIDX = x; else INDEX = x; updBar(); })); }   // nowa wersja nie podmienia notatki pod czytającym – czeka na przycisk
+      // właściciel w innym języku: tłumaczenia z tr/<język>/index.json (tools/tlumacz.py); znajomym visitApi daje index.json już przetłumaczony
+      var own = !VISIT && UILANG !== "pl", trp = "tr/" + UILANG + "/index.json", tsh = own ? TREE[trp] || null : null;
+      if (TREE["index.json"] !== idxSha || tsh !== trSha) {
+        var ish = TREE["index.json"], tree = TREE;
+        jobs.push(Promise.all([ish !== idxSha ? rawJson("index.json") : IDXPL, tsh === trSha ? TRX : tsh ? rawJson(trp) : null]).then(function (r) {
+          if (ish === idxSha && tsh === trSha) return;
+          idxSha = ish; trSha = tsh; IDXPL = r[0] || { notes: {} }; TRX = r[1];
+          var x = own ? trIndex({ index: IDXPL, trx: TRX }, tree) : IDXPL;
+          if (Object.keys(INDEX.notes || {}).length) NEWIDX = x; else INDEX = x; updBar();   // nowa wersja nie podmienia notatki pod czytającym – czeka na przycisk
+        }));
+      }
       if (active(RUN)) {
         jobs.push(api("actions/runs/" + RUN.id + "/jobs").then(function (j) { JOB = (j.jobs || [])[0] || null; }, function () { JOB = null; }));
         if (!RUNSET[RUN.head_sha]) jobs.push(treeOf(RUN.head_sha).then(function (t) { RUNSET[RUN.head_sha] = t; }, function () {}));
@@ -3592,9 +3612,9 @@ html.rec-open { overflow: hidden; }
       var open = key in openDays ? openDays[key] : di === 0;
       ps.sort(function (x, y) { return x.name < y.name ? -1 : 1; });
       var card = el("div", { class: "card day", id: "day-" + f.id + "-" + d, "data-key": key }, [el("div", { class: "dh" }, [el("small", { text: dayLabel(d) + " · " + KIND_L[f.kind] }), el("h3", { text: note ? note.title : Ln("Nowa notatka") })])]);
-      if (note && note.untr) card.appendChild(el("p", { class: "plan-l", text: Ln("Te notatki nie są jeszcze przetłumaczone – poniżej wersja po polsku. Tłumaczenie pojawi się wieczorem.") }));
+      if (note && note.untr) card.appendChild(el("p", { class: "plan-l", text: Ln(note.untr === "old" ? "Ta notatka zmieniła się po tłumaczeniu – poniżej aktualna wersja po polsku. Nowe tłumaczenie pojawi się wieczorem." : "Te notatki nie są jeszcze przetłumaczone – poniżej wersja po polsku. Tłumaczenie pojawi się wieczorem.") }));
       var tops = (VISIT && VISIT.live ? [] : note && note.topics || []).filter(function (t, i, a) { return a.findIndex(function (x) { return x.t === t.t; }) === i; });
-      if (tops.length) card.appendChild(el("p", { class: "plan-l" }, ["W planie nauki: "].concat(tops.map(function (t, i) {
+      if (tops.length) card.appendChild(el("p", { class: "plan-l" }, [Ln("W planie nauki: ")].concat(tops.map(function (t, i) {
         return el("span", {}, [i ? " · " : null, btn("pl", t.t, function () { goToTopic(t.t); })]);
       }))));
       card._ps = ps;
@@ -3603,7 +3623,7 @@ html.rec-open { overflow: hidden; }
         return el("span", {}, [i ? " · " : null, btn("pl", x.t, function () { view.dz = x.t; render(); window.scrollTo(0, 0); })]);
       }))));
       var sp = note && note.speech, spN = speechPaths(f.id, d).length, recHere = !!(R && R.folder === f.id && R.day === d);
-      if (spN || recHere) card.appendChild(el("p", { class: "plan-l" }, [(sp ? "Nagranie " + sp.from + "–" + (recHere ? "teraz" : sp.to || "…") : recHere ? "Nagranie trwa" : "Nagranie z zajęć") + " · ", btn("pl", "co mówił prowadzący", function () { openTranscript(f.id, d); })]));
+      if (spN || recHere) card.appendChild(el("p", { class: "plan-l" }, [(sp ? Ln("Nagranie ") + sp.from + "–" + (recHere ? Ln("teraz") : sp.to || "…") : recHere ? Ln("Nagranie trwa") : Ln("Nagranie z zajęć")) + " · ", btn("pl", Ln("co mówił prowadzący"), function () { openTranscript(f.id, d); })]));
       if (ps.length) {
         var strip = el("div", { class: "strip" });
         ps.forEach(function (p, i) {
@@ -4467,14 +4487,17 @@ html.rec-open { overflow: hidden; }
   if (darkMq && darkMq.addEventListener) darkMq.addEventListener("change", showTheme);
   document.querySelector(".top").appendChild(themeBtn); showTheme();
 
-  if (VISIT && VISIT.live) {
-    document.body.classList.add("visit", "znajomi"); tab = "notatki"; tabK.parentNode.hidden = true;
-    var mf = document.querySelector('link[rel="manifest"]'); if (mf) mf.remove();   // bez manifestu iPhone bierze do ikonki ten adres razem z #z=klucz (start_url by go zgubił)
-    document.querySelector(".top .brand").textContent = Ln("SimpleAGH · notatki");
+  if (!VISIT || VISIT.live) {
     var langSel = el("select", { class: "lang", "aria-label": Ln("Język") }, [["pl", "Polski"], ["en", "English"], ["tr", "Türkçe"]].map(function (o) { var op = el("option", { value: o[0], text: o[1] }); if (o[0] === UILANG) op.selected = true; return op; }));
     langSel.addEventListener("change", function () { lsSet(LS_LANG, langSel.value); location.reload(); });
     document.querySelector(".top").insertBefore(langSel, themeBtn);
     $("pk-go").textContent = Ln("Otwórz w notatce"); $("lb-x").textContent = Ln("Zamknij");
+    [tabK, tabA, tabN].forEach(function (t) { t.childNodes.forEach(function (n) { if (n.nodeType === 3 && n.nodeValue.trim()) n.nodeValue = Ln(n.nodeValue.trim()); }); });
+  }
+  if (VISIT && VISIT.live) {
+    document.body.classList.add("visit", "znajomi"); tab = "notatki"; tabK.parentNode.hidden = true;
+    var mf = document.querySelector('link[rel="manifest"]'); if (mf) mf.remove();   // bez manifestu iPhone bierze do ikonki ten adres razem z #z=klucz (start_url by go zgubił)
+    document.querySelector(".top .brand").textContent = Ln("SimpleAGH · notatki");
     document.addEventListener("visibilitychange", function () { if (!document.hidden) reLive(); });
   } else if (VISIT) {
     document.body.classList.add("visit"); tabA.hidden = true; if (tab === "aparat") tab = "nauka";
