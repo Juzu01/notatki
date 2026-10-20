@@ -791,10 +791,10 @@ html.rec-open { overflow: hidden; }
   if (!VISIT && !TOKEN) try { var zk = localStorage.getItem(LS_Z); if (zk) VISIT = { live: true, key: zk }; } catch (e) {}
   if (VISIT) TOKEN = "gosc";
   /* języki: polski, angielski, turecki – treść z tr/<język>/ (tools/tlumacz.py), napisy aplikacji z I18N; znajomi (#z=…) domyślnie w języku telefonu,
-     właściciel domyślnie po polsku (wybór w nagłówku; Nauka, Aparat i nagrywanie zostają po polsku) */
+     właściciel: polski albo angielski (wybór w nagłówku) – cała strona, Nauka przez naukaTr, odpowiedzi Claude'a (lang w pytaniu) */
   var LS_LANG = "notatki-lang", UILANG = "pl";
   if (VISIT && VISIT.live) { var nl0 = (navigator.language || "").slice(0, 2).toLowerCase(); UILANG = lsGet(LS_LANG) || (nl0 === "pl" ? "pl" : nl0 === "tr" ? "tr" : "en"); }
-  else if (!VISIT) UILANG = lsGet(LS_LANG) || "pl";
+  else if (!VISIT) UILANG = lsGet(LS_LANG) === "en" ? "en" : "pl";
   if (!/^(pl|en|tr)$/.test(UILANG)) UILANG = "en";
   var I18N = {
     en: { "Przedmioty": "Courses", "‹ Wszystkie": "‹ All", "Przewodnik": "Guide", "Kolokwia": "Tests", "Dowody": "Proofs", "Zajęcia": "Classes", "Działy": "Topics", "‹ Działy": "‹ Topics",
@@ -827,7 +827,113 @@ html.rec-open { overflow: hidden; }
       "Te notatki nie są jeszcze przetłumaczone – poniżej wersja po polsku. Tłumaczenie pojawi się wieczorem.": "This note is not translated yet – below is the Polish version. The translation appears in the evening.",
       "Ta notatka zmieniła się po tłumaczeniu – poniżej aktualna wersja po polsku. Nowe tłumaczenie pojawi się wieczorem.": "This note changed after it was translated – below is the current Polish version. The new translation appears in the evening.",
       "Nauka": "Study", "Aparat": "Camera", "Notatki": "Notes", "W planie nauki: ": "In the study plan: ",
-      "Nagranie ": "Recording ", "teraz": "now", "Nagranie trwa": "Recording in progress", "Nagranie z zajęć": "Class recording", "co mówił prowadzący": "what the lecturer said" },
+      "Nagranie ": "Recording ", "teraz": "now", "Nagranie trwa": "Recording in progress", "Nagranie z zajęć": "Class recording", "co mówił prowadzący": "what the lecturer said",
+      // właściciel: Aparat, nagrywanie, Zapytaj, klucze, powiadomienia, uruchamianie programów i bramki
+      " (jest już do ": " (done up to ", " Część wejść bramek nie jest podłączona („—”).": " Some gate inputs are not connected (“—”).",
+      " Stuknij czerwony wiersz – wejścia ustawią się tak jak w nim i zobaczysz na schemacie, gdzie wychodzi źle.": " Tap a red row – the inputs are set as in that row and the diagram shows where it goes wrong.",
+      " do tej notatki…": " to this note…",
+      " i na bieżąco zamienia to na tekst. Co kilka minut Claude dopisuje to do notatki razem ze zdjęciami, a po „Zakończ” układa całą notatkę od nowa.": " and turns it into text as it goes. Every few minutes Claude adds it to the note together with the photos, and after “Finish” it rebuilds the whole note.",
+      " i zaloguj się (np. kontem Google).": " and sign in (e.g. with a Google account).", " kawałków": " chunks", " kawałków.": " chunks.", " kawałków…": " chunks…", " minutach. Zapytaj jeszcze raz.": " minutes. Ask again.",
+      " przerwało się, bo strona się przeładowała. Nagrane do tej pory jest bezpieczne.": " stopped because the page reloaded. Everything recorded so far is safe.", " wywołań": " calls", " · było": " · done",
+      " · dotknij, żeby przeczytać": " · tap to read", " · ostateczna": " · final", " · temat: ": " · topic: ", " · zwykle ok. 0:40 na zdjęcie": " · usually about 0:40 per photo",
+      "(program nic nie wypisał)": "(the program printed nothing)", ") – spróbuję jeszcze raz.": ") – I will try again.", "). Dotknij „Wznów”.": "). Tap “Resume”.",
+      "). Dotknij, żeby spróbować jeszcze raz.": "). Tap to try again.", "**Dobrze!** Układ działa dla wszystkich {a} wierszy tabeli.": "**Correct!** The circuit works for all {a} rows of the table.",
+      "**Dobrze.** Teraz możesz stukać w wejścia na schemacie i patrzeć, jak płynie prąd.": "**Correct.** Now you can tap the inputs on the diagram and watch the current flow.",
+      "**Jeszcze nie.** Nie zgadza się w {a} z {b} wierszy (czerwone w tabeli).": "**Not yet.** {a} of {b} rows do not match (red in the table).",
+      "**Jeszcze nie.** Wybierz, z czego bierze się wyjście (wiersz na dole listy).": "**Not yet.** Choose where the output comes from (row at the bottom of the list).",
+      "**Jeszcze nie.** Źle w {a} z {b} pól (czerwone). Policz jeszcze raz bramka po bramce.": "**Not yet.** {a} of {b} cells are wrong (red). Work it out again gate by gate.",
+      "**Za dużo bramek** – wolno najwyżej {a}.": "**Too many gates** – at most {a} allowed.", ", gotowe ": ", done ", ", w toku ": ", in progress ", ", wynik na końcu jest pełny.": " steps, the output at the end is complete.",
+      "Aborted – program sam się przerwał": "Aborted – the program stopped itself", "Albo wklej klucz tutaj.": "Or paste the key here.",
+      "Bez dźwięków i wibracji. Ekran zostaje włączony i ciemny.": "No sounds or vibration. The screen stays on and dark.", "Bez zgody – zmień w Ustawieniach": "Not allowed – change it in Settings",
+      "Brak internetu – nagranie czeka w telefonie i wyśle się samo.": "No internet – the recording waits on the phone and will send itself.", "Brak internetu.": "No internet.",
+      "Brak internetu. Zdjęcie czeka w telefonie, dotknij, żeby wysłać jeszcze raz.": "No internet. The photo waits on the phone, tap to send it again.", "Bramki": "Gates",
+      "Bus error – zły adres w pamięci": "Bus error – bad memory address", "Cel": "Goal", "Claude czyta notatkę": "Claude is reading the note",
+      "Claude czyta tablicę i pisze notatkę": "Claude is reading the board and writing the note", "Claude dopisuje ": "Claude is adding ",
+      "Claude dopisuje nagranie do tej notatki…": "Claude is adding the recording to this note…", "Claude myśli": "Claude is thinking",
+      "Claude nie odczytał tego zdjęcia. Zrób je jeszcze raz.": "Claude could not read this photo. Take it again.", "Claude pisze": "Claude is writing", "Claude przegląda Twój plan": "Claude is looking through your plan",
+      "Claude się uruchamia…": "Claude is starting…",
+      "Claude zna Twój plan na jutro, zadania z UPeL-a, plan tygodnia, listy tematów i wszystkie notatki. Pytaj też o rzeczy, których jeszcze nie było – powie, że to wykracza poza zajęcia. Odpowiedź zaczyna się pojawiać po kilkunastu sekundach, kolejne szybciej – Claude pamięta rozmowę. Następne pytanie możesz dopisać od razu, poczeka w kolejce.": "Claude knows your plan for tomorrow, UPeL tasks, the week's timetable, the topic lists and all notes. You can also ask about things not covered yet – it will say that this goes beyond the classes. The answer starts to appear after about ten seconds, the next ones faster – Claude remembers the conversation. You can type the next question right away, it will wait in the queue.",
+      "Claude zna całą notatkę, zdjęcia i nagranie, z których powstała, terminy z UPeL-a i plan tego przedmiotu. Możesz też zaznaczyć fragment notatki i dotknąć „Zapytaj o to”. Odpowiedź zaczyna się pojawiać po kilkunastu sekundach, kolejne szybciej – Claude pamięta rozmowę i notatkę. Następne pytanie możesz dopisać od razu, poczeka w kolejce.": "Claude knows the whole note, the photos and the recording it was made from, UPeL deadlines and this course's plan. You can also select part of the note and tap “Ask about this”. The answer starts to appear after about ten seconds, the next ones faster – Claude remembers the conversation and the note. You can type the next question right away, it will wait in the queue.",
+      "Claude zrobi notatkę także z tego, co mówi ": "Claude will also make the note from what is said by the ", "Co muszę oddać na UPeL-u?": "What do I have to hand in on UPeL?", "Co mówił prowadzący": "What the lecturer said",
+      "Co mówił prowadzący o {a}": "What the lecturer said at {a}", "Co z tego może być na kolokwium?": "What from this could be on the test?",
+      "Czeka, aż Claude zacznie (kilka sekund)": "Waiting for Claude to start (a few seconds)", "Daj mi podobne zadanie": "Give me a similar exercise", "Daj mi zadanie z tego": "Give me an exercise on this",
+      "Dlaczego tak jest?": "Why is that?", "Dopisz następne pytanie…": "Add another question…", "Dzisiejsze zajęcia": "Today's classes", "Dziś": "Today",
+      "Floating point exception – dzielenie przez zero": "Floating point exception – division by zero", "Gotowe": "Done", "Gotowe. Komputer za chwilę się zaloguje.": "Done. The computer will sign in in a moment.",
+      "Groq nie przepisał kawałka (": "Groq did not transcribe a chunk (", "Groq nie przyjął tego klucza.": "Groq did not accept this key.", "Groq odpowiedział błędem ": "Groq answered with error ",
+      "Groq prosi o chwilę przerwy – zaraz wznowię.": "Groq asks for a short break – I will resume shortly.",
+      "Ikonka na ekranie początkowym prosi o klucz? Skopiuj go tutaj, otwórz ikonkę i dotknij „Wklej ze schowka”.": "Does the Home Screen icon ask for the key? Copy it here, open the icon and tap “Paste from clipboard”.",
+      "Ikonka na ekranie początkowym: dodaj ją teraz z tej strony (Udostępnij → „Do ekranu początkowego”), wtedy klucz przejdzie do niej sam. Starą ikonkę bez klucza usuń.": "Home Screen icon: add it now from this page (Share → “Add to Home Screen”), then the key goes with it. Delete the old icon without the key.",
+      "Ile zdjęć z czego": "Photos per course", "Inne zajęcia…": "Other classes…", "Jak się tego nauczyć?": "How do I learn this?",
+      "Jeszcze nic nie przyszło. Każde powiadomienie z UPeL-a zostanie tutaj.": "Nothing yet. Every UPeL notification will stay here.",
+      "Klucz GitHuba ma tylko odczyt – tekst czeka w telefonie.": "The GitHub key is read-only – the text waits on the phone.", "Klucz Groq": "Groq key",
+      "Klucz Groq nie działa. Wklej nowy (nagranie czeka w telefonie).": "The Groq key does not work. Paste a new one (the recording waits on the phone).", "Klucz Groq zaczyna się od gsk_.": "A Groq key starts with gsk_.",
+      "Klucz do GitHuba nie działa – tekst czeka w telefonie.": "The GitHub key does not work – the text waits on the phone.", "Klucz do repozytorium": "Repository key",
+      "Klucz do repozytorium nie działa.": "The repository key does not work.",
+      "Klucz do repozytorium z notatkami nie działa (wygasł albo jest zły). Wklej nowy.": "The key to the notes repository does not work (expired or wrong). Paste a new one.",
+      "Klucz ma tylko odczyt, więc pytanie nie poszło.": "The key is read-only, so the question was not sent.",
+      "Klucz ma tylko odczyt. Potrzebny nowy klucz z uprawnieniem Contents: Read and write.": "The key is read-only. You need a new key with the Contents: Read and write permission.",
+      "Kompilacja się nie udała – popraw błąd i uruchom jeszcze raz.": "Compilation failed – fix the error and run it again.", "Kończę…": "Finishing…", "Krok dalej": "Step forward", "Krok programu": "Program step",
+      "Krok wstecz": "Step back",
+      "Masz już klucz w Safari? Otwórz tę stronę w Safari, dotknij „Skopiuj klucz” na górze strony i wróć tutaj do „Wklej ze schowka”.": "Already have the key in Safari? Open this page in Safari, tap “Copy key” at the top and come back here to “Paste from clipboard”.",
+      "Materiały do ćwiczenia są tylko w Twojej aplikacji, nie w podglądzie gościa.": "Practice materials are only in your own app, not in the guest preview.", "Mowa na tekst": "Speech to text",
+      "Na co się przygotować na jutro?": "What should I prepare for tomorrow?",
+      "Na laptopie uruchom: ~/SimpleAGH/tools/notes_qr.sh i zeskanuj kod aparatem telefonu.": "On the laptop run ~/SimpleAGH/tools/notes_qr.sh and scan the code with the phone camera.",
+      "Na pewno? Dotknij jeszcze raz": "Sure? Tap again",
+      "Nagranie przepisuje Groq (darmowy Whisper, ten sam co w ChatGPT). Potrzebny jest klucz, tylko raz:": "Groq transcribes the recording (free Whisper, the same as in ChatGPT). It needs a key, only once:",
+      "Nagranie zakończone": "Recording finished", "Nagranie: ": "Recording: ", "Nagrywaj korki": "Record tutoring", "Nagrywaj wykład": "Record the lecture", "Nagrywam": "Recording", "Nagrywanie": "Recording",
+      "Nagrywanie trwa – notatka uzupełnia się co kilka minut.": "Recording in progress – the note updates every few minutes.", "Nagrywanie trwa: ": "Recording in progress: ", "Nagrywanie wstrzymane": "Recording paused",
+      "Nagrywanie wykładu": "Lecture recording", "Najpierw wybierz zajęcia": "Choose the class first", "Nie": "No",
+      "Nie blokuj telefonu i nie wychodź z tej strony – wtedy iPhone wyłącza mikrofon.": "Do not lock the phone or leave this page – the iPhone turns the microphone off then.",
+      "Nie da się odczytać tego pliku. Zrób zdjęcie jeszcze raz.": "This file cannot be read. Take the photo again.",
+      "Nie da się otworzyć tego linku – jest niepełny albo uszkodzony. Poproś o nowy.": "This link cannot be opened – it is incomplete or broken. Ask for a new one.",
+      "Nie da się włączyć mikrofonu (": "Cannot turn on the microphone (", "Nie ma jeszcze tekstu z nagrania.": "No text from the recording yet.", "Nie ma odpowiedzi po ": "No answer after ", "Nie rozumiem…": "I don't get it…",
+      "Nie udało się połączyć z kompilatorem (godbolt.org). Sprawdź internet.": "Could not reach the compiler (godbolt.org). Check your internet.",
+      "Nie udało się teraz odpowiedzieć. Spróbuj zapytać jeszcze raz.": "Could not answer right now. Try asking again.", "Nie udało się wczytać nagrania.": "Could not load the recording.",
+      "Nie udało się wczytać strony do nauki. Spróbuję jeszcze raz za chwilę.": "Could not load the study page. I will try again in a moment.",
+      "Nie udało się wysłać pytania. Sprawdź internet i spróbuj jeszcze raz.": "Could not send the question. Check your internet and try again.",
+      "Nie udało się wysłać tekstu na GitHuba – spróbuję jeszcze raz.": "Could not send the text to GitHub – I will try again.", "Nie udało się wysłać zdjęcia (": "Could not send the photo (",
+      "Nie udało się wysłać. Uruchom logowanie na komputerze jeszcze raz.": "Could not send. Start the sign-in on the computer again.", "Nie udało się – spróbuj jeszcze raz": "Failed – try again",
+      "Notatka: Claude dopisuje nagranie": "Note: Claude is adding the recording", "Notatka: czeka na Claude'a.": "Note: waiting for Claude.",
+      "Notatka: pierwsza paczka tekstu pójdzie za kilka minut.": "Note: the first batch of text goes out in a few minutes.", "Notatka: uzupełniona do ": "Note: updated up to ", "Nowa rozmowa": "New conversation",
+      "Od czego zacząć dziś?": "Where should I start today?", "Od nowa": "From the start", "Odtwarzaj": "Play", "Ostatnie robienie notatek się nie udało. ": "The last note run failed. ", "Otwórz ": "Open ",
+      "Otwórz notatkę": "Open the note", "Pauza": "Pause", "Pokaż mniej": "Show less", "Pokaż to na przykładzie": "Show it with an example", "Pokaż wszystkie (": "Show all (", "Powiadomienia z UPeL-a": "UPeL notifications",
+      "Powiadomienia z UPeL-a są wyłączone w Ustawieniach iPhone'a (Ustawienia → Powiadomienia → Notatki).": "UPeL notifications are turned off in iPhone Settings (Settings → Notifications → Notatki).",
+      "Powiadomienia z UPeL-a zadziałają, gdy dodasz Notatki do ekranu początkowego jeszcze raz (Safari → Udostępnij → Do ekranu początkowego).": "UPeL notifications will work after you add the notes to the Home Screen again (Safari → Share → Add to Home Screen).",
+      "Powiadomienie na telefonie, gdy na UPeL-u pojawi się coś nowego: ogłoszenie, materiał albo termin.": "A notification on the phone when something new appears on UPeL: an announcement, a material or a deadline.",
+      "Powiększ rysunek": "Enlarge figure", "Powtórka": "Review", "Poza AGH": "Outside AGH", "Program działał za długo (pętla bez końca?).": "The program ran too long (endless loop?).",
+      "Program przerwany (sygnał ": "Program stopped (signal ", "Program robi więcej kroków – animacja pokazuje pierwsze ": "The program takes more steps – the animation shows the first ",
+      "Przepisuję nagranie: zostało ": "Transcribing the recording: left ", "Przepisuję resztę: ": "Transcribing the rest: ", "Przygotowuję zdjęcie…": "Preparing the photo…", "Przywróć oryginał": "Restore original",
+      "Prędkość": "Speed", "Pytaj o naukę i plan": "Ask about studying and the plan", "Pytaj o tę notatkę": "Ask about this note", "Pytanie": "Question", "Rodzaj bramki": "Gate type",
+      "Safari nie dał dostępu do mikrofonu. Dotknij „Wznów” i zezwól.": "Safari did not allow the microphone. Tap “Resume” and allow it.", "Schemat układu": "Circuit diagram",
+      "Segmentation fault – program sięgnął do pamięci, do której nie ma dostępu": "Segmentation fault – the program accessed memory it has no access to", "Semestr": "Semester",
+      "Serwer GitHuba startuje…": "GitHub server is starting…", "SimpleAGH · podgląd do ": "SimpleAGH · preview until ", "SimpleAGH · podgląd notatek": "SimpleAGH · notes preview", "Skopiowany": "Copied",
+      "Skopiuj klucz": "Copy key", "Sprawdzam klucz…": "Checking the key…", "Strona do nauki jeszcze nie jest wgrana.": "The study page is not uploaded yet.", "Szczegóły ↗": "Details ↗",
+      "Ta przeglądarka nie umie nagrywać dźwięku.": "This browser cannot record audio.",
+      "Ta strona zapisuje zdjęcia w Twoim prywatnym repozytorium z notatkami. Potrzebuje do niego klucza; zostaje tylko w tym telefonie.": "This page saves photos in your private notes repository. It needs a key for it; the key stays only on this phone.",
+      "Tak, zaloguj": "Yes, sign in", "Tekst: czeka ": "Text: waiting ", "Tekst: na bieżąco.": "Text: up to date.", "Telefon słucha ": "The phone listens to the ",
+      "Ten link już wygasł. Poproś o nowy.": "This link has expired. Ask for a new one.", "Ten link wygasł albo został usunięty. Poproś o nowy.": "This link expired or was deleted. Ask for a new one.", "Ten tydzień": "This week",
+      "To, co program przeczyta przez scanf, np. 5 7": "What the program reads with scanf, e.g. 5 7",
+      "Tu pojawia się tekst tego, co mówi prowadzący – z opóźnieniem ok. minuty.": "The text of what the lecturer says appears here – about a minute late.",
+      "Tu zobaczysz każde zdjęcie: jak się wysyła, jak Claude je czyta i kiedy notatka jest gotowa.": "Here you will see every photo: how it uploads, how Claude reads it and when the note is ready.",
+      "Twój plan, UPeL i notatki": "your plan, UPeL and notes", "Usuń": "Delete", "Usuń bramkę": "Delete gate", "Usuń zaznaczenie": "Clear selection", "Usuń zdjęcie": "Delete photo",
+      "W kolejce – Claude kończy poprzednie zdjęcia": "In the queue – Claude is finishing the previous photos", "W kolejce – pójdzie po odpowiedzi na poprzednie": "In the queue – goes after the answer to the previous one",
+      "Wejście": "Input", "Widok": "View", "Widok przedmiotu": "Course view", "Widzi ": "Sees ", "Więcej": "More", "Wklej nowy klucz Groq": "Paste a new Groq key", "Wklej ze schowka": "Paste from clipboard", "Wróć": "Back",
+      "Wróć do nagrywania": "Back to recording", "Wróć tutaj i dotknij „Wklej ze schowka”.": "Come back here and tap “Paste from clipboard”.", "Wróć ›": "Back ›", "Wstrzymane": "Paused",
+      "Wszystko gotowe. Dotknij zdjęcia, żeby przeczytać notatkę.": "All done. Tap a photo to read the note.",
+      "Wszystko wysłane. Claude układa ostateczną notatkę – zwykle kilka minut.": "Everything sent. Claude is putting together the final note – usually a few minutes.", "Wybierz zajęcia…": "Choose a class…", "Wyczyść": "Clear",
+      "Wyjście": "Output", "Wysyłam ostatni tekst…": "Sending the last text…", "Wysyłam tekst z nagrania…": "Sending text from the recording…", "Wysyłam…": "Sending…", "Wysyłam… ": "Sending… ",
+      "Wytłumacz najtrudniejszą rzecz z tej notatki": "Explain the hardest thing in this note", "Wytłumacz to prościej": "Explain it more simply", "Wytłumacz: ": "Explain: ", "Wyślij": "Send", "Wznów": "Resume",
+      "Włącz powiadomienia": "Turn on notifications", "Włączam mikrofon…": "Turning on the microphone…", "Włączam…": "Turning on…", "Z galerii": "From gallery", "Zacznij nagrywać": "Start recording", "Zadanie": "Exercise",
+      "Zakończ": "Finish", "Zalogować komputer tym samym kluczem co ten telefon? Na ekranie komputera powinien być kod ": "Sign in the computer with the same key as this phone? The computer screen should show the code ",
+      "Zapisuję notatkę…": "Saving the note…", "Zapisz klucz": "Save key", "Zapytaj": "Ask", "Zapytaj Claude'a": "Ask Claude", "Zapytaj o cokolwiek…": "Ask anything…", "Zapytaj o to": "Ask about this", "Zdjęcia": "Photos",
+      "Zdjęcia rób przyciskiem „Zdjęcie” na ekranie nagrywania. Telefon przełącz na wyciszony, żeby aparat nie pstrykał.": "Take photos with the “Photo” button on the recording screen. Switch the phone to silent so the camera does not click.",
+      "Zdjęcie": "Photo", "Zdjęcie ": "Photo ", "Zdjęcie trafi do notatki z tych zajęć.": "The photo goes into the note from this class.", "Zdjęcie z zajęć": "Photo from class", "Zdjęcie: wysyłam…": "Photo: sending…",
+      "Zlecone": "Requested", "Zmień klucz Groq": "Change Groq key", "Zmień kod": "Edit code", "Zrób od nowa": "Redo", "Zrób zdjęcie": "Take a photo", "Zrób zdjęcie kartki": "Photo of the sheet",
+      "Zrób zdjęcie tablicy": "Photo of the board", "bramka": "gate", "cel": "goal", "fałsz": "false", "kompiluję…": "compiling…", "korepetytor.": "tutor.", "korepetytora": "tutor", "korki": "tutoring", "materiał": "material",
+      "najwyżej {a}": "at most {a}", "nie udało się": "failed", "notatka gotowa": "note ready", "w toku": "in progress", "Tematy": "Topics", "Spis": "Contents", "niezainicjalizowana – w pamięci są przypadkowe śmieci": "uninitialised – memory holds random garbage", "notatkę „": "the note “", "” · ": "” · ", "prawda": "true",
+      "program zakończył się kodem ": "the program exited with code ", "prowadzącego": "lecturer", "prowadzący.": "lecturer.", "przed chwilą · ": "just now · ", "teraz · ": "now · ", "trwa ": "in progress ", "twój": "yours",
+      "w toku: ": "in progress: ", "z zajęć: ": "from class: ", "„Create API Key”, nazwa dowolna, skopiuj klucz (gsk_…).": "“Create API Key”, any name, copy the key (gsk_…).", "… jeszcze ": "… ",
+      "Nagrywanie trwa – notatka": "Recording in progress – note" },
     tr: { "Przedmioty": "Dersler", "‹ Wszystkie": "‹ Tümü", "Przewodnik": "Rehber", "Kolokwia": "Sınavlar", "Dowody": "İspatlar", "Zajęcia": "Notlar", "Działy": "Konular", "‹ Działy": "‹ Konular",
       "ostatnio · ": "son · ", "Część tej notatki jest też w dziale: ": "Bu notun bir kısmı şurada da: ", "Pokaż notatkę": "Notu göster", "Kopiuj": "Kopyala", "Skopiowane": "Kopyalandı", "Nie udało się": "Olmadı", "Zwiń": "Daralt",
       "Nowa notatka": "Yeni not", "Jeszcze nie ma notatek z tego przedmiotu. Zrób zdjęcie tablicy w zakładce Aparat.": "Bu ders için henüz not yok.",
@@ -871,6 +977,10 @@ html.rec-open { overflow: hidden; }
     DAY_L = UILANG === "en" ? ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"] : ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"];
     MON_G = UILANG === "en" ? ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"] : ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
     document.documentElement.lang = UILANG;
+    document.querySelectorAll("body *").forEach(function (e) {   // napisy wpisane w HTML (zakładki, okienka) – zanim cokolwiek się narysuje
+      ["aria-label", "placeholder", "title", "alt"].forEach(function (a) { var v = e.getAttribute(a); if (v) e.setAttribute(a, Ln(v)); });
+      e.childNodes.forEach(function (n) { var t = n.nodeType === 3 && n.nodeValue.trim(); if (t) n.nodeValue = n.nodeValue.replace(t, Ln(t)); });
+    });
   }
   var HASH0 = location.hash;   // zanim ikonka wyczyści adres: może nieść też klucz Groq (#…&groq=gsk_…)
   var m = VISIT ? null : /[#&]t=([A-Za-z0-9_]+)/.exec(location.hash);
@@ -916,9 +1026,9 @@ html.rec-open { overflow: hidden; }
   function shortDay(iso) { var t = isoDay(new Date()), y = isoDay(new Date(Date.now() - 864e5)); return iso === t ? Ln("dziś") : iso === y ? Ln("wczoraj") : dayLabel(iso); }
   function mins(t) { var p = t.split(":"); return (+p[0]) * 60 + (+p[1]); }
   function nNotes(n) { if (UILANG === "en") return n + (n === 1 ? " note" : " notes"); if (UILANG === "tr") return n + " not"; return n === 1 ? "1 notatka" : n + (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? " notatki" : " notatek"); }
-  function nPhotos(n) { return n === 1 ? "1 zdjęcie" : n + (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? " zdjęcia" : " zdjęć"); }
+  function nPhotos(n) { if (UILANG === "en") return n + (n === 1 ? " photo" : " photos"); return n === 1 ? "1 zdjęcie" : n + (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? " zdjęcia" : " zdjęć"); }
   function F(id) { return CFG ? (CFG.folders || []).filter(function (f) { return f.id === id; })[0] : null; }
-  function fname(f) { return (CFG.names || {})[f.course] || f.course; }
+  function fname(f) { return trS((CFG.names || {})[f.course] || f.course); }
   function fcolor(f) { return "--cc:var(--c-" + ((CFG.colors || {})[f.course] || "pl1") + ")"; }
   function clock(sec) { sec = Math.max(0, Math.round(sec)); return Math.floor(sec / 60) + ":" + pad(sec % 60); }
 
@@ -942,13 +1052,16 @@ html.rec-open { overflow: hidden; }
     return Promise.all([zGet("z/i.bin" + m).then(gunzipJson), UILANG === "pl" ? null : zGet("z/i-" + UILANG + ".bin" + m).then(gunzipJson, function () { return null; })])
       .then(function (r) { r[0].trx = r[1]; return r[0]; });
   }
+  function trS(t) { var s = !VISIT && TRX && TRX.s; return (s && s[t]) || t; }   // krótki tekst spoza notatek (tytuł materiału) w wybranym języku
   function trIndex(B, tree) {   // index.json w wybranym języku: przetłumaczona treść tam, gdzie już jest; polski oryginał zostaje w mdPl (odnośniki mają polskie kotwice)
     var X = B.trx, ix = JSON.parse(JSON.stringify(B.index));
     if (UILANG === "pl") return ix;
     // u właściciela (tree = drzewo repo) tłumaczenie starsze niż notatka odpada: X.src to sha źródła, z którego tłumaczono
     function fresh(p) { return !tree || !X.src || tree[p] === X.src[p]; }
+    var S = (X && X.s) || {};   // tematy z planu nauki (te same brzmienia co w Nauce po tłumaczeniu, naukaTr)
     Object.keys(ix.notes || {}).forEach(function (k) {
       var n = ix.notes[k], t = X && X.notes && X.notes[k];
+      (n.topics || []).forEach(function (x) { if (S[x.t]) x.t = S[x.t]; });
       if (t && fresh("notes/" + k + ".md")) { n.mdPl = n.md; n.md = t; var mt = /^#\s+(.+)$/m.exec(t); if (mt) n.title = mt[1].trim(); } else n.untr = t ? "old" : true;
     });
     Object.keys(ix.courses || {}).forEach(function (c) { if (X && X.courses && X.courses[c] && fresh("courses/" + c + ".md")) ix.courses[c].md = X.courses[c]; });
@@ -969,7 +1082,7 @@ html.rec-open { overflow: hidden; }
         return crypto.subtle.importKey("raw", b64bytes(VISIT.key), "AES-GCM", false, ["decrypt"]).then(function (k) { return crypto.subtle.decrypt({ name: "AES-GCM", iv: new Uint8Array(buf, 0, 12) }, k, new Uint8Array(buf, 12)); });
       })
       .then(function (pt) { var B = JSON.parse(new TextDecoder().decode(pt)); if (Date.now() > Date.parse(B.expires)) throw { code: "expired" }; VISIT.expires = B.expires; return B; });
-    visitReady.catch(function (e) { visitErr = e && e.code === "expired" ? "Ten link już wygasł. Poproś o nowy." : e && e.code === "gone" ? "Ten link wygasł albo został usunięty. Poproś o nowy." : "Nie da się otworzyć tego linku – jest niepełny albo uszkodzony. Poproś o nowy."; render(); });
+    visitReady.catch(function (e) { visitErr = e && e.code === "expired" ? Ln("Ten link już wygasł. Poproś o nowy.") : e && e.code === "gone" ? Ln("Ten link wygasł albo został usunięty. Poproś o nowy.") : Ln("Nie da się otworzyć tego linku – jest niepełny albo uszkodzony. Poproś o nowy."); render(); });
   }
   function visitApi(path, o) {
     return visitReady.then(function (B) {
@@ -1139,7 +1252,7 @@ html.rec-open { overflow: hidden; }
       });
     }).then(function () { e.state = "sent"; e.file = null; e.pct = 1; render(); setTimeout(refresh, 2500); }, function (err) {
       e.state = "error";
-      e.err = err && err.code === "decode" ? "Nie da się odczytać tego pliku. Zrób zdjęcie jeszcze raz." : err && err.code === "auth" ? "Klucz do repozytorium nie działa." : err && err.code === "net" ? "Brak internetu. Zdjęcie czeka w telefonie, dotknij, żeby wysłać jeszcze raz." : err && err.status === 403 ? "Klucz ma tylko odczyt. Potrzebny nowy klucz z uprawnieniem Contents: Read and write." : "Nie udało się wysłać zdjęcia (" + (err && err.status || "?") + "). Dotknij, żeby spróbować jeszcze raz.";
+      e.err = err && err.code === "decode" ? Ln("Nie da się odczytać tego pliku. Zrób zdjęcie jeszcze raz.") : err && err.code === "auth" ? Ln("Klucz do repozytorium nie działa.") : err && err.code === "net" ? Ln("Brak internetu. Zdjęcie czeka w telefonie, dotknij, żeby wysłać jeszcze raz.") : err && err.status === 403 ? Ln("Klucz ma tylko odczyt. Potrzebny nowy klucz z uprawnieniem Contents: Read and write.") : Ln("Nie udało się wysłać zdjęcia (") + (err && err.status || "?") + Ln("). Dotknij, żeby spróbować jeszcze raz.");
       render();
     });
   }
@@ -1184,7 +1297,7 @@ html.rec-open { overflow: hidden; }
     s = s.replace(/\$(?=\S)([^$\n]*?\S)\$(?![0-9A-Za-z])([.,;:!?)\]]*)/g, function (_, m, p) {   // przecinek albo nawias zaraz po wzorze nie przeskakuje do nowej linii
       var h = tex(unesc(m) + (p ? "\\text{" + p + "}" : ""), disp); links.push(m.length <= 16 ? '<span class="nw">' + h + "</span>" : h); return "\u0001" + (links.length - 1) + "\u0002"; });   // krótki wzór ($y = 1$) w całości w jednej linii   // przecinek/kropka po wzorze w środku wzoru: nie spadnie sama do nowej linii, a długi wzór dalej łamie się po „=”, „+”
     s = s.replace(/\[\[m:([0-9a-f]{10})(?:\|([^\]]*))?\]\]/g, function (_, id, label) {   // materiał do ćwiczenia: dokładnie ta strona pliku
-      links.push('<button type="button" class="mlink" data-m="' + id + '">' + (label || "materiał").replace(/\*/g, "") + "</button>");
+      links.push('<button type="button" class="mlink" data-m="' + id + '">' + (label || Ln("materiał")).replace(/\*/g, "") + "</button>");
       return "\u0001" + (links.length - 1) + "\u0002";
     });
     s = s.replace(/\[\[([A-Za-z0-9_-]+\/\d{4}-\d{2}-\d{2})(?:#([^\]|]*))?(?:\|([^\]]*))?\]\]/g, function (_, key, sec, label) {
@@ -1206,8 +1319,8 @@ html.rec-open { overflow: hidden; }
       .replace(/(\{(?:z\d{1,2}|t\d{1,2}:\d{2})\}\s*){2,}/g, function (run) {   // kilka odnośników z rzędu: pierwsze zdjęcie i pierwsza chwila nagrania wystarczą
         var z = /\{z\d{1,2}\}/.exec(run), t = /\{t\d{1,2}:\d{2}\}/.exec(run); return (z ? z[0] : "") + (t ? t[0] : "") + /\s*$/.exec(run)[0];
       })
-      .replace(/\{z(\d{1,2})\}/g, '<button type="button" class="zref" data-z="$1" title="Zdjęcie $1">$1</button>')
-      .replace(/\{t(\d{1,2}):(\d{2})\}/g, function (_, h, mi) { var t = pad(h) + ":" + mi; return VISIT ? '<span class="tref">' + t + "</span>" : '<button type="button" class="tref" data-t="' + t + '" title="Co mówił prowadzący o ' + t + '">' + t + "</button>"; });
+      .replace(/\{z(\d{1,2})\}/g, '<button type="button" class="zref" data-z="$1" title="' + Ln("Zdjęcie") + ' $1">$1</button>')
+      .replace(/\{t(\d{1,2}):(\d{2})\}/g, function (_, h, mi) { var t = pad(h) + ":" + mi; return VISIT ? '<span class="tref">' + t + "</span>" : '<button type="button" class="tref" data-t="' + t + '" title="' + Lf("Co mówił prowadzący o {a}", t) + '">' + t + "</button>"; });
   }
   function plain(lines) {  // nagłówki, listy, tabele, akapity
     var out = [], list = null, para = [], tbl = null;
@@ -1233,7 +1346,7 @@ html.rec-open { overflow: hidden; }
       if ((mm = /^\s*(\d+)[.)]\s+(.*)$/.exec(ln))) { flushP(); if (!list || list.t !== "ol") { flushL(); list = { t: "ol", items: [], start: +mm[1] }; } list.items.push(mm[2]); return; }   // „5.” po wzorze „::” liczy dalej od 5
       if ((mm = /^\s*!\[([^\]]*)\]\((figs\/[A-Za-z0-9_\/.-]+\.jpg)\)(.*)$/.exec(ln))) {   // wycinek ze zdjęcia
         flushP(); flushL();
-        out.push('<figure class="fg"><button type="button" class="fgb" data-fig="' + esc(mm[2]) + '" aria-label="Powiększ rysunek"><img alt="' + esc(mm[1]) + '"></button><figcaption>' + inline(esc(mm[1] + mm[3])) + "</figcaption></figure>");
+        out.push('<figure class="fg"><button type="button" class="fgb" data-fig="' + esc(mm[2]) + '" aria-label="' + Ln("Powiększ rysunek") + '"><img alt="' + esc(mm[1]) + '"></button><figcaption>' + inline(esc(mm[1] + mm[3])) + "</figcaption></figure>");
         return;
       }
       if (/^\s*(\{(z\d{1,2}|t\d{1,2}:\d{2})\}\s*)+$/.test(ln)) { flushP(); flushL(); out.push('<p class="zrow">' + inline(esc(ln.trim())) + "</p>"); return; }   // samo „{z1}” w linii: źródło pod elementem
@@ -1247,7 +1360,7 @@ html.rec-open { overflow: hidden; }
   function callout(q) {  // stary format „> [!DEF] …” (notatki sprzed zmiany wyglądu)
     var mm = /^\[!([^\]]+)\]\s*(.*)$/.exec((q[0] || "").trim()), type = CALL[mm[1].trim().toUpperCase()] || ["plain", mm[1].trim()], title = mm[2]; q = q.slice(1);
     var cut = q.findIndex(function (x) { return /^\s*-{3,}\s*$/.test(x); });
-    var head = "<p><strong>" + esc(type[1]) + "</strong>" + (title ? " (" + inline(esc(title)) + ")." : ".") + "</p>";
+    var head = "<p><strong>" + esc(Ln(locEl(type[1]))) + "</strong>" + (title ? " (" + inline(esc(title)) + ")." : ".") + "</p>";
     if (type[0] === "task" && cut >= 0) return task(head + md(q.slice(0, cut).join("\n")), q.slice(cut + 1));
     var k = { def: "def", thm: "thm", ex: "ex", warn: "rem", plain: "rem", eq: "def", gist: "lead", mem: "def", task: "task" }[type[0]] || "rem";
     return '<div class="env ' + k + '">' + head + md(q.join("\n")) + "</div>";
@@ -1965,7 +2078,7 @@ html.rec-open { overflow: hidden; }
         var k = w.charAt(0).toLowerCase() + n, g = p.figs && p.figs[k];
         if (!g || seen[k]) continue;
         seen[k] = 1;
-        out += '<figure class="fg"><button type="button" class="fgb" data-fig="' + esc(g.path) + '" aria-label="Powiększ rysunek"><img alt="' + esc(g.cap) + '"' + (blobs[g.path] ? ' src="' + blobs[g.path] + '"' : "") + "></button><figcaption>" + inline(esc(g.cap)) + "</figcaption></figure>";
+        out += '<figure class="fg"><button type="button" class="fgb" data-fig="' + esc(g.path) + '" aria-label="' + Ln("Powiększ rysunek") + '"><img alt="' + esc(g.cap) + '"' + (blobs[g.path] ? ' src="' + blobs[g.path] + '"' : "") + "></button><figcaption>" + inline(esc(g.cap)) + "</figcaption></figure>";
       }
     });
     return out;
@@ -2432,7 +2545,7 @@ html.rec-open { overflow: hidden; }
     var ix = RUN_SRC.indexOf(src); if (ix < 0) { RUN_SRC.push(src); ix = RUN_SRC.length - 1; }
     return '<div class="runc" data-src="' + ix + '"><pre><code>' + CT.highlight(src) + '</code></pre>' +
       '<div class="run-bar"><button type="button" class="run-go">▶ Uruchom</button><button type="button" class="run-edit">Zmień kod</button><button type="button" class="run-stdin">Dane wejściowe</button></div>' +
-      '<textarea class="run-in" rows="2" placeholder="To, co program przeczyta przez scanf, np. 5 7" hidden></textarea><div class="term" hidden></div></div>';
+      '<textarea class="run-in" rows="2" placeholder="' + Ln("To, co program przeczyta przez scanf, np. 5 7") + '" hidden></textarea><div class="term" hidden></div></div>';
   }
   var GB = "https://godbolt.org/api/compiler/cg162/compile";
   function gbRun(source, stdin, args) {
@@ -2449,7 +2562,7 @@ html.rec-open { overflow: hidden; }
     var oldPanel = box.querySelector(".ct-panel"); if (oldPanel) oldPanel.remove();
     term.hidden = false; term.textContent = "";
     function line(cls, text) { var d = el("div", { class: cls }); if (cls === "tl-cmd") { d.appendChild(el("span", { class: "pr", text: "$" })); d.appendChild(document.createTextNode(" " + text)); } else d.textContent = text; term.appendChild(d); return d; }
-    line("tl-cmd", "gcc main.c -Wall -Wextra -o main"); var wait = line("tl-dim", "kompiluję…");
+    line("tl-cmd", "gcc main.c -Wall -Wextra -o main"); var wait = line("tl-dim", Ln("kompiluję…"));
     go.disabled = true;
     var inst = null; try { inst = CT.instrument(src); } catch (e) { console.warn(e); }   // nie rozumiem kodu → zwykłe uruchomienie bez animacji
     var traced = inst ? gbRun(inst.code, input, "-w -ftrivial-auto-var-init=pattern -fdiagnostics-color=never").catch(function () { return null; }) : Promise.resolve(null);
@@ -2458,7 +2571,7 @@ html.rec-open { overflow: hidden; }
       term.removeChild(wait);
       var b = d.buildResult || {}, berr = gbText(b.stderr).replace(/<source>/g, "main.c").replace(/\x1b?\[[0-9;]*[mK]/g, "");
       if (berr) line(b.code ? "tl-err" : "tl-warn", berr);
-      if (b.code) { line("tl-dim", "Kompilacja się nie udała – popraw błąd i uruchom jeszcze raz."); return; }
+      if (b.code) { line("tl-dim", Ln("Kompilacja się nie udała – popraw błąd i uruchom jeszcze raz.")); return; }
       line("tl-cmd", "./main" + (stdin.hidden || !stdin.value ? "" : " < dane"));
       var T = null;
       if (t && !(t.buildResult || {}).code) {
@@ -2466,7 +2579,7 @@ html.rec-open { overflow: hidden; }
       } else if (t) console.warn("ślad się nie skompilował", gbText((t.buildResult || {}).stderr));
       if (T && T.ev.length) { ctStart(box, src, inst, T, d, input); return; }
       var r = el("div", { class: "tl-run" }); term.appendChild(r); ctPlain(r, d);
-    }).catch(function () { wait.textContent = "Nie udało się połączyć z kompilatorem (godbolt.org). Sprawdź internet."; })
+    }).catch(function () { wait.textContent = Ln("Nie udało się połączyć z kompilatorem (godbolt.org). Sprawdź internet."); })
       .then(function () { go.disabled = false; });
   }
   function ctLine(box, cls, text) { box.appendChild(el("div", { class: cls, text: text })); }
@@ -2474,14 +2587,14 @@ html.rec-open { overflow: hidden; }
     var outT = gbText(d.stdout).replace(/\s+$/, ""), errT = gbText(d.stderr).replace(/^(Killed - processing time exceeded|Program terminated with signal: SIGKILL)$/gm, "").trim();   // komunikaty godbolta o przekroczonym czasie zastępuje zdanie niżej
     if (outT) ctLine(r, "tl-out", outT);
     if (errT) ctLine(r, "tl-err", errT);
-    if (d.timedOut) ctLine(r, "tl-err", "Program działał za długo (pętla bez końca?).");
-    if (!outT && !errT && !d.timedOut) ctLine(r, "tl-dim", "(program nic nie wypisał)");
-    if (d.code && !d.timedOut) ctLine(r, "tl-dim", "program zakończył się kodem " + d.code);
+    if (d.timedOut) ctLine(r, "tl-err", Ln("Program działał za długo (pętla bez końca?)."));
+    if (!outT && !errT && !d.timedOut) ctLine(r, "tl-dim", Ln("(program nic nie wypisał)"));
+    if (d.code && !d.timedOut) ctLine(r, "tl-dim", Ln("program zakończył się kodem ") + d.code);
   }
 
   /* --- animacja wykonania: przesuwające się podświetlenie kodu, zmienne po każdym kroku, terminal wypisuje na bieżąco --- */
   var CT_MS = 750, CT_SP = [1, 2, 4];
-  var CT_SIG = { 11: "Segmentation fault – program sięgnął do pamięci, do której nie ma dostępu", 8: "Floating point exception – dzielenie przez zero", 6: "Aborted – program sam się przerwał", 7: "Bus error – zły adres w pamięci", 4: "Illegal instruction" };
+  var CT_SIG = { 11: Ln("Segmentation fault – program sięgnął do pamięci, do której nie ma dostępu"), 8: Ln("Floating point exception – dzielenie przez zero"), 6: Ln("Aborted – program sam się przerwał"), 7: Ln("Bus error – zły adres w pamięci"), 4: "Illegal instruction" };
   var CT_I = {
     play: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.2v13.6L19 12z" fill="currentColor"/></svg>',
     pause: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h3.6v14H7zM13.4 5H17v14h-3.6z" fill="currentColor"/></svg>',
@@ -2509,7 +2622,7 @@ html.rec-open { overflow: hidden; }
     });
     var view = box.querySelector("pre, .ct-code"), ta = box.querySelector("textarea.run-src");
     A.code = el("div", { class: "ct-code" }, [inner]);
-    if (ta && !ta.hidden) { ta.hidden = true; box.querySelector(".run-edit").textContent = "Zmień kod"; }
+    if (ta && !ta.hidden) { ta.hidden = true; box.querySelector(".run-edit").textContent = Ln("Zmień kod"); }
     if (view) box.replaceChild(A.code, view); else box.insertBefore(A.code, box.firstChild);
     // sterowanie + zmienne
     A.play = el("button", { type: "button", class: "ct-play" }); A.play.addEventListener("click", function () {
@@ -2517,16 +2630,16 @@ html.rec-open { overflow: hidden; }
       if (A.k >= A.n - 1) ctShow(box, -1);
       ctPlay(box);
     });
-    var prev = el("button", { type: "button", "aria-label": "Krok wstecz", html: CT_I.prev }), next = el("button", { type: "button", "aria-label": "Krok dalej", html: CT_I.next });
+    var prev = el("button", { type: "button", "aria-label": Ln("Krok wstecz"), html: CT_I.prev }), next = el("button", { type: "button", "aria-label": Ln("Krok dalej"), html: CT_I.next });
     prev.addEventListener("click", function () { ctStop(box); ctShow(box, Math.max(-1, A.k - 1)); });
     next.addEventListener("click", function () { ctStop(box); ctShow(box, Math.min(A.n - 1, A.k + 1)); });
-    A.range = el("input", { type: "range", min: "0", max: String(A.n), value: "0", "aria-label": "Krok programu" });
+    A.range = el("input", { type: "range", min: "0", max: String(A.n), value: "0", "aria-label": Ln("Krok programu") });
     A.range.addEventListener("input", function () { ctStop(box); ctShow(box, +A.range.value - 1); });
     A.cnt = el("span", { class: "ct-k" });
-    var sp = el("button", { type: "button", class: "ct-sp", "aria-label": "Prędkość", text: CT_SP[A.sp] + "×" });
+    var sp = el("button", { type: "button", class: "ct-sp", "aria-label": Ln("Prędkość"), text: CT_SP[A.sp] + "×" });
     sp.addEventListener("click", function () { A.sp = (A.sp + 1) % CT_SP.length; sp.textContent = CT_SP[A.sp] + "×"; });
     A.vars = el("div", { class: "ct-vars" });
-    var note = T.stopped || T.cut ? el("p", { class: "ct-note", text: "Program robi więcej kroków – animacja pokazuje pierwsze " + A.n + ", wynik na końcu jest pełny." }) : null;
+    var note = T.stopped || T.cut ? el("p", { class: "ct-note", text: Ln("Program robi więcej kroków – animacja pokazuje pierwsze ") + A.n + Ln(", wynik na końcu jest pełny.") }) : null;
     var panel = el("div", { class: "ct-panel" }, [el("div", { class: "ct-ctl" }, [A.play, prev, next, A.range, A.cnt, sp]), note, A.vars]);
     var term = box.querySelector(".term");
     box.insertBefore(panel, term);
@@ -2550,7 +2663,7 @@ html.rec-open { overflow: hidden; }
     if (!A.play) return;
     var end = A.k >= A.n - 1 && !A.playing;
     A.play.innerHTML = A.playing ? CT_I.pause : end ? CT_I.again : CT_I.play;
-    A.play.setAttribute("aria-label", A.playing ? "Pauza" : end ? "Od nowa" : "Odtwarzaj");
+    A.play.setAttribute("aria-label", Ln(A.playing ? "Pauza" : end ? "Od nowa" : "Odtwarzaj"));
   }
   function ctEol(A, li) { return li + 1 < A.starts.length ? A.starts[li + 1] - 1 : A.src.length; }
   function ctLineAt(A, pos) { var lo = 0, hi = A.starts.length - 1; while (lo < hi) { var m = (lo + hi + 1) >> 1; if (A.starts[m] <= pos) lo = m; else hi = m - 1; } return lo; }
@@ -2578,7 +2691,7 @@ html.rec-open { overflow: hidden; }
       A.slab.style.transform = "translateY(" + y + "px)"; A.slab.style.height = h + "px";
       A.slab.classList.add("on"); A.slab.classList.toggle("err", last && !!T.crash);
       var bd = last && T.crash ? '<span class="ct-b err">tu program się wysypał</span>' :
-        e.cond !== undefined ? '<span class="ct-b' + (e.cond ? "" : " no") + '">' + (e.cond ? "prawda" : "fałsz") + "</span>" :
+        e.cond !== undefined ? '<span class="ct-b' + (e.cond ? "" : " no") + '">' + (e.cond ? Ln("prawda") : Ln("fałsz")) + "</span>" :
         e.ret ? '<span class="ct-b">zwraca ' + ctTxt(e.ret, A, null) + "</span>" :
         e.sw ? '<span class="ct-b">= ' + ctTxt(e.sw, A, null) + "</span>" : "";
       for (var li = L1; li <= L2; li++) {
@@ -2606,11 +2719,11 @@ html.rec-open { overflow: hidden; }
     var d = A.d, any = T.out0.length || A.segs.some(function (s) { return s.some(function (x) { return x[0] !== "i" && x[1]; }); });
     if ((T.stopped || T.cut) && !T.crash) { A.run.textContent = ""; ctPlain(A.run, d); return; }
     function say(cls, text) { A.run.appendChild(el("span", { class: cls, text: (A.run.textContent && !/\n$/.test(A.run.textContent) ? "\n" : "") + text + "\n" })); }
-    if (T.crash) say("tl-err", CT_SIG[T.crash] || "Program przerwany (sygnał " + T.crash + ")");
-    else if (d.timedOut) say("tl-err", "Program działał za długo (pętla bez końca?).");
+    if (T.crash) say("tl-err", CT_SIG[T.crash] || Ln("Program przerwany (sygnał ") + T.crash + ")");
+    else if (d.timedOut) say("tl-err", Ln("Program działał za długo (pętla bez końca?)."));
     else {
-      if (!any) say("tl-dim", "(program nic nie wypisał)");
-      if (d.code) say("tl-dim", "program zakończył się kodem " + d.code);
+      if (!any) say("tl-dim", Ln("(program nic nie wypisał)"));
+      if (d.code) say("tl-dim", Ln("program zakończył się kodem ") + d.code);
     }
   }
   /* zmienne: stan PO wykonaniu podświetlonego kroku; ramka bieżącej funkcji na górze, wywołujące niżej, globalne na dole */
@@ -2692,7 +2805,7 @@ html.rec-open { overflow: hidden; }
     if (!groups.some(function (g) { return g.list.length; })) return;
     if (groups.length > 6) { var cut = groups.length - 5; groups.splice(3, cut - 0, { more: cut }); }
     groups.forEach(function (g) {
-      if (g.more) { box.appendChild(el("div", { class: "ct-more", text: "… jeszcze " + g.more + " wywołań" })); return; }
+      if (g.more) { box.appendChild(el("div", { class: "ct-more", text: Ln("… jeszcze ") + g.more + Ln(" wywołań") })); return; }
       var fr = el("div", { class: "ct-fr" + (g.cur ? " cur" : g.glob ? " glob" : " old") });
       fr.appendChild(el("div", { class: "ct-fn", text: g.glob ? g.name : g.name + "()" }));
       var vs = el("div", { class: "ct-vs" });
@@ -2739,7 +2852,7 @@ html.rec-open { overflow: hidden; }
         body = el("span", { class: "ct-cells", html: h });
       }
     } else {
-      body = el("span", { class: "ct-x" + (chg ? " chg" : "") + (v.k === "st" ? " st" : ""), html: un && ctPat(v, o.size) ? '<span class="q" title="niezainicjalizowana – w pamięci są przypadkowe śmieci">?</span>' : ctTxt(v, A, ctx, un, x.st) });
+      body = el("span", { class: "ct-x" + (chg ? " chg" : "") + (v.k === "st" ? " st" : ""), html: un && ctPat(v, o.size) ? '<span class="q" title="' + Ln("niezainicjalizowana – w pamięci są przypadkowe śmieci") + '">?</span>' : ctTxt(v, A, ctx, un, x.st) });
     }
     wrap.appendChild(body);
     return wrap;
@@ -2753,12 +2866,12 @@ html.rec-open { overflow: hidden; }
       ctStop(box);
       var pre = box.querySelector("pre, .ct-code"), ta = box.querySelector("textarea.run-src"), pn = box.querySelector(".ct-panel");
       if (pn) pn.remove();
-      if (ta && ta.hidden) { if (pre) pre.remove(); ta.hidden = false; b.textContent = "Przywróć oryginał"; ta.focus(); return; }
+      if (ta && ta.hidden) { if (pre) pre.remove(); ta.hidden = false; b.textContent = Ln("Przywróć oryginał"); ta.focus(); return; }
       if (!ta) {
         ta = el("textarea", { class: "run-src", spellcheck: "false", autocapitalize: "off", autocomplete: "off" }); ta.value = RUN_SRC[+box.getAttribute("data-src")];
-        ta.rows = Math.min(24, ta.value.split("\n").length + 1); box.replaceChild(ta, pre); b.textContent = "Przywróć oryginał"; ta.focus();
+        ta.rows = Math.min(24, ta.value.split("\n").length + 1); box.replaceChild(ta, pre); b.textContent = Ln("Przywróć oryginał"); ta.focus();
       } else {
-        var p2 = el("pre", { html: "<code>" + CT.highlight(RUN_SRC[+box.getAttribute("data-src")]) + "</code>" }); box.replaceChild(p2, ta); b.textContent = "Zmień kod";
+        var p2 = el("pre", { html: "<code>" + CT.highlight(RUN_SRC[+box.getAttribute("data-src")]) + "</code>" }); box.replaceChild(p2, ta); b.textContent = Ln("Zmień kod");
       }
     }
   });
@@ -2787,7 +2900,7 @@ html.rec-open { overflow: hidden; }
       if (/^\s*>/.test(ln)) { flush(); var mn = []; while (i < L.length && /^\s*>/.test(L[i])) mn.push(L[i++].replace(/^\s*>\s?/, "")); out.push('<aside class="mn"><span class="mk" aria-hidden="true">†</span>' + inline(esc(mn.join(" "))) + "</aside>"); continue; }
       if (/^\s*::/.test(ln)) { flush(); var f = []; while (i < L.length && /^\s*::/.test(L[i])) f.push(inline(esc(L[i++].replace(/^\s*::\s?/, "")), true)); out.push('<div class="disp">' + f.join("<br>") + "</div>"); continue; }
       if (!inner && /^\s*\+\+\+/.test(ln)) {   // „+++ Podpis” … „+++”: zwinięte, otwiera się dotknięciem
-        flush(); var sum = ln.replace(/^\s*\+\+\+\s*/, "") || "Więcej"; var bl = []; i++;
+        flush(); var sum = ln.replace(/^\s*\+\+\+\s*/, "") || Ln("Więcej"); var bl = []; i++;
         while (i < L.length && !/^\s*\+\+\+\s*$/.test(L[i])) bl.push(L[i++]);
         i++; out.push('<details class="fold"><summary>' + inline(esc(sum)) + '</summary><div class="more-b">' + md(bl.join("\n")) + "</div></details>"); continue;
       }
@@ -2847,24 +2960,141 @@ html.rec-open { overflow: hidden; }
   }
 
   /* --- Nauka: strona SimpleAGH (nauka.html w prywatnym repo, wgrywa ją ~/SimpleAGH/tools/nauka_sync.sh po każdym przebudowaniu) --- */
+  /* Nauka po angielsku: nauka.html (SimpleAGH) przerobiona, zanim trafi do ramki. S = {polski tekst: tłumaczenie} z tr/<język>/index.json (tools/tlumacz.py).
+     Dane (bloki JSON) tylko w polach z NAUKA_KEYS – reszta to wartości, które skrypt porównuje (status, kind, priority, level…); napisy skryptów
+     i strony z ręcznego słownika NAUKA_EN, dokładne dopasowania z cudzysłowami: zmieniony szablon SimpleAGH zostaje w tym miejscu po polsku. */
+  // tekst tłumaczony, gdy jego klucz (w liście: klucz listy; w obiekcie z kluczem z listy, np. meta-data.names: klucz tego obiektu) jest tutaj
+  var NAUKA_KEYS = {
+    "study-data": ["now_label", "topic", "detail", "label", "next_label", "skip"],
+    "todo-data": ["title"],
+    "links-data": ["title"],
+    "analysis-data": ["years", "one_line", "format_prediction", "name", "frequency_text", "when", "how_to_prepare", "label", "seen_not_in_our_syllabus"],
+    "meta-data": ["names"]
+  };
+  var NAUKA_FIX = { "Korepetycje z matematyki": "Math tutoring" };   // gdy S jeszcze nie ma tłumaczenia
+  var KIND_EN = '{ "wykład": "lecture", "ćwiczenia": "class", "laboratorium": "lab", "korki": "tutoring" }';
+  var NAUKA_EN = [
+    // strona
+    ['<html lang="pl"', '<html lang="en"'],
+    ["</svg>Nauka</span>", "</svg>Study</span>"], ["</svg>Aparat</a>", "</svg>Camera</a>"], ["</svg>Notatki</a>", "</svg>Notes</a>"],
+    ["<h1>Czego się uczyć</h1>", "<h1>What to study</h1>"], ["<h2>Plan zajęć</h2>", "<h2>Timetable</h2>"],
+    ["<h2>Do zrobienia na UPeL-u</h2>", "<h2>To do on UPeL</h2>"], ["<h2>Przedmioty</h2>", "<h2>Courses</h2>"],
+    [">Odhaczone rzeczy zapisują się w tej przeglądarce.<", ">Checked items are saved in this browser.<"],
+    [">Zapytaj AI o to<", ">Ask AI about this<"], [">Zapytaj AI<", ">Ask AI<"], ['aria-label="Asystent AI"', 'aria-label="AI assistant"'],
+    [">Nowa rozmowa<", ">New chat<"], ['aria-label="Zamknij"', 'aria-label="Close"'], ['aria-label="Usuń zaznaczenie"', 'aria-label="Remove selection"'],
+    ['placeholder="Zapytaj o cokolwiek z nauki…"', 'placeholder="Ask anything about your studies…"'], ['aria-label="Pytanie"', 'aria-label="Question"'], [">Wyślij<", ">Send<"],
+    // daty
+    ['["Niedziela", "Poniedziałek", "Wtorek", "Środa", "Czwartek", "Piątek", "Sobota"]', '["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]'],
+    ['["stycznia", "lutego", "marca", "kwietnia", "maja", "czerwca", "lipca", "sierpnia", "września", "października", "listopada", "grudnia"]',
+     '["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]'],
+    ['["Pn", "Wt", "Śr", "Cz", "Pt"]', '["Mon", "Tue", "Wed", "Thu", "Fri"]'],
+    ['["sty", "lut", "mar", "kwi", "maj", "cze", "lip", "sie", "wrz", "paź", "lis", "gru"]', '["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]'],
+    ['{ Wed: "Środa", Thu: "Czwartek", Fri: "Piątek", Sat: "Sobota", Sun: "Niedziela", Mon: "Poniedziałek", Tue: "Wtorek" }',
+     '{ Wed: "Wednesday", Thu: "Thursday", Fri: "Friday", Sat: "Saturday", Sun: "Sunday", Mon: "Monday", Tue: "Tuesday" }'],
+    ["DAY_L[d.getDay()].toLowerCase() + \" \" + d.getDate()", "DAY_L[d.getDay()] + \" \" + d.getDate()"],
+    ['"dziś"', '"today"'], ['"jutro"', '"tomorrow"'], ['"pojutrze"', '"the day after tomorrow"'], ['"termin minął"', '"overdue"'],
+    ['" · tydzień "', '" · week "'], ['"tydzień "', '"week "'], ['" z 17"', '" of 17"'], ['" z "', '" of "'],
+    ['"ten tydzień"', '"this week"'], ['"następny tydzień"', '"next week"'], ['"poprzedni tydzień"', '"last week"'], ['"przerwa świąteczna"', '"holiday break"'],
+    ['"Poprzedni tydzień"', '"Previous week"'], ['"Następny tydzień"', '"Next week"'],
+    ['"Stan UPeL-a: "', '"UPeL as of: "'], ['". Materiały: slajdy i pliki od prowadzących."', '". Materials: slides and files from the lecturers."'],
+    ['"Odhaczone rzeczy zapisują się na Twoim koncie."', '"Checked items are saved to your account."'],
+    ['"Odhaczone rzeczy zapisują się w tej przeglądarce."', '"Checked items are saved in this browser."'],
+    // UPeL
+    ['"Nic do oddania na UPeL-u."', '"Nothing to hand in on UPeL."'], ['"do "', '"due "'], ['"Otwórz ↗"', '"Open ↗"'], ['"Wkrótce: "', '"Soon: "'],
+    ['") – pojawi się po najbliższych zajęciach, zrób przed kolejnymi."', '") – appears after the next class, do it before the one after."'],
+    ['") – " + t.status]', '") – " + String(t.status).replace(/^zrobione/, "done").replace(/^wysłane$/, "submitted").replace(/^do zrobienia$/, "to do")' +
+      '.replace(/^jeszcze nie opublikowane$/, "not published yet").replace(/^oceniane na zajęciach$/, "graded in class").replace(/^na zajęciach \\(na papierze\\)$/, "in class (on paper)")]'],
+    // plan zajęć: forma zajęć tylko do wyświetlenia (c.kind dalej po polsku – od niego zależą id odhaczeń)
+    ['"Brak planu z USOS-a."', '"No timetable from USOS."'], ['"Korki z matmy"', '"Math tutoring"'],
+    ['{ "wykład": "wykład", "ćwiczenia": "ćwiczenia", "laboratorium": "lab" }', '{ "wykład": "lecture", "ćwiczenia": "class", "laboratorium": "lab" }'],
+    ['name + ", " + c.kind + ", "', 'name + ", " + (' + KIND_EN + '[c.kind] || c.kind) + ", "'], ['": zrobione"', '": done"'],
+    ['name + " – " + c.kind + ", "', 'name + " – " + (' + KIND_EN + '[c.kind] || c.kind) + ", "'],
+    ['"wolne"', '"free"'], ['"Dotknij zajęć, żeby odhaczyć je jako zrobione."', '"Tap a class to mark it as done."'], ['"W tym tygodniu nie ma zajęć."', '"No classes this week."'],
+    // na jutro (sekcja zdjęta, kod został)
+    ['"otwórz"', '"open"'], ['" (str. "', '" (p. "'], ['"rozwiązania ↗"', '"solutions ↗"'], ['"Plik: ~/SimpleAGH/"', '"File: ~/SimpleAGH/"'], ['" Zabierz: "', '" Bring: "'],
+    // przedmioty; id odhaczenia tematu liczone z polskiego tematu (topic_pl), żeby postęp był ten sam w obu językach
+    ['hash(key + "|" + e.topic)', 'hash(key + "|" + (e.topic_pl || e.topic))'],
+    ['", strona "', '", page "'], ['"przykład"', '"example"'],
+    ['"Co było na sprawdzianach w poprzednich latach ("', '"What was on tests in previous years ("'], ['" arkuszy)"', '" papers)"'],
+    ['"Podobieństwo do Twoich zajęć: "', '"Similarity to your classes: "'],
+    ['text: an.similarity.level }', 'text: ({ "niskie": "low", "średnie": "medium", "wysokie": "high" }[an.similarity.level] || an.similarity.level) }'],
+    ['text: t.priority }', 'text: ({ "musisz": "must", "warto": "worth it", "opcjonalnie": "optional", "pomiń": "skip" }[t.priority] || t.priority) }'],
+    ['"Było kiedyś, ale nie ma tego w Twoim programie (pomiń): "', '"Came up before, but it is not in your syllabus (skip): "'],
+    ['"Teraz"', '"Now"'], ['"Do przećwiczenia"', '"To practise"'], ['"PDF-y"', '"PDFs"'], ['"Na kolejne wykłady"', '"For the next lectures"'],
+    ['"Możesz pominąć: "', '"You can skip: "'], ['"Na razie nic."', '"Nothing yet."'],
+    // Simplify (tylko lokalny serwer)
+    ['" – zaznaczony"', '" – highlighted"'], ['"Serwer nie odpowiada."', '"The server is not responding."'], ['"Otwórz zaznaczony ↗"', '"Open highlighted ↗"'],
+    ['"Zaznaczam i sprawdzam… "', '"Highlighting and checking… "'], ['"Składam PDF…"', '"Building the PDF…"'], ['"Research o przedmiocie…"', '"Researching the course…"'],
+    ['"Simplify nowe strony"', '"Simplify new pages"'], ['"Nie udało się: "', '"Failed: "'],
+    // okienko AI (działa tylko na claude.ai albo z lokalnym serwerem)
+    ['"Odpowiada Claude na Twoim koncie claude.ai. Pierwsze pytanie poprosi o zgodę."', '"Claude answers on your claude.ai account. The first question will ask for permission."'],
+    ['"Odpowiada Claude przez Claude Code na tym komputerze (bez dostępu do plików)."', '"Claude answers through Claude Code on this computer (no access to files)."'],
+    ['"- Po polsku, prosto i konkretnie, bez wstępów i lania wody. Krótko, chyba że student prosi o więcej."', '"- In English, simple and concrete, no intros or filler. Short unless the student asks for more."'],
+    ['"Zaznacz na stronie temat, zadanie albo słowo i kliknij „Zapytaj AI o to” – albo po prostu napisz pytanie."', '"Select a topic, task or word on the page and click “Ask AI about this” – or just type a question."'],
+    ['"Przykład: zaznacz „Przepełnienie liczb całkowitych” i kliknij „Wytłumacz prosto”."', '"Example: select “Integer overflow” and click “Explain simply”."'],
+    ['"Myślę…"', '"Thinking…"'], ['"Wytłumacz prosto"', '"Explain simply"'], ['"Pokaż przykład krok po kroku"', '"Show an example step by step"'],
+    ['"Daj mi 3 zadania do sprawdzenia się"', '"Give me 3 exercises to test myself"'], ['"Co z tego trzeba umieć na kolokwium?"', '"What of this do I need for the test?"'],
+    ['"Z czego mam się dziś uczyć najpierw?"', '"What should I study first today?"'], ['"Zrób mi szybki test z tematów na teraz"', '"Give me a quick test on the current topics"'],
+    ['"Wyślij"', '"Send"'],
+    ['"Nie dałeś stronie zgody na pytanie Claude\'a, więc okienko AI jest wyłączone. Żeby je włączyć, odśwież stronę i przy pytaniu kliknij „Zezwól”."',
+     '"You did not allow the page to ask Claude, so the AI window is off. To turn it on, reload the page and click “Allow” when asked."'],
+    ['"Lokalny serwer AI odrzucił pytanie. Przebuduj stronę (tools/build_page.py) i odśwież."', '"The local AI server rejected the question. Rebuild the page (tools/build_page.py) and reload."'],
+    ['"Claude nie jest dostępny dla tego konta."', '"Claude is not available for this account."'],
+    ['"Za dużo pytań naraz albo wyczerpany limit konta. Spróbuj za chwilę."', '"Too many questions at once or the account limit is used up. Try again in a moment."'],
+    ['"Sesja wygasła – zaloguj się ponownie na claude.ai."', '"The session expired – log in to claude.ai again."'],
+    ['"Claude nie odpowie na to pytanie. Spróbuj zapytać inaczej."', '"Claude will not answer this question. Try asking differently."'],
+    ['"Pusta odpowiedź. Spróbuj zapytać krócej."', '"Empty answer. Try a shorter question."'],
+    ['"Za długa rozmowa – kliknij „Nowa rozmowa”."', '"The chat is too long – click “New chat”."'],
+    ['"Lokalny asystent odpowiada już na inne pytanie. Spróbuj za chwilę."', '"The local assistant is already answering another question. Try again in a moment."'],
+    ['"Lokalny serwer AI nie odpowiada. Uruchom go: python3 -I ~/SimpleAGH/tools/ai_server.py"', '"The local AI server is not responding. Start it: python3 -I ~/SimpleAGH/tools/ai_server.py"'],
+    ['"Coś poszło nie tak. Spróbuj jeszcze raz."', '"Something went wrong. Try again."'],
+    ['"Odpowiedź ucięta – poproś o mniej naraz."', '"The answer was cut off – ask for less at once."']
+  ];
+  function naukaTr(html, S) {
+    S = S || {};
+    function tr(s) { return Object.prototype.hasOwnProperty.call(S, s) ? S[s] : NAUKA_FIX[s] || s.replace(/^str\. (?=\d)/, "p. "); }
+    function walk(x, k, keys) {
+      if (typeof x === "string") return keys.indexOf(k) >= 0 ? tr(x) : x;
+      if (Array.isArray(x)) return x.map(function (v) { return walk(v, k, keys); });
+      if (!x || typeof x !== "object") return x;
+      var o = {};
+      Object.keys(x).forEach(function (kk) {
+        o[kk] = walk(x[kk], keys.indexOf(k) >= 0 && typeof x[kk] === "string" ? k : kk, keys);
+        if (kk === "topic" && typeof x[kk] === "string" && o[kk] !== x[kk]) o.topic_pl = x[kk];
+      });
+      return o;
+    }
+    var blocks = [];   // bloki JSON na czas podmiany napisów schowane, żeby słownik nie ruszył danych
+    html = html.replace(/(<script type="application\/json" id="([^"]+)">)([\s\S]*?)(<\/script>)/g, function (m, a, id, body, z) {
+      var keys = NAUKA_KEYS[id], out = body;
+      if (keys) try { out = JSON.stringify(walk(JSON.parse(body), null, keys)).replace(/</g, "\\u003c"); } catch (e) { out = body; }
+      blocks.push(a + out + z);
+      return "\u0000" + (blocks.length - 1) + "\u0000";
+    });
+    NAUKA_EN.forEach(function (p) { html = html.split(p[0]).join(p[1]); });
+    return html.replace(/\u0000(\d+)\u0000/g, function (m, i) { return blocks[+i]; });
+  }
   var naukaSha = null, naukaBusy = false, naukaObs = null;
   function loadNauka() {
     if (!TREE || naukaBusy) return;
-    var sha = TREE["nauka.html"];
-    if (!sha) { if (!paneK.querySelector("iframe")) { paneK.textContent = ""; paneK.appendChild(el("p", { class: "hint", text: "Strona do nauki jeszcze nie jest wgrana." })); } return; }
-    if (sha === naukaSha) return;
+    var sha = TREE["nauka.html"], own = !VISIT && UILANG !== "pl";
+    if (!sha) { if (!paneK.querySelector("iframe")) { paneK.textContent = ""; paneK.appendChild(el("p", { class: "hint", text: Ln("Strona do nauki jeszcze nie jest wgrana.") })); } return; }
+    if (own && (TREE["tr/" + UILANG + "/index.json"] || null) !== trSha) return;   // tłumaczenia jeszcze się wczytują – refresh narysuje jeszcze raz
+    var sig = sha + (own ? "|" + trSha : "");
+    if (sig === naukaSha) return;
     naukaBusy = true;
     api("contents/nauka.html?ref=" + BRANCH, { raw: true }).then(function (html) {
-      naukaSha = sha;
+      naukaSha = sig;
+      if (own) html = naukaTr(html, (TRX && TRX.s) || {});
       var hide = "<style>nav.tabs,header.top{display:none!important}.wrap{padding-top:6px!important}</style>";   // zakładki i nagłówek SimpleAGH są tu niepotrzebne – plan zajęć ma być na samej górze
       var doc = /^\s*<!doctype/i.test(html) ? html.replace(/<body[^>]*>/i, function (b) { return b + hide; })
-        : '<!doctype html><html lang="pl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0}</style></head><body>' + hide + html + "</body></html>";
+        : '<!doctype html><html lang="' + UILANG + '"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0}</style></head><body>' + hide + html + "</body></html>";
       var th = document.documentElement.getAttribute("data-theme"); if (th) doc = doc.replace(/<html\b/i, '<html data-theme="' + th + '"');
       var fr = paneK.querySelector("iframe");
-      if (!fr) { paneK.textContent = ""; paneK.appendChild(el("section", { class: "today", id: "today", hidden: "" })); fr = el("iframe", { title: "Nauka" }); fr.addEventListener("load", fitNauka); paneK.appendChild(fr); }
+      if (!fr) { paneK.textContent = ""; paneK.appendChild(el("section", { class: "today", id: "today", hidden: "" })); fr = el("iframe", { title: Ln("Nauka") }); fr.addEventListener("load", fitNauka); paneK.appendChild(fr); }
       fr.srcdoc = doc;
     }).catch(function () {
-      if (!paneK.querySelector("iframe")) { paneK.textContent = ""; paneK.appendChild(el("p", { class: "hint", text: "Nie udało się wczytać strony do nauki. Spróbuję jeszcze raz za chwilę." })); }
+      if (!paneK.querySelector("iframe")) { paneK.textContent = ""; paneK.appendChild(el("p", { class: "hint", text: Ln("Nie udało się wczytać strony do nauki. Spróbuję jeszcze raz za chwilę.") })); }
     }).then(function () { naukaBusy = false; });
   }
   function fitNauka() {  // ramka ma wysokość treści, przewija się cała strona (na iPhonie płynniej niż przewijanie w ramce)
@@ -2892,7 +3122,7 @@ html.rec-open { overflow: hidden; }
     Object.keys(m).forEach(function (x) { m[x].sort(function (a, b) { return a.day < b.day ? 1 : -1; }); });
     return m;
   }
-  function shortDate(iso) { var d = new Date(iso + "T12:00"); return ["nd", "pn", "wt", "śr", "cz", "pt", "sb"][d.getDay()] + " " + d.getDate() + "." + pad(d.getMonth() + 1); }
+  function shortDate(iso) { var d = new Date(iso + "T12:00"); return (UILANG === "en" ? DK : ["nd", "pn", "wt", "śr", "cz", "pt", "sb"])[d.getDay()] + " " + d.getDate() + "." + pad(d.getMonth() + 1); }
   function naukaDoc() { var fr = paneK.querySelector("iframe"); try { return fr && fr.contentDocument && fr.contentDocument.getElementById("study-data") ? fr.contentDocument : null; } catch (e) { return null; } }
   function naukaData(id) { var d = naukaDoc(); try { return d ? JSON.parse(d.getElementById(id).textContent) : null; } catch (e) { return null; } }
   function linkNauka() {
@@ -2910,7 +3140,7 @@ html.rec-open { overflow: hidden; }
       var hits = map[normTopic(t.textContent)]; if (!hits) return;
       var row = d.createElement("div"); row.className = "ntls";
       hits.slice(0, 3).forEach(function (h) {
-        var b = d.createElement("button"); b.type = "button"; b.className = "ntl"; b.textContent = "z zajęć: " + shortDate(h.day) + " ↗";
+        var b = d.createElement("button"); b.type = "button"; b.className = "ntl"; b.textContent = Ln("z zajęć: ") + shortDate(h.day) + " ↗";
         b.addEventListener("click", function () { openNote(h.folder, h.day, h.s); });
         row.appendChild(b);
       });
@@ -3022,20 +3252,20 @@ html.rec-open { overflow: hidden; }
 
   function drawSetup() {
     paneS.textContent = "";
-    var inp = el("input", { type: "password", id: "tok", placeholder: "github_pat_…", autocomplete: "off", autocapitalize: "off", spellcheck: "false", "aria-label": "Klucz do repozytorium" });
-    var save = btn("go", "Zapisz klucz", function () {
+    var inp = el("input", { type: "password", id: "tok", placeholder: "github_pat_…", autocomplete: "off", autocapitalize: "off", spellcheck: "false", "aria-label": Ln("Klucz do repozytorium") });
+    var save = btn("go", Ln("Zapisz klucz"), function () {
       var v = inp.value.trim(); if (!v) return;
       TOKEN = v; authErr = false; lsSet(LS, v);
-      paneS.textContent = ""; paneS.appendChild(el("p", { class: "hint", text: "Sprawdzam klucz…" })); refresh();
+      paneS.textContent = ""; paneS.appendChild(el("p", { class: "hint", text: Ln("Sprawdzam klucz…") })); refresh();
     });
     paneS.appendChild(el("div", { class: "setup" }, [
-      el("p", { text: authErr ? "Klucz do repozytorium z notatkami nie działa (wygasł albo jest zły). Wklej nowy." : "Ta strona zapisuje zdjęcia w Twoim prywatnym repozytorium z notatkami. Potrzebuje do niego klucza; zostaje tylko w tym telefonie." }),
-      el("ol", {}, [el("li", { text: "Na laptopie uruchom: ~/SimpleAGH/tools/notes_qr.sh i zeskanuj kod aparatem telefonu." }), el("li", { text: "Albo wklej klucz tutaj." })]),
-      inp, el("div", { class: "acts" }, [save, navigator.clipboard && navigator.clipboard.readText ? btn("go alt", "Wklej ze schowka", function () {
+      el("p", { text: authErr ? Ln("Klucz do repozytorium z notatkami nie działa (wygasł albo jest zły). Wklej nowy.") : Ln("Ta strona zapisuje zdjęcia w Twoim prywatnym repozytorium z notatkami. Potrzebuje do niego klucza; zostaje tylko w tym telefonie.") }),
+      el("ol", {}, [el("li", { text: Ln("Na laptopie uruchom: ~/SimpleAGH/tools/notes_qr.sh i zeskanuj kod aparatem telefonu.") }), el("li", { text: Ln("Albo wklej klucz tutaj.") })]),
+      inp, el("div", { class: "acts" }, [save, navigator.clipboard && navigator.clipboard.readText ? btn("go alt", Ln("Wklej ze schowka"), function () {
         navigator.clipboard.readText().then(function (t) { t = (t || "").trim(); if (/^github_pat_\w+$/.test(t)) { inp.value = t; save.click(); } else inp.value = t; }, function () { inp.focus(); });
       }) : null])
     ]));
-    if (STANDALONE) paneS.appendChild(el("p", { class: "hint", text: "Masz już klucz w Safari? Otwórz tę stronę w Safari, dotknij „Skopiuj klucz” na górze strony i wróć tutaj do „Wklej ze schowka”." }));
+    if (STANDALONE) paneS.appendChild(el("p", { class: "hint", text: Ln("Masz już klucz w Safari? Otwórz tę stronę w Safari, dotknij „Skopiuj klucz” na górze strony i wróć tutaj do „Wklej ze schowka”.") }));
   }
   /* logowanie komputera: tools/klucz_komputer.py na laptopie zostawia w repo para/<id>.req.json z kluczem publicznym (ECDH P-256).
      Ikonka (albo Safari) z kluczem widzi to przy odświeżeniu i pyta; po „Tak” szyfruje swój klucz do GitHuba wspólnym kluczem
@@ -3055,11 +3285,11 @@ html.rec-open { overflow: hidden; }
   }
   function paraBox(id, q, sha) {
     var slot = $("keybox-slot"), pub = b64bytes(q.pub);
-    function done(t) { slot.textContent = ""; slot.appendChild(el("div", { class: "calm keybox" }, [el("span", { text: t }), btn("go alt", "Zamknij", function () { slot.textContent = ""; })])); }
+    function done(t) { slot.textContent = ""; slot.appendChild(el("div", { class: "calm keybox" }, [el("span", { text: t }), btn("go alt", Ln("Zamknij"), function () { slot.textContent = ""; })])); }
     crypto.subtle.digest("SHA-256", pub).then(function (h) {
       var b = new Uint8Array(h), code = String(((b[0] << 16) | (b[1] << 8) | b[2]) % 10000 + 10000).slice(1);
-      var yes = btn("go", "Tak, zaloguj", function () {
-        yes.disabled = true; yes.textContent = "Wysyłam…";
+      var yes = btn("go", Ln("Tak, zaloguj"), function () {
+        yes.disabled = true; yes.textContent = Ln("Wysyłam…");
         Promise.all([
           crypto.subtle.importKey("raw", pub, { name: "ECDH", namedCurve: "P-256" }, false, []),
           crypto.subtle.generateKey({ name: "ECDH", namedCurve: "P-256" }, true, ["deriveBits"])
@@ -3077,27 +3307,27 @@ html.rec-open { overflow: hidden; }
                 return api("contents/para/" + id + ".json", { method: "PUT", body: { message: "Logowanie komputera", branch: BRANCH, content: btoa(JSON.stringify({ v: 2, pub: bytesB64(x[1]), d: bytesB64(d) })) } });
               });
             });
-        }).then(function () { done("Gotowe. Komputer za chwilę się zaloguje."); }, function () { done("Nie udało się wysłać. Uruchom logowanie na komputerze jeszcze raz."); });
+        }).then(function () { done(Ln("Gotowe. Komputer za chwilę się zaloguje.")); }, function () { done(Ln("Nie udało się wysłać. Uruchom logowanie na komputerze jeszcze raz.")); });
       });
-      var no = btn("go alt", "Nie", function () {
+      var no = btn("go alt", Ln("Nie"), function () {
         slot.textContent = "";
         api("contents/para/" + id + ".req.json", { method: "DELETE", body: { message: "Logowanie komputera: odrzucone", branch: BRANCH, sha: sha } }).catch(function () {});
       });
       slot.textContent = "";
-      slot.appendChild(el("div", { class: "calm keybox" }, [el("span", { text: "Zalogować komputer tym samym kluczem co ten telefon? Na ekranie komputera powinien być kod " + code + "." }), el("div", { class: "acts" }, [yes, no])]));
+      slot.appendChild(el("div", { class: "calm keybox" }, [el("span", { text: Ln("Zalogować komputer tym samym kluczem co ten telefon? Na ekranie komputera powinien być kod ") + code + "." }), el("div", { class: "acts" }, [yes, no])]));
     });
   }
 
   function keyBox() {  // w Safari (nie w ikonce): jak przenieść klucz do ikonki na ekranie początkowym
     if (VISIT || STANDALONE || !TOKEN || !IOS) return null;
-    var hasKeyInUrl = /[#&]t=/.test(location.hash), copyB = btn("go alt", "Skopiuj klucz", function () {
-      try { navigator.clipboard.writeText(TOKEN).then(function () { copyB.textContent = "Skopiowany"; }, function () { copyB.textContent = "Nie udało się"; }); } catch (e) { copyB.textContent = "Nie udało się"; }
+    var hasKeyInUrl = /[#&]t=/.test(location.hash), copyB = btn("go alt", Ln("Skopiuj klucz"), function () {
+      try { navigator.clipboard.writeText(TOKEN).then(function () { copyB.textContent = Ln("Skopiowany"); }, function () { copyB.textContent = Ln("Nie udało się"); }); } catch (e) { copyB.textContent = Ln("Nie udało się"); }
     });
     if (lsGet("notatki-keybox-off")) return null;
-    var closeB = btn("go alt", "Zamknij", function () { lsSet("notatki-keybox-off", "1"); var kb = $("keybox-slot"); kb.textContent = ""; });
+    var closeB = btn("go alt", Ln("Zamknij"), function () { lsSet("notatki-keybox-off", "1"); var kb = $("keybox-slot"); kb.textContent = ""; });
     return el("div", { class: "calm keybox" }, [el("span", { text: hasKeyInUrl
-      ? "Ikonka na ekranie początkowym: dodaj ją teraz z tej strony (Udostępnij → „Do ekranu początkowego”), wtedy klucz przejdzie do niej sam. Starą ikonkę bez klucza usuń."
-      : "Ikonka na ekranie początkowym prosi o klucz? Skopiuj go tutaj, otwórz ikonkę i dotknij „Wklej ze schowka”." }), el("span", { class: "acts" }, [copyB, closeB])]);
+      ? Ln("Ikonka na ekranie początkowym: dodaj ją teraz z tej strony (Udostępnij → „Do ekranu początkowego”), wtedy klucz przejdzie do niej sam. Starą ikonkę bez klucza usuń.")
+      : Ln("Ikonka na ekranie początkowym prosi o klucz? Skopiuj go tutaj, otwórz ikonkę i dotknij „Wklej ze schowka”.") }), el("span", { class: "acts" }, [copyB, closeB])]);
   }
 
   /* --- Aparat: wybór zajęć i spust --- */
@@ -3119,38 +3349,38 @@ html.rec-open { overflow: hidden; }
     shootBox.textContent = "";
     var box = el("div", { class: "shoot" });
     if (nc.today.length) {
-      var chips = el("div", { class: "chips", role: "group", "aria-label": "Dzisiejsze zajęcia" });
+      var chips = el("div", { class: "chips", role: "group", "aria-label": Ln("Dzisiejsze zajęcia") });
       nc.today.forEach(function (x) {
         var f = F(x.folder), on = nc.on === x, past = nc.nm > mins(x.end) + 30;
         var c = btn("chip", null, function () { target = f.id; lsSet(LS_F, f.id); render(); }, [
           el("b", { text: fname(f) }),
-          el("span", {}, [on ? el("span", { class: "lv", text: nc.nm > mins(x.end) ? "przed chwilą · " : "teraz · " }) : null, x.start + "–" + x.end + " · " + KIND_L[f.kind] + (past ? " · było" : "")])
+          el("span", {}, [on ? el("span", { class: "lv", text: nc.nm > mins(x.end) ? Ln("przed chwilą · ") : Ln("teraz · ") }) : null, x.start + "–" + x.end + " · " + KIND_L[f.kind] + (past ? Ln(" · było") : "")])
         ]);
         c.setAttribute("style", fcolor(f)); c.setAttribute("aria-pressed", target === f.id ? "true" : "false");
         chips.appendChild(c);
       });
-      box.appendChild(el("p", { class: "hint", text: "Dziś" })); box.appendChild(chips);
+      box.appendChild(el("p", { class: "hint", text: Ln("Dziś") })); box.appendChild(chips);
     }
-    var sel = el("select", { class: "pick", id: "pick", "aria-label": "Zajęcia" });
-    sel.appendChild(el("option", { value: "", text: nc.today.length ? "Inne zajęcia…" : "Wybierz zajęcia…" }));
+    var sel = el("select", { class: "pick", id: "pick", "aria-label": Ln("Zajęcia") });
+    sel.appendChild(el("option", { value: "", text: nc.today.length ? Ln("Inne zajęcia…") : Ln("Wybierz zajęcia…") }));
     (CFG.folders || []).forEach(function (f) { var o = el("option", { value: f.id, text: fname(f) + " – " + KIND_L[f.kind] }); if (f.id === target) o.selected = true; sel.appendChild(o); });
     sel.addEventListener("change", function () { if (sel.value) { target = sel.value; lsSet(LS_F, target); render(); } });
     box.appendChild(sel);
     var f = F(target);
     var shutter = btn("shutter", null, function () { if (target) cam.click(); }, [el("span", {}, [svg(CAM_SVG)])]);
-    shutter.setAttribute("aria-label", "Zrób zdjęcie");
+    shutter.setAttribute("aria-label", Ln("Zrób zdjęcie"));
     if (!f) shutter.disabled = true;
     box.appendChild(el("div", { class: "trigger" }, [
       shutter,
       el("div", { class: "tri" }, [
-        el("b", { text: f ? (f.kind === "korki" ? "Zrób zdjęcie kartki" : "Zrób zdjęcie tablicy") : "Najpierw wybierz zajęcia" }),
-        el("span", { class: "for", text: f ? fname(f) + " · " + KIND_L[f.kind] : "Zdjęcie trafi do notatki z tych zajęć." }),
-        f ? btn("go alt", "Z galerii", function () { gal.click(); }) : null
+        el("b", { text: f ? (f.kind === "korki" ? Ln("Zrób zdjęcie kartki") : Ln("Zrób zdjęcie tablicy")) : Ln("Najpierw wybierz zajęcia") }),
+        el("span", { class: "for", text: f ? fname(f) + " · " + KIND_L[f.kind] : Ln("Zdjęcie trafi do notatki z tych zajęć.") }),
+        f ? btn("go alt", Ln("Z galerii"), function () { gal.click(); }) : null
       ])
     ]));
     if (f || R) box.appendChild(el("div", { class: "recrow" }, [
-      btn(R ? "go" : "go alt", null, recOpen, [svg(MIC_SVG), R ? "Wróć do nagrywania" : f && f.kind === "korki" ? "Nagrywaj korki" : "Nagrywaj wykład"]),
-      el("span", { class: "hint", text: R ? "Nagrywanie trwa: " + fname(F(R.folder) || { course: R.folder }) + "." : "Claude zrobi notatkę także z tego, co mówi " + (f && f.kind === "korki" ? "korepetytor." : "prowadzący.") })
+      btn(R ? "go" : "go alt", null, recOpen, [svg(MIC_SVG), R ? Ln("Wróć do nagrywania") : f && f.kind === "korki" ? Ln("Nagrywaj korki") : Ln("Nagrywaj wykład")]),
+      el("span", { class: "hint", text: R ? Ln("Nagrywanie trwa: ") + fname(F(R.folder) || { course: R.folder }) + "." : Ln("Claude zrobi notatkę także z tego, co mówi ") + Ln(f && f.kind === "korki" ? "korepetytor." : "prowadzący.") })
     ]));
     shootBox.appendChild(box);
   }
@@ -3166,11 +3396,11 @@ html.rec-open { overflow: hidden; }
     return out.sort(function (a, b) { return (ord[a.stage] - ord[b.stage]) || ((b.day + b.name) < (a.day + a.name) ? -1 : 1); }).slice(0, 14);
   }
   var STAGE_TXT = {
-    upload: function (it) { return it.local.state === "prep" ? "Przygotowuję zdjęcie…" : "Wysyłam… " + Math.round((it.local.pct || 0) * 100) + "%"; },
-    queued: function () { return active(RUN) ? "W kolejce – Claude kończy poprzednie zdjęcia" : "Czeka, aż Claude zacznie (kilka sekund)"; },
-    reading: function () { var s = runStep(); return s === "claude" ? "Claude czyta tablicę i pisze notatkę" : s === "save" ? "Zapisuję notatkę…" : s === "tools" ? "Claude się uruchamia…" : "Serwer GitHuba startuje…"; },
-    done: function (it) { var n = (INDEX.notes || {})[it.folder + "/" + it.day]; return n ? n.title : "Gotowe"; },
-    failed: function () { return "Claude nie odczytał tego zdjęcia. Zrób je jeszcze raz."; },
+    upload: function (it) { return it.local.state === "prep" ? Ln("Przygotowuję zdjęcie…") : Ln("Wysyłam… ") + Math.round((it.local.pct || 0) * 100) + "%"; },
+    queued: function () { return active(RUN) ? Ln("W kolejce – Claude kończy poprzednie zdjęcia") : Ln("Czeka, aż Claude zacznie (kilka sekund)"); },
+    reading: function () { var s = runStep(); return s === "claude" ? Ln("Claude czyta tablicę i pisze notatkę") : s === "save" ? Ln("Zapisuję notatkę…") : s === "tools" ? Ln("Claude się uruchamia…") : Ln("Serwer GitHuba startuje…"); },
+    done: function (it) { var n = (INDEX.notes || {})[it.folder + "/" + it.day]; return n ? n.title : Ln("Gotowe"); },
+    failed: function () { return Ln("Claude nie odczytał tego zdjęcia. Zrób je jeszcze raz."); },
     error: function (it) { return it.local.err; }
   };
   function stepsOf(st) {
@@ -3213,7 +3443,7 @@ html.rec-open { overflow: hidden; }
     b._what.textContent = STAGE_TXT[st](it);
     if (old !== st) { var steps = stepsOf(st); b._steps.parentNode.replaceChild(steps, b._steps); b._steps = steps; }
     var t0 = since(it); b._since = t0;
-    b._time.textContent = st === "done" ? shortDay(it.day) + " · dotknij, żeby przeczytać" : st === "queued" || st === "failed" ? shortDay(it.day) : "";
+    b._time.textContent = st === "done" ? shortDay(it.day) + Ln(" · dotknij, żeby przeczytać") : st === "queued" || st === "failed" ? shortDay(it.day) : "";
     // nakładki na zdjęciu (tylko przy zmianie etapu, żeby skanowanie się nie restartowało)
     if (old === st && st !== "upload") return labelCard(b, it);
     [".scan", ".grid", ".veil", ".pct", ".ok", ".bad"].forEach(function (s) { var x = b._pic.querySelector(s); if (x) x.remove(); });
@@ -3229,7 +3459,7 @@ html.rec-open { overflow: hidden; }
     var v = b._pic.querySelector(".veil"), p = b._pic.querySelector(".pct"), pc = Math.round((e.pct || 0) * 100);
     if (v) v.style.height = (100 - pc) + "%";
     if (p) p.textContent = pc + "%";
-    b._what.textContent = "Wysyłam… " + pc + "%";
+    b._what.textContent = Ln("Wysyłam… ") + pc + "%";
   }
   function drawFlow() {
     var list = items(), seen = {};
@@ -3242,18 +3472,18 @@ html.rec-open { overflow: hidden; }
     });
     Object.keys(cards).forEach(function (k) { if (!seen[k]) { cards[k].remove(); delete cards[k]; } });
     var busyN = list.filter(function (it) { return /^(upload|queued|reading)$/.test(it.stage); }).length;
-    if (!list.length) flowBox.appendChild(el("div", { class: "calm" }, [svg(CAM_SVG), "Tu zobaczysz każde zdjęcie: jak się wysyła, jak Claude je czyta i kiedy notatka jest gotowa."]));
-    else if (!busyN) flowBox.appendChild(el("div", { class: "calm" }, [svg(CHECK_SVG), "Wszystko gotowe. Dotknij zdjęcia, żeby przeczytać notatkę."]));
+    if (!list.length) flowBox.appendChild(el("div", { class: "calm" }, [svg(CAM_SVG), Ln("Tu zobaczysz każde zdjęcie: jak się wysyła, jak Claude je czyta i kiedy notatka jest gotowa.")]));
+    else if (!busyN) flowBox.appendChild(el("div", { class: "calm" }, [svg(CHECK_SVG), Ln("Wszystko gotowe. Dotknij zdjęcia, żeby przeczytać notatkę.")]));
     if (!active(RUN) && RUN && RUN.conclusion === "failure" && list.some(function (it) { return it.stage === "queued"; }))
-      flowBox.appendChild(el("p", { class: "runerr" }, ["Ostatnie robienie notatek się nie udało. ", el("a", { href: RUN.html_url, target: "_blank", rel: "noopener", text: "Szczegóły ↗" })]));
-    flowAside.textContent = busyN ? "w toku: " + busyN : "";
+      flowBox.appendChild(el("p", { class: "runerr" }, [Ln("Ostatnie robienie notatek się nie udało. "), el("a", { href: RUN.html_url, target: "_blank", rel: "noopener", text: Ln("Szczegóły ↗") })]));
+    flowAside.textContent = busyN ? Ln("w toku: ") + busyN : "";
     firstFlow = false;
     tick();
   }
   function tick() {
     Object.keys(cards).forEach(function (k) {
       var b = cards[k]; if (!b._since || !b._it || b._it.stage !== "reading") return;
-      b._time.textContent = "trwa " + clock((Date.now() - b._since) / 1000) + " · zwykle ok. 0:40 na zdjęcie";
+      b._time.textContent = Ln("trwa ") + clock((Date.now() - b._since) / 1000) + Ln(" · zwykle ok. 0:40 na zdjęcie");
     });
   }
   setInterval(tick, 1000);
@@ -3291,9 +3521,9 @@ html.rec-open { overflow: hidden; }
         rows[c] = r; chartBox.appendChild(r);
       });
       chartBox.appendChild(el("div", { class: "legend" }, [
-        el("span", {}, [el("i", { style: "background:var(--accent)" }), "notatka gotowa"]),
-        el("span", {}, [el("i", { style: "background:var(--warn)" }), "w toku"]),
-        el("span", {}, [el("i", { style: "background:var(--hot)" }), "nie udało się"])
+        el("span", {}, [el("i", { style: "background:var(--accent)" }), Ln("notatka gotowa")]),
+        el("span", {}, [el("i", { style: "background:var(--warn)" }), Ln("w toku")]),
+        el("span", {}, [el("i", { style: "background:var(--hot)" }), Ln("nie udało się")])
       ]));
       chartBox._built = true;
     }
@@ -3309,7 +3539,7 @@ html.rec-open { overflow: hidden; }
       r.children[1].textContent = "";
       r.children[1].appendChild(document.createTextNode(String(n)));
       if (x.notes) r.children[1].appendChild(el("small", { text: " · " + nNotes(x.notes) }));
-      r.setAttribute("aria-label", fname({ course: c }) + ": " + nPhotos(n) + ", gotowe " + x.d + ", w toku " + x.w);
+      r.setAttribute("aria-label", fname({ course: c }) + ": " + nPhotos(n) + Ln(", gotowe ") + x.d + Ln(", w toku ") + x.w);
     });
   }
 
@@ -3386,12 +3616,12 @@ html.rec-open { overflow: hidden; }
   }
   function peekMat(id, label) {
     peekOpen(normSec(label || Ln("Materiał")), "", null);
-    if (VISIT && !VISIT.live) { pkLog.appendChild(el("p", { class: "hint", text: "Materiały do ćwiczenia są tylko w Twojej aplikacji, nie w podglądzie gościa." })); return; }
+    if (VISIT && !VISIT.live) { pkLog.appendChild(el("p", { class: "hint", text: Ln("Materiały do ćwiczenia są tylko w Twojej aplikacji, nie w podglądzie gościa.") })); return; }
     pkLog.appendChild(el("p", { class: "hint", text: Ln("Wczytuję…") }));
     (MAT ? Promise.resolve(MAT) : rawJson("materials.json").then(function (j) { return (MAT = j.items || {}); })).then(function (items) {
       var it = items[id]; pkLog.textContent = "";
       if (!it) { pkLog.appendChild(el("p", { class: "hint", text: Ln("Tego materiału nie ma w repo.") })); return; }
-      $("pk-ctx").textContent = it.t + (it.k === "img" && it.n > 1 ? Lf(" · strona {a} z {b}", it.p, it.n) : "");
+      $("pk-ctx").textContent = trS(it.t) + (it.k === "img" && it.n > 1 ? Lf(" · strona {a} z {b}", it.p, it.n) : "");
       var meta = el("p", { class: "mat-meta" }, [it.u ? el("a", { href: it.u, target: "_blank", rel: "noopener", text: Ln("Cały plik na UPeL-u") }) : null]);
       if (it.k === "txt") {
         return api("contents/materials/" + id + ".txt?ref=" + BRANCH, { raw: true }).then(function (t) { pkLog.appendChild(el("pre", { class: "mat-txt", text: t })); if (it.u) pkLog.appendChild(meta); });
@@ -3423,7 +3653,7 @@ html.rec-open { overflow: hidden; }
     courses().forEach(function (c) {
       var n = Object.keys(INDEX.notes || {}).filter(function (k) { var f = F(INDEX.notes[k].folder); return f && f.course === c.course; }).length;
       var f0 = c.folders[0], kor = isKorki(c), nx = kor && nextKorki(c);
-      var sub = kor ? (nx ? (nx.date === isoDay(new Date()) ? "dziś" : DAY_L[new Date(nx.date + "T12:00").getDay()] + " " + new Date(nx.date + "T12:00").getDate() + "." + pad(new Date(nx.date + "T12:00").getMonth() + 1)) + ", " + nx.start : "korki")
+      var sub = kor ? (nx ? (nx.date === isoDay(new Date()) ? Ln("dziś") : DAY_L[new Date(nx.date + "T12:00").getDay()] + " " + new Date(nx.date + "T12:00").getDate() + "." + pad(new Date(nx.date + "T12:00").getMonth() + 1)) + ", " + nx.start : Ln("korki"))
         : c.folders.map(function (f) { return KIND_L[f.kind]; }).join(", ");
       (kor ? other : all).appendChild(btn("row", null, function () { view = { k: "course", c: c.course, t: (INDEX.courses || {})[c.course] ? "guide" : "days" }; render(); window.scrollTo(0, 0); }, [
         el("span", { class: "nm", style: fcolor(f0) }, [el("b", { text: fname(f0) }), el("span", { text: sub + (n ? " · " + nNotes(n) : "") })]),
@@ -3432,13 +3662,13 @@ html.rec-open { overflow: hidden; }
     });
     var ps = pushState(), pb;
     if (ps === "off") {
-      pb = btn("", "Włącz powiadomienia", function () { enablePush(pb); });
-      paneN.appendChild(el("div", { class: "card push" }, [el("p", { text: "Powiadomienie na telefonie, gdy na UPeL-u pojawi się coś nowego: ogłoszenie, materiał albo termin." }), el("div", { class: "tools" }, [pb])]));
-    } else if (ps === "reinstall") paneN.appendChild(el("p", { class: "hint", text: "Powiadomienia z UPeL-a zadziałają, gdy dodasz Notatki do ekranu początkowego jeszcze raz (Safari → Udostępnij → Do ekranu początkowego)." }));
-    else if (ps === "denied") paneN.appendChild(el("p", { class: "hint", text: "Powiadomienia z UPeL-a są wyłączone w Ustawieniach iPhone'a (Ustawienia → Powiadomienia → Notatki)." }));
+      pb = btn("", Ln("Włącz powiadomienia"), function () { enablePush(pb); });
+      paneN.appendChild(el("div", { class: "card push" }, [el("p", { text: Ln("Powiadomienie na telefonie, gdy na UPeL-u pojawi się coś nowego: ogłoszenie, materiał albo termin.") }), el("div", { class: "tools" }, [pb])]));
+    } else if (ps === "reinstall") paneN.appendChild(el("p", { class: "hint", text: Ln("Powiadomienia z UPeL-a zadziałają, gdy dodasz Notatki do ekranu początkowego jeszcze raz (Safari → Udostępnij → Do ekranu początkowego).") }));
+    else if (ps === "denied") paneN.appendChild(el("p", { class: "hint", text: Ln("Powiadomienia z UPeL-a są wyłączone w Ustawieniach iPhone'a (Ustawienia → Powiadomienia → Notatki).") }));
     if (VISIT && VISIT.live && IOS && !STANDALONE) paneN.appendChild(el("p", { class: "hint", text: Ln("Żeby mieć to jak aplikację: Udostępnij → „Do ekranu początkowego”. Notatki same się aktualizują po każdych zajęciach.") }));
     paneN.appendChild(el("section", { class: "sec" }, [el("div", { class: "sec-h" }, [el("h2", { text: Ln("Przedmioty") })]), all]));
-    if (other.firstChild) paneN.appendChild(el("section", { class: "sec" }, [el("div", { class: "sec-h" }, [el("h2", { text: "Poza AGH" })]), other]));
+    if (other.firstChild) paneN.appendChild(el("section", { class: "sec" }, [el("div", { class: "sec-h" }, [el("h2", { text: Ln("Poza AGH") })]), other]));
     if (ps === "on") paneN.appendChild(histSec());
   }
 
@@ -3454,7 +3684,7 @@ html.rec-open { overflow: hidden; }
     return Notification.permission === "denied" ? "denied" : Notification.permission === "granted" && lsGet(LS_PUSH) ? "on" : "off";
   }
   function enablePush(b) {
-    b.disabled = true; b.textContent = "Włączam…";
+    b.disabled = true; b.textContent = Ln("Włączam…");
     Notification.requestPermission().then(function (p) {   // pierwsze wywołanie w samym dotknięciu – inaczej iPhone nie zapyta
       if (p !== "granted") throw { code: "deny" };
       return navigator.serviceWorker.register("sw.js").then(function () { return navigator.serviceWorker.ready; });
@@ -3466,7 +3696,7 @@ html.rec-open { overflow: hidden; }
         return api(path, { method: "PUT", body: { message: "Powiadomienia z UPeL-a: nowy telefon", branch: BRANCH, content: btoa(JSON.stringify(sub.toJSON())) } });
       });
     }).then(function () { lsSet(LS_PUSH, "1"); render(); }, function (e) {
-      b.disabled = false; b.textContent = e && e.code === "deny" ? "Bez zgody – zmień w Ustawieniach" : "Nie udało się – spróbuj jeszcze raz";
+      b.disabled = false; b.textContent = e && e.code === "deny" ? Ln("Bez zgody – zmień w Ustawieniach") : Ln("Nie udało się – spróbuj jeszcze raz");
     });
   }
   if (pushState() === "on") navigator.serviceWorker.register("sw.js").catch(function () {});
@@ -3491,12 +3721,12 @@ html.rec-open { overflow: hidden; }
   function histSec() {
     histCard = el("div", { class: "card" }); histSeen = +lsGet(LS_SEEN) || 0; histAll = false;
     fillHist(); loadHist();
-    return el("section", { class: "sec" }, [el("div", { class: "sec-h" }, [el("h2", { text: "Powiadomienia z UPeL-a" })]), histCard]);
+    return el("section", { class: "sec" }, [el("div", { class: "sec-h" }, [el("h2", { text: Ln("Powiadomienia z UPeL-a") })]), histCard]);
   }
   function fillHist() {
     if (!histCard || !HIST) return;
     histCard.textContent = "";
-    if (!HIST.length) histCard.appendChild(el("p", { class: "hint ph-empty", text: "Jeszcze nic nie przyszło. Każde powiadomienie z UPeL-a zostanie tutaj." }));
+    if (!HIST.length) histCard.appendChild(el("p", { class: "hint ph-empty", text: Ln("Jeszcze nic nie przyszło. Każde powiadomienie z UPeL-a zostanie tutaj.") }));
     (histAll ? HIST : HIST.slice(0, 5)).forEach(function (x) {
       var link = /^https?:\/\//.test(x.url || "");   // „/notatki/” (test, wygasły token) – bez odnośnika
       histCard.appendChild(el(link ? "a" : "div", { class: "row ph" + (x.t > histSeen ? " new" : ""), href: link ? x.url : null, target: link ? "_blank" : null, rel: link ? "noopener" : null }, [
@@ -3504,7 +3734,7 @@ html.rec-open { overflow: hidden; }
         el("span", { class: "ph-t", text: histTime(x.t) })
       ]));
     });
-    if (HIST.length > 5) histCard.appendChild(btn("ph-more", histAll ? "Pokaż mniej" : "Pokaż wszystkie (" + HIST.length + ")", function () { histAll = !histAll; fillHist(); }));
+    if (HIST.length > 5) histCard.appendChild(btn("ph-more", histAll ? Ln("Pokaż mniej") : Ln("Pokaż wszystkie (") + HIST.length + ")", function () { histAll = !histAll; fillHist(); }));
     if (HIST.length) lsSet(LS_SEEN, String(HIST[0].t));
   }
   if ("serviceWorker" in navigator) navigator.serviceWorker.addEventListener("message", function (e) { if (e.data && e.data.upel && histCard) loadHist(); });
@@ -3519,9 +3749,9 @@ html.rec-open { overflow: hidden; }
       el("div", { class: "t" }, [el("b", { text: fname(f0) }), el("span", { text: c.folders.map(function (f) { return KIND_L[f.kind]; }).join(" · ") })])
     ]));
     if (guide || kol || dow) {
-      var seg = el("div", { class: "seg wide", role: "group", "aria-label": "Widok przedmiotu" });
+      var seg = el("div", { class: "seg wide", role: "group", "aria-label": Ln("Widok przedmiotu") });
       var kor = isKorki(c);
-      [guide && ["guide", Ln("Przewodnik")], kol && ["kol", kor ? "Powtórka" : Ln("Kolokwia")], dow && ["dow", Ln("Dowody")], ["days", kor ? "Notatki" : Ln("Zajęcia")]].filter(Boolean).forEach(function (o) {
+      [guide && ["guide", Ln("Przewodnik")], kol && ["kol", kor ? Ln("Powtórka") : Ln("Kolokwia")], dow && ["dow", Ln("Dowody")], ["days", kor ? Ln("Notatki") : Ln("Zajęcia")]].filter(Boolean).forEach(function (o) {
         var b = btn("", o[1], function () { if (o[0] === "days" && view.t === "days") view.dz = null; view.t = o[0]; render(); window.scrollTo(0, 0); }); b.setAttribute("aria-pressed", view.t === o[0] ? "true" : "false"); seg.appendChild(b);
       });
       paneN.appendChild(seg);
@@ -3576,10 +3806,10 @@ html.rec-open { overflow: hidden; }
   function drawGuide(c, guide) {   // przewodnik: wykład + ćwiczenia + co bywa na kolokwiach (courses/<przedmiot>.md)
     var card = el("div", { class: "card day guide" }), box = el("div", { class: "md", html: md(noTitle(guide.md || "")) }), hs = box.querySelectorAll(":scope > h4");
     loadFigs(box);
-    if (hs.length >= 3) card.appendChild(el("nav", { class: "toc", "aria-label": "Tematy" }, Array.prototype.map.call(hs, tocBtn)));
+    if (hs.length >= 3) card.appendChild(el("nav", { class: "toc", "aria-label": Ln("Tematy") }, Array.prototype.map.call(hs, tocBtn)));
     card.appendChild(box);
     var up = guide.updated ? new Date(guide.updated) : null;
-    var redoB = VISIT ? null : btn("", "Zrób od nowa", function () { redoB.disabled = true; redoB.textContent = "Zlecone"; redo("_kurs", c.course); });
+    var redoB = VISIT ? null : btn("", Ln("Zrób od nowa"), function () { redoB.disabled = true; redoB.textContent = Ln("Zlecone"); redo("_kurs", c.course); });
     card.appendChild(el("p", { class: "legend-n", text: Ln("Przewodnik łączy wykład z ćwiczeniami i ze starymi kolokwiami i egzaminami") + (up && !isNaN(up) ? Ln(" · stan z ") + up.getDate() + "." + pad(up.getMonth() + 1) + " " + pad(up.getHours()) + ":" + pad(up.getMinutes()) : "") + ". " + Ln("Odświeża się sam po zajęciach.") }));
     if (redoB) card.appendChild(el("div", { class: "tools" }, [redoB]));
     paneN.appendChild(card);
@@ -3629,28 +3859,28 @@ html.rec-open { overflow: hidden; }
         ps.forEach(function (p, i) {
           var st = stage(p), pend = st !== "done";
           var th = btn("th" + (pend ? " pend" : ""), null, function () { openLb(p); }, [el("span", { text: "…" })]);
-          th.setAttribute("aria-label", "Zdjęcie " + (i + 1));
+          th.setAttribute("aria-label", Ln("Zdjęcie ") + (i + 1));
           if (pend) th.appendChild(el("span", { class: "bd" + (st === "failed" ? " err" : ""), text: st === "failed" ? "!" : "…" }));
           (p.thumb ? blobUrl(p.thumb) : blobUrl(p.path)).then(function (u) { th.replaceChild(el("img", { src: u, alt: "" }), th.firstChild); }, function () {});
           strip.appendChild(th);
         });
         card.appendChild(strip);
         var waiting = ps.filter(function (p) { return /^(queued|reading)$/.test(stage(p)); }).length;
-        if (waiting) card.appendChild(el("div", { class: "wait" }, [el("span", { class: "spin" }), "Claude dopisuje " + nPhotos(waiting) + " do tej notatki…"]));
+        if (waiting) card.appendChild(el("div", { class: "wait" }, [el("span", { class: "spin" }), Ln("Claude dopisuje ") + nPhotos(waiting) + Ln(" do tej notatki…")]));
       }
-      if (spN > (sp ? sp.n : 0)) card.appendChild(el("div", { class: "wait" }, [el("span", { class: "spin" }), "Claude dopisuje nagranie do tej notatki…"]));
-      else if (recHere) card.appendChild(el("div", { class: "wait" }, [el("span", { class: "spin" }), "Nagrywanie trwa – notatka uzupełnia się co kilka minut."]));
+      if (spN > (sp ? sp.n : 0)) card.appendChild(el("div", { class: "wait" }, [el("span", { class: "spin" }), Ln("Claude dopisuje nagranie do tej notatki…")]));
+      else if (recHere) card.appendChild(el("div", { class: "wait" }, [el("span", { class: "spin" }), Ln("Nagrywanie trwa – notatka uzupełnia się co kilka minut.")]));
       if (note) {
         if (open) {
           var mdBox = el("div", { class: "md", html: md(noTitle(note.md || "")) }), hs = mdBox.querySelectorAll(":scope > h4");
-          if (hs.length >= 3) card.appendChild(el("nav", { class: "toc", "aria-label": "Spis" }, Array.prototype.map.call(hs, tocBtn)));
+          if (hs.length >= 3) card.appendChild(el("nav", { class: "toc", "aria-label": Ln("Spis") }, Array.prototype.map.call(hs, tocBtn)));
           card.appendChild(mdBox);
           loadFigs(mdBox);
           if (mdBox.querySelector(".dag, .mn, .zref, .tref")) card.appendChild(el("p", { class: "legend-n", text: Ln("† dopisane przez Claude'a, nie było na zajęciach · zdj. N – zdjęcie, z którego to pochodzi") + (mdBox.querySelector(".tref") ? Ln(" · nagr. 09:47 – co mówił wtedy prowadzący") : "") + Ln(" (dotknij, żeby otworzyć)") }));
           var copyB = btn("", Ln("Kopiuj"), function () {
             try { navigator.clipboard.writeText(note.md).then(function () { copyB.textContent = Ln("Skopiowane"); }, function () { copyB.textContent = Ln("Nie udało się"); }); } catch (e) { copyB.textContent = Ln("Nie udało się"); }
           });
-          var redoB = btn("", "Zrób od nowa", function () { redoB.disabled = true; redoB.textContent = "Zlecone"; redo(f.id, d); });
+          var redoB = btn("", Ln("Zrób od nowa"), function () { redoB.disabled = true; redoB.textContent = Ln("Zlecone"); redo(f.id, d); });
           if (VISIT) redoB = null;
           card.appendChild(el("div", { class: "tools" }, [copyB, redoB, di ? btn("", Ln("Zwiń"), function () { openDays[key] = false; render(); }) : null]));
         } else card.appendChild(btn("more", Ln("Pokaż notatkę"), function () { openDays[key] = true; render(); }));
@@ -3774,10 +4004,10 @@ html.rec-open { overflow: hidden; }
   function noteCtx(key) {
     var n = (INDEX.notes || {})[key]; if (!n) return null;
     var f = F(n.folder) || { course: n.folder, kind: "" };
-    return { key: key, where: "notatka", note: key, label: "notatkę „" + n.title + "” · " + fname(f) + ", " + KIND_L[f.kind] + " " + shortDate(n.day), wait: "Claude czyta notatkę" };
+    return { key: key, where: "notatka", note: key, label: Ln("notatkę „") + n.title + "” · " + fname(f) + ", " + KIND_L[f.kind] + " " + shortDate(n.day), wait: Ln("Claude czyta notatkę") };
   }
   function naukaCtx(focus) {
-    return { key: "nauka", where: "nauka", focus: focus || null, label: "Twój plan, UPeL i notatki" + (focus ? " · temat: " + focus : ""), wait: "Claude przegląda Twój plan" };
+    return { key: "nauka", where: "nauka", focus: focus || null, label: Ln("Twój plan, UPeL i notatki") + (focus ? Ln(" · temat: ") + focus : ""), wait: Ln("Claude przegląda Twój plan") };
   }
   function currentCtx() { return tab === "nauka" ? naukaCtx(visibleTopic()) : tab === "notatki" && view.k === "course" ? noteCtx(visibleNoteKey()) : null; }
   function updateAskFab() { askFab.hidden = !!VISIT || !askBox.hidden || !(tab === "nauka" ? !!naukaDoc() : tab === "notatki" && view.k === "course" && document.querySelector(".day[data-key] .md")); }
@@ -3786,7 +4016,7 @@ html.rec-open { overflow: hidden; }
     if (!ctx) return;
     ctxA = ctx; askPend = quote || null;
     warmAsk();   // otwarte okienko = zaraz będzie pytanie: budzimy Claude'a od razu, nie dopiero przy pierwszej literze
-    askCtxEl.textContent = ""; askCtxEl.appendChild(el("span", { text: "Widzi " + ctx.label }));
+    askCtxEl.textContent = ""; askCtxEl.appendChild(el("span", { text: Ln("Widzi ") + ctx.label }));
     askQuote.hidden = !askPend; askQuoteT.textContent = askPend || "";
     askBox.hidden = false; askBack.hidden = false; askFab.hidden = true; askSel.hidden = true;
     document.documentElement.classList.add("ask-open"); renderAsk("last");
@@ -3794,8 +4024,8 @@ html.rec-open { overflow: hidden; }
   function closeAsk() { askBox.hidden = true; askBack.hidden = true; document.documentElement.classList.remove("ask-open"); updateAskFab(); }
   function chipsFor(ctx, hasMsgs) {
     var q = ctx.where === "notatka"
-      ? (askPend ? ["Wytłumacz to prościej", "Dlaczego tak jest?", "Pokaż to na przykładzie"] : ["Nie rozumiem…", "Daj mi podobne zadanie", "Co z tego może być na kolokwium?", "Wytłumacz najtrudniejszą rzecz z tej notatki"])
-      : (askPend ? ["Wytłumacz to prościej", "Jak się tego nauczyć?", "Daj mi zadanie z tego"] : (ctx.focus ? ["Wytłumacz: " + ctx.focus] : []).concat(["Od czego zacząć dziś?", "Co muszę oddać na UPeL-u?", "Na co się przygotować na jutro?"]));
+      ? (askPend ? [Ln("Wytłumacz to prościej"), Ln("Dlaczego tak jest?"), Ln("Pokaż to na przykładzie")] : [Ln("Nie rozumiem…"), Ln("Daj mi podobne zadanie"), Ln("Co z tego może być na kolokwium?"), Ln("Wytłumacz najtrudniejszą rzecz z tej notatki")])
+      : (askPend ? [Ln("Wytłumacz to prościej"), Ln("Jak się tego nauczyć?"), Ln("Daj mi zadanie z tego")] : (ctx.focus ? [Ln("Wytłumacz: ") + ctx.focus] : []).concat([Ln("Od czego zacząć dziś?"), Ln("Co muszę oddać na UPeL-u?"), Ln("Na co się przygotować na jutro?")]));
     return hasMsgs && !askPend ? q.slice(0, 2) : q;
   }
   // how: "end" – na sam dół (po wysłaniu), "last" – do ostatniego wysłanego pytania (otwarcie), { id } – przyszła odpowiedź:
@@ -3805,15 +4035,15 @@ html.rec-open { overflow: hidden; }
     askLog.textContent = "";
     var list = chats[ctxA.key] || [];
     if (!list.length) askLog.appendChild(el("div", { class: "ask-hello" }, [
-      el("b", { text: ctxA.where === "notatka" ? "Pytaj o tę notatkę" : "Pytaj o naukę i plan" }),
+      el("b", { text: ctxA.where === "notatka" ? Ln("Pytaj o tę notatkę") : Ln("Pytaj o naukę i plan") }),
       el("span", { text: ctxA.where === "notatka"
-        ? "Claude zna całą notatkę, zdjęcia i nagranie, z których powstała, terminy z UPeL-a i plan tego przedmiotu. Możesz też zaznaczyć fragment notatki i dotknąć „Zapytaj o to”. Odpowiedź zaczyna się pojawiać po kilkunastu sekundach, kolejne szybciej – Claude pamięta rozmowę i notatkę. Następne pytanie możesz dopisać od razu, poczeka w kolejce."
-        : "Claude zna Twój plan na jutro, zadania z UPeL-a, plan tygodnia, listy tematów i wszystkie notatki. Pytaj też o rzeczy, których jeszcze nie było – powie, że to wykracza poza zajęcia. Odpowiedź zaczyna się pojawiać po kilkunastu sekundach, kolejne szybciej – Claude pamięta rozmowę. Następne pytanie możesz dopisać od razu, poczeka w kolejce." })
+        ? Ln("Claude zna całą notatkę, zdjęcia i nagranie, z których powstała, terminy z UPeL-a i plan tego przedmiotu. Możesz też zaznaczyć fragment notatki i dotknąć „Zapytaj o to”. Odpowiedź zaczyna się pojawiać po kilkunastu sekundach, kolejne szybciej – Claude pamięta rozmowę i notatkę. Następne pytanie możesz dopisać od razu, poczeka w kolejce.")
+        : Ln("Claude zna Twój plan na jutro, zadania z UPeL-a, plan tygodnia, listy tematów i wszystkie notatki. Pytaj też o rzeczy, których jeszcze nie było – powie, że to wykracza poza zajęcia. Odpowiedź zaczyna się pojawiać po kilkunastu sekundach, kolejne szybciej – Claude pamięta rozmowę. Następne pytanie możesz dopisać od razu, poczeka w kolejce.") })
     ]));
     list.forEach(function (m) {
       var u = el("div", { class: "qa-u" + (m.queued ? " queued" : ""), "data-q": m.id }); if (m.quote) u.appendChild(el("span", { class: "q", text: m.quote })); u.appendChild(document.createTextNode(m.q)); askLog.appendChild(u);
       if (m.queued) {
-        askLog.appendChild(el("div", { class: "qa-qs" }, [el("span", { text: "W kolejce – pójdzie po odpowiedzi na poprzednie" }), btn("", "Usuń", function () {
+        askLog.appendChild(el("div", { class: "qa-qs" }, [el("span", { text: Ln("W kolejce – pójdzie po odpowiedzi na poprzednie") }), btn("", Ln("Usuń"), function () {
           var l = chats[ctxA.key] || [], i = l.indexOf(m); if (i >= 0 && l[i].queued) { l.splice(i, 1); saveChats(); renderAsk(); }
         })]));
       } else if (m.a) {
@@ -3828,7 +4058,7 @@ html.rec-open { overflow: hidden; }
     if (!askBusy()) chipsFor(ctxA, list.length).forEach(function (q) {
       askChips.appendChild(btn("", q, function () { if (/…$/.test(q)) { askIn.value = q.replace(/…$/, " "); askIn.focus(); grow(); } else sendAsk(q); }));
     });
-    askIn.placeholder = askBusy() ? "Dopisz następne pytanie…" : "Zapytaj o cokolwiek…";
+    askIn.placeholder = askBusy() ? Ln("Dopisz następne pytanie…") : Ln("Zapytaj o cokolwiek…");
     $("ask-new").hidden = !list.length || !!askBusy();
     var to = null;
     if (how === "last") { var sent = list.filter(function (m) { return !m.queued; }).pop(); to = sent && sent.id; }
@@ -3837,7 +4067,7 @@ html.rec-open { overflow: hidden; }
     if (qe) askLog.scrollTop += qe.getBoundingClientRect().top - askLog.getBoundingClientRect().top - 12;
     else askLog.scrollTop = how === "end" || how === "last" ? askLog.scrollHeight : keep;
   }
-  function waitText(m) { var sec = Math.round((Date.now() - m.t0) / 1000); return (partLines(m) ? "Claude pisze" : m.wait || "Claude myśli") + "… " + clock(sec); }
+  function waitText(m) { var sec = Math.round((Date.now() - m.t0) / 1000); return (partLines(m) ? Ln("Claude pisze") : m.wait || Ln("Claude myśli")) + "… " + clock(sec); }
   // odpowiedź w trakcie pisania: tylko pełne linijki, żeby nie migały urwane wzory i pogrubienia
   function partLines(m) { var t = m.part || ""; return t.slice(0, t.lastIndexOf("\n") + 1).trim(); }
   function partInto(w, m) {
@@ -3877,11 +4107,11 @@ html.rec-open { overflow: hidden; }
     var m = list[i], cx = m.cx || {}, prev = list.slice(0, i).filter(function (x) { return x.a && !x.err; });
     var hist = prev.slice(-4).map(function (x) { return { q: (x.quote ? "[o fragmencie: " + x.quote.slice(0, 300) + "] " : "") + x.q, a: x.a.slice(0, 3000) }; });
     m.thread = (prev[0] && (prev[0].thread || prev[0].id)) || m.id;   // id pierwszego pytania = wątek rozmowy na GitHubie
-    m.t0 = Date.now(); m.wait = prev.length ? "Claude myśli" : cx.wait; m.follow = !!prev.length; delete m.queued; saveChats();
-    var json = JSON.stringify({ id: m.id, thread: m.thread, note: cx.note || null, ctx: { where: cx.where, focus: cx.focus || null }, question: m.q, quote: m.quote || null, history: hist });
+    m.t0 = Date.now(); m.wait = prev.length ? Ln("Claude myśli") : cx.wait; m.follow = !!prev.length; delete m.queued; saveChats();
+    var json = JSON.stringify({ id: m.id, thread: m.thread, note: cx.note || null, ctx: { where: cx.where, focus: cx.focus || null }, question: m.q, quote: m.quote || null, history: hist, lang: UILANG === "pl" ? undefined : UILANG });
     putAsk("contents/asks/" + m.id + ".json", { message: "Pytanie: " + (cx.note || "nauka"), content: btoa(unescape(encodeURIComponent(json))), branch: BRANCH }, 4)
       .then(function () { pollAsk(); }, function (e) {
-        m.a = e && e.status === 403 ? "Klucz ma tylko odczyt, więc pytanie nie poszło." : "Nie udało się wysłać pytania. Sprawdź internet i spróbuj jeszcze raz."; m.err = true; saveChats();
+        m.a = e && e.status === 403 ? Ln("Klucz ma tylko odczyt, więc pytanie nie poszło.") : Ln("Nie udało się wysłać pytania. Sprawdź internet i spróbuj jeszcze raz."); m.err = true; saveChats();
         pumpAsk(key); if (!askBox.hidden && ctxA && ctxA.key === key) renderAsk({ id: m.id });
       });
   }
@@ -3903,7 +4133,7 @@ html.rec-open { overflow: hidden; }
     Object.keys(chats).forEach(function (k) { chats[k].forEach(function (m) { if (!m.a && !m.queued) pend.push(m); }); });
     if (!pend.length || !TOKEN || VISIT) return;
     var main = askTick++ % 3 === 2;
-    function fin(m, x) { m.a = x.answer || "Nie udało się teraz odpowiedzieć. Spróbuj zapytać jeszcze raz."; m.err = !!x.error; delete m.part; return m; }
+    function fin(m, x) { m.a = x.answer || Ln("Nie udało się teraz odpowiedzieć. Spróbuj zapytać jeszcze raz."); m.err = !!x.error; delete m.part; return m; }
     Promise.all(pend.map(function (m) {
       return api("contents/a/" + m.id + ".json?ref=live", { raw: true }).then(function (t) {
         var x = JSON.parse(t);
@@ -3913,7 +4143,7 @@ html.rec-open { overflow: hidden; }
         if (r || !main) return r;
         return api("contents/answers/" + m.id + ".json?ref=" + BRANCH, { raw: true }).then(function (t) { return fin(m, JSON.parse(t)); }, function () {});
       }).catch(function () {}).then(function (r) {
-        if (!r && Date.now() - m.t0 > (m.part ? 10 : 5) * 60000) { m.a = "Nie ma odpowiedzi po " + (m.part ? 10 : 5) + " minutach. Zapytaj jeszcze raz."; m.err = true; delete m.part; return m; }
+        if (!r && Date.now() - m.t0 > (m.part ? 10 : 5) * 60000) { m.a = Ln("Nie ma odpowiedzi po ") + (m.part ? 10 : 5) + Ln(" minutach. Zapytaj jeszcze raz."); m.err = true; delete m.part; return m; }
         return r;
       });
     })).then(function (got) {
@@ -3955,7 +4185,7 @@ html.rec-open { overflow: hidden; }
   $("ask-new").addEventListener("click", function () { if (!ctxA || askBusy()) return; delete chats[ctxA.key]; saveChats(); renderAsk(); askIn.focus(); });
   askBack.addEventListener("click", closeAsk);
   $("ask-quote-x").addEventListener("click", function () { askPend = null; askQuote.hidden = true; renderAsk(); });
-  askForm.addEventListener("submit", function (e) { e.preventDefault(); sendAsk(askIn.value || (askPend ? "Wytłumacz to prościej" : "")); });
+  askForm.addEventListener("submit", function (e) { e.preventDefault(); sendAsk(askIn.value || (askPend ? Ln("Wytłumacz to prościej") : "")); });
   askIn.addEventListener("input", function () { grow(); if (askIn.value.trim()) warmAsk(); });
   askIn.addEventListener("keydown", function (e) { if (e.key === "Enter" && !e.shiftKey && !e.isComposing && matchMedia("(pointer: fine)").matches) { e.preventDefault(); askForm.requestSubmit(); } });
   document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !askBox.hidden) closeAsk(); });
@@ -4051,7 +4281,7 @@ html.rec-open { overflow: hidden; }
   }
   function recStart(folder, day, t0) {   // wywoływane z dotknięcia: iOS pozwala wtedy na mikrofon, AudioContext i wideo
     if (R) return;
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.MediaRecorder) { recErr = "Ta przeglądarka nie umie nagrywać dźwięku."; recUI(); return; }
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.MediaRecorder) { recErr = Ln("Ta przeglądarka nie umie nagrywać dźwięku."); recUI(); return; }
     R = { folder: folder, day: day || isoDay(new Date()), t0: t0 || Date.now(), lines: [], lvl: 0, rms: [], quiet: 0, state: "start", err: "" };
     DONE = null; RESUME = null; recErr = ""; target = folder; lsSet(LS_F, folder);
     lsSet(LS_R, JSON.stringify({ folder: R.folder, day: R.day, t0: R.t0 }));
@@ -4074,7 +4304,7 @@ html.rec-open { overflow: hidden; }
     }, function (e) {
       if (R !== r) return;
       r.state = "blocked";
-      r.err = e && e.name === "NotAllowedError" ? "Safari nie dał dostępu do mikrofonu. Dotknij „Wznów” i zezwól." : "Nie da się włączyć mikrofonu (" + (e && e.name || "?") + "). Dotknij „Wznów”.";
+      r.err = e && e.name === "NotAllowedError" ? Ln("Safari nie dał dostępu do mikrofonu. Dotknij „Wznów” i zezwól.") : Ln("Nie da się włączyć mikrofonu (") + (e && e.name || "?") + Ln("). Dotknij „Wznów”.");
       recUI();
     });
   }
@@ -4215,11 +4445,11 @@ html.rec-open { overflow: hidden; }
       if (R && rkey(R) === key) { R.lines = R.lines.concat(segs).slice(-60); }
       recErr = ""; groqBad = false;
     }, function (e) {
-      if (e.code === "gauth") { gkDead[GROQ] = 1; if (nextGroq()) return; groqBad = true; recErr = "Klucz Groq nie działa. Wklej nowy (nagranie czeka w telefonie)."; return; }
+      if (e.code === "gauth") { gkDead[GROQ] = 1; if (nextGroq()) return; groqBad = true; recErr = Ln("Klucz Groq nie działa. Wklej nowy (nagranie czeka w telefonie)."); return; }
       a.tries = (a.tries || 0) + 1;
       if (e.code === "bad" && a.tries >= 3) { Q = Q.filter(function (x) { return x.id !== a.id; }); qDel([a.id]); return; }   // zepsuty kawałek: nie blokuj reszty
       a.next = Date.now() + (e.wait || Math.min(60000, 2500 * Math.pow(2, a.tries)));
-      recErr = e.code === "net" ? "Brak internetu – nagranie czeka w telefonie i wyśle się samo." : e.code === "rate" ? "Groq prosi o chwilę przerwy – zaraz wznowię." : "Groq nie przepisał kawałka (" + (e.status || "?") + ") – spróbuję jeszcze raz.";
+      recErr = e.code === "net" ? Ln("Brak internetu – nagranie czeka w telefonie i wyśle się samo.") : e.code === "rate" ? Ln("Groq prosi o chwilę przerwy – zaraz wznowię.") : Ln("Groq nie przepisał kawałka (") + (e.status || "?") + Ln(") – spróbuję jeszcze raz.");
       qPut(a);
     });
   }
@@ -4238,7 +4468,7 @@ html.rec-open { overflow: hidden; }
     return api("contents/speech/" + folder + "/" + day + "/" + name + ".json", { method: "PUT", body: {
       message: "Nagranie: " + folder + " " + day + " " + from.slice(0, 5) + "–" + to.slice(0, 5) + (ends.length ? " (koniec)" : ""), content: btoa(unescape(encodeURIComponent(json))), branch: BRANCH } })
       .then(function () { drop(); recErr = ""; setTimeout(refresh, 2500); }, function (e) {
-        recErr = e && e.code === "auth" ? "Klucz do GitHuba nie działa – tekst czeka w telefonie." : e && e.status === 403 ? "Klucz GitHuba ma tylko odczyt – tekst czeka w telefonie." : "Nie udało się wysłać tekstu na GitHuba – spróbuję jeszcze raz.";
+        recErr = e && e.code === "auth" ? Ln("Klucz do GitHuba nie działa – tekst czeka w telefonie.") : e && e.status === 403 ? Ln("Klucz GitHuba ma tylko odczyt – tekst czeka w telefonie.") : Ln("Nie udało się wysłać tekstu na GitHuba – spróbuję jeszcze raz.");
         throw e;
       });
   }
@@ -4283,10 +4513,10 @@ html.rec-open { overflow: hidden; }
   function noteLine(folder, day) {   // „notatka uzupełniona do 10:12” / „Claude dopisuje”
     var n = (INDEX.notes || {})[folder + "/" + day], sp = n && n.speech, all = speechPaths(folder, day).length;
     var busy = active(RUN) && all > (sp ? sp.n : 0);
-    if (!all) return "Notatka: pierwsza paczka tekstu pójdzie za kilka minut.";
-    if (busy) return "Notatka: Claude dopisuje nagranie" + (sp && sp.done_to ? " (jest już do " + sp.done_to + ")" : "") + "…";
-    if (sp && sp.n >= all) return "Notatka: uzupełniona do " + (sp.done_to || sp.to) + (sp.final ? " · ostateczna" : "") + ".";
-    return "Notatka: czeka na Claude'a.";
+    if (!all) return Ln("Notatka: pierwsza paczka tekstu pójdzie za kilka minut.");
+    if (busy) return Ln("Notatka: Claude dopisuje nagranie") + (sp && sp.done_to ? Ln(" (jest już do ") + sp.done_to + ")" : "") + "…";
+    if (sp && sp.n >= all) return Ln("Notatka: uzupełniona do ") + (sp.done_to || sp.to) + (sp.final ? Ln(" · ostateczna") : "") + ".";
+    return Ln("Notatka: czeka na Claude'a.");
   }
   function recOpen() { recView = "open"; recUI(); }
   function recClose() { recView = null; keyEdit = false; if (DONE && !R) DONE = null; recUI(); }
@@ -4304,13 +4534,13 @@ html.rec-open { overflow: hidden; }
   function recBarBuild(qi) {
     if (R) {
       var f0 = F(R.folder);
-      recBar.appendChild(btn("rb-live", null, recOpen, [el("i", { class: "dot" }), el("b", { text: R.state === "blocked" ? "Nagrywanie wstrzymane" : "Nagrywam" }), el("span", { class: "rt", text: clock((Date.now() - R.t0) / 1000) }), el("span", { class: "rn", text: f0 ? fname(f0) : "" }), el("span", { class: "rgo", text: "Wróć ›" })]));
+      recBar.appendChild(btn("rb-live", null, recOpen, [el("i", { class: "dot" }), el("b", { text: R.state === "blocked" ? Ln("Nagrywanie wstrzymane") : Ln("Nagrywam") }), el("span", { class: "rt", text: clock((Date.now() - R.t0) / 1000) }), el("span", { class: "rn", text: f0 ? fname(f0) : "" }), el("span", { class: "rgo", text: Ln("Wróć ›") })]));
     } else if (RESUME) {
       var f1 = F(RESUME.folder);
-      recBar.appendChild(el("div", { class: "rb-res" }, [el("span", { text: "Nagrywanie" + (f1 ? " (" + fname(f1) + ")" : "") + " przerwało się, bo strona się przeładowała. Nagrane do tej pory jest bezpieczne." }),
-        el("span", { class: "acts" }, [btn("go", "Wznów", function () { var x = RESUME; recView = "open"; if (x.day === isoDay(new Date())) recStart(x.folder, x.day, x.t0); else { endOld(x); recStart(x.folder); } }), btn("go alt", "Zakończ", function () { endOld(RESUME); })])]));
+      recBar.appendChild(el("div", { class: "rb-res" }, [el("span", { text: Ln("Nagrywanie") + (f1 ? " (" + fname(f1) + ")" : "") + Ln(" przerwało się, bo strona się przeładowała. Nagrane do tej pory jest bezpieczne.") }),
+        el("span", { class: "acts" }, [btn("go", Ln("Wznów"), function () { var x = RESUME; recView = "open"; if (x.day === isoDay(new Date())) recStart(x.folder, x.day, x.t0); else { endOld(x); recStart(x.folder); } }), btn("go alt", Ln("Zakończ"), function () { endOld(RESUME); })])]));
     } else if (qi.any && TOKEN) {
-      recBar.appendChild(el("div", { class: "rb-q" }, [el("span", { class: "spin" }), qi.a ? "Przepisuję nagranie: zostało " + qi.a + " kawałków" + (recErr ? " – " + recErr : "") : recErr || "Wysyłam tekst z nagrania…"]));
+      recBar.appendChild(el("div", { class: "rb-q" }, [el("span", { class: "spin" }), qi.a ? Ln("Przepisuję nagranie: zostało ") + qi.a + Ln(" kawałków") + (recErr ? " – " + recErr : "") : recErr || Ln("Wysyłam tekst z nagrania…")]));
     }
   }
   function recBody() {   // pełny ekran
@@ -4324,73 +4554,73 @@ html.rec-open { overflow: hidden; }
   }
   function recBuild(view, f, r) {
     var w = el("div", { class: "rin" }), head = el("div", { class: "rhead" }, [el("span", { class: "rcourse", text: f ? fname(f) + " · " + KIND_L[f.kind] : "" }),
-      btn("rx", view === "rec" ? "Zwiń" : view === "key" && R ? "Wróć" : "Zamknij", view === "key" && R ? function () { keyEdit = false; recUI(); } : recClose)]);
+      btn("rx", view === "rec" ? Ln("Zwiń") : view === "key" && R ? Ln("Wróć") : Ln("Zamknij"), view === "key" && R ? function () { keyEdit = false; recUI(); } : recClose)]);
     w.appendChild(head);
     if (view === "key") {
-      var inp = el("input", { type: "password", placeholder: "gsk_…", autocomplete: "off", autocapitalize: "off", spellcheck: "false", "aria-label": "Klucz Groq" }), msg = el("p", { class: "rmsg" });
-      var save = rb("main", "Zapisz klucz", function () {
-        var v = inp.value.trim(); if (!/^gsk_\w+$/.test(v)) { msg.textContent = "Klucz Groq zaczyna się od gsk_."; return; }
-        msg.textContent = "Sprawdzam klucz…";
+      var inp = el("input", { type: "password", placeholder: "gsk_…", autocomplete: "off", autocapitalize: "off", spellcheck: "false", "aria-label": Ln("Klucz Groq") }), msg = el("p", { class: "rmsg" });
+      var save = rb("main", Ln("Zapisz klucz"), function () {
+        var v = inp.value.trim(); if (!/^gsk_\w+$/.test(v)) { msg.textContent = Ln("Klucz Groq zaczyna się od gsk_."); return; }
+        msg.textContent = Ln("Sprawdzam klucz…");
         fetch(GROQ_URL + "models", { headers: { Authorization: "Bearer " + v } }).then(function (x) {
-          if (!x.ok) { msg.textContent = x.status === 401 ? "Groq nie przyjął tego klucza." : "Groq odpowiedział błędem " + x.status + "."; return; }
+          if (!x.ok) { msg.textContent = x.status === 401 ? Ln("Groq nie przyjął tego klucza.") : Ln("Groq odpowiedział błędem ") + x.status + "."; return; }
           GROQ = v; groqBad = false; keyEdit = false; recErr = ""; lsSet(LS_G, v); recUI(); pump();
-        }, function () { msg.textContent = "Brak internetu."; });
+        }, function () { msg.textContent = Ln("Brak internetu."); });
       });
       w.appendChild(el("div", { class: "rbody" }, [
-        el("h2", { text: "Mowa na tekst" }),
-        el("p", { text: "Nagranie przepisuje Groq (darmowy Whisper, ten sam co w ChatGPT). Potrzebny jest klucz, tylko raz:" }),
-        el("ol", {}, [el("li", {}, ["Otwórz ", el("a", { href: "https://console.groq.com/keys", target: "_blank", rel: "noopener", text: "console.groq.com/keys" }), " i zaloguj się (np. kontem Google)."]),
-          el("li", { text: "„Create API Key”, nazwa dowolna, skopiuj klucz (gsk_…)." }), el("li", { text: "Wróć tutaj i dotknij „Wklej ze schowka”." })]),
-        inp, el("div", { class: "racts" }, [navigator.clipboard && navigator.clipboard.readText ? rb("", "Wklej ze schowka", function () {
+        el("h2", { text: Ln("Mowa na tekst") }),
+        el("p", { text: Ln("Nagranie przepisuje Groq (darmowy Whisper, ten sam co w ChatGPT). Potrzebny jest klucz, tylko raz:") }),
+        el("ol", {}, [el("li", {}, [Ln("Otwórz "), el("a", { href: "https://console.groq.com/keys", target: "_blank", rel: "noopener", text: "console.groq.com/keys" }), Ln(" i zaloguj się (np. kontem Google).")]),
+          el("li", { text: Ln("„Create API Key”, nazwa dowolna, skopiuj klucz (gsk_…).") }), el("li", { text: Ln("Wróć tutaj i dotknij „Wklej ze schowka”.") })]),
+        inp, el("div", { class: "racts" }, [navigator.clipboard && navigator.clipboard.readText ? rb("", Ln("Wklej ze schowka"), function () {
           navigator.clipboard.readText().then(function (t) { inp.value = (t || "").trim(); save.click(); }, function () { inp.focus(); });
         }) : null, save]), msg
       ]));
     } else if (view === "ready") {
       w.appendChild(el("div", { class: "rbody" }, [
-        el("h2", { text: f && f.kind === "korki" ? "Nagrywaj korki" : "Nagrywaj wykład" }),
-        el("p", { text: "Telefon słucha " + (f && f.kind === "korki" ? "korepetytora" : "prowadzącego") + " i na bieżąco zamienia to na tekst. Co kilka minut Claude dopisuje to do notatki razem ze zdjęciami, a po „Zakończ” układa całą notatkę od nowa." }),
-        el("ul", {}, [el("li", { text: "Bez dźwięków i wibracji. Ekran zostaje włączony i ciemny." }), el("li", { text: "Nie blokuj telefonu i nie wychodź z tej strony – wtedy iPhone wyłącza mikrofon." }),
-          el("li", { text: "Zdjęcia rób przyciskiem „Zdjęcie” na ekranie nagrywania. Telefon przełącz na wyciszony, żeby aparat nie pstrykał." })]),
-        el("div", { class: "racts" }, [rb("main", "Zacznij nagrywać", function () { if (f) recStart(f.id); }, MIC_SVG)]),
-        btn("rlink", "Zmień klucz Groq", function () { keyEdit = true; recUI(); })
+        el("h2", { text: f && f.kind === "korki" ? Ln("Nagrywaj korki") : Ln("Nagrywaj wykład") }),
+        el("p", { text: Ln("Telefon słucha ") + Ln(f && f.kind === "korki" ? "korepetytora" : "prowadzącego") + Ln(" i na bieżąco zamienia to na tekst. Co kilka minut Claude dopisuje to do notatki razem ze zdjęciami, a po „Zakończ” układa całą notatkę od nowa.") }),
+        el("ul", {}, [el("li", { text: Ln("Bez dźwięków i wibracji. Ekran zostaje włączony i ciemny.") }), el("li", { text: Ln("Nie blokuj telefonu i nie wychodź z tej strony – wtedy iPhone wyłącza mikrofon.") }),
+          el("li", { text: Ln("Zdjęcia rób przyciskiem „Zdjęcie” na ekranie nagrywania. Telefon przełącz na wyciszony, żeby aparat nie pstrykał.") })]),
+        el("div", { class: "racts" }, [rb("main", Ln("Zacznij nagrywać"), function () { if (f) recStart(f.id); }, MIC_SVG)]),
+        btn("rlink", Ln("Zmień klucz Groq"), function () { keyEdit = true; recUI(); })
       ]));
     } else if (view === "rec") {
       w.appendChild(el("div", { class: "rtop" }, [el("span", { class: "rstate" }), el("span", { class: "rclock" }), el("span", { class: "rlvl", "aria-hidden": "true" }, [el("i")])]));
       w.appendChild(el("div", { class: "rlog", "aria-live": "off" }));
       w.appendChild(el("p", { class: "rstat" }));
-      w.appendChild(btn("rlink rkey", "Wklej nowy klucz Groq", function () { keyEdit = true; recUI(); }));
-      var stopB = rb("stop", "Zakończ", function () {
-        if (Date.now() - stopArm > 4000) { stopArm = Date.now(); stopB.lastChild.textContent = "Na pewno? Dotknij jeszcze raz"; setTimeout(function () { if (stopB.isConnected) stopB.lastChild.textContent = "Zakończ"; }, 4000); return; }
+      w.appendChild(btn("rlink rkey", Ln("Wklej nowy klucz Groq"), function () { keyEdit = true; recUI(); }));
+      var stopB = rb("stop", Ln("Zakończ"), function () {
+        if (Date.now() - stopArm > 4000) { stopArm = Date.now(); stopB.lastChild.textContent = Ln("Na pewno? Dotknij jeszcze raz"); setTimeout(function () { if (stopB.isConnected) stopB.lastChild.textContent = Ln("Zakończ"); }, 4000); return; }
         stopArm = 0; recStop();
       });
       w.appendChild(el("div", { class: "racts rfoot" }, [
-        r && r.state === "blocked" ? rb("main", "Wznów", function () { if (R) { R.state = "start"; R.err = ""; if (!R.ctx) try { R.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} wake(true); capture(); recUI(); } }, MIC_SVG)
-          : rb("main", "Zdjęcie", function () { if (!R) return; target = R.folder; cut(); cam.click(); }, CAM_SVG),
+        r && r.state === "blocked" ? rb("main", Ln("Wznów"), function () { if (R) { R.state = "start"; R.err = ""; if (!R.ctx) try { R.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} wake(true); capture(); recUI(); } }, MIC_SVG)
+          : rb("main", Ln("Zdjęcie"), function () { if (!R) return; target = R.folder; cut(); cam.click(); }, CAM_SVG),
         stopB
       ]));
     } else {   // done
-      w.appendChild(el("div", { class: "rbody" }, [el("h2", { text: "Nagranie zakończone" }), el("p", { class: "rdone" }), el("p", { class: "rstat" }),
-        el("div", { class: "racts" }, [rb("main", "Otwórz notatkę", function () { var d = DONE; recClose(); openNote(d.folder, d.day); }), rb("", "Zamknij", recClose)])]));
+      w.appendChild(el("div", { class: "rbody" }, [el("h2", { text: Ln("Nagranie zakończone") }), el("p", { class: "rdone" }), el("p", { class: "rstat" }),
+        el("div", { class: "racts" }, [rb("main", Ln("Otwórz notatkę"), function () { var d = DONE; recClose(); openNote(d.folder, d.day); }), rb("", Ln("Zamknij"), recClose)])]));
     }
     return w;
   }
   function recFill(view, f, r) {
     if (view === "rec" && r) {
-      recBox.querySelector(".rstate").textContent = r.state === "blocked" ? "Wstrzymane" : r.state === "stopping" ? "Kończę…" : r.state === "start" ? "Włączam mikrofon…" : "Nagrywam";
+      recBox.querySelector(".rstate").textContent = r.state === "blocked" ? Ln("Wstrzymane") : r.state === "stopping" ? Ln("Kończę…") : r.state === "start" ? Ln("Włączam mikrofon…") : Ln("Nagrywam");
       recBox.querySelector(".rclock").textContent = clock((Date.now() - r.t0) / 1000);
       var log = recBox.querySelector(".rlog"), n = r.lines.length;
       if (log._n !== n) {
         log._n = n; log.textContent = "";
-        if (!n) log.appendChild(el("p", { class: "rhint", text: "Tu pojawia się tekst tego, co mówi prowadzący – z opóźnieniem ok. minuty." }));
+        if (!n) log.appendChild(el("p", { class: "rhint", text: Ln("Tu pojawia się tekst tego, co mówi prowadzący – z opóźnieniem ok. minuty.") }));
         r.lines.slice(-14).forEach(function (x) { log.appendChild(el("p", {}, [el("time", { text: x[0].slice(0, 5) }), x[1]])); });
         log.scrollTop = log.scrollHeight;
       }
       var qi = qInfo(rkey(r)), up = local.filter(function (e) { return e.state === "prep" || e.state === "upload"; }).length;
       recBox.querySelector(".rkey").hidden = !groqBad;
-      recBox.querySelector(".rstat").textContent = [r.err || recErr || (qi.a > 1 ? "Tekst: czeka " + qi.a + " kawałków." : "Tekst: na bieżąco."), up ? "Zdjęcie: wysyłam…" : "", noteLine(r.folder, r.day)].filter(Boolean).join(" ");
+      recBox.querySelector(".rstat").textContent = [r.err || recErr || (qi.a > 1 ? Ln("Tekst: czeka ") + qi.a + Ln(" kawałków.") : Ln("Tekst: na bieżąco.")), up ? Ln("Zdjęcie: wysyłam…") : "", noteLine(r.folder, r.day)].filter(Boolean).join(" ");
     } else if (view === "done" && DONE) {
       var q2 = qInfo(DONE.folder + "/" + DONE.day);
-      recBox.querySelector(".rdone").textContent = "Nagranie: " + Math.max(1, Math.round(DONE.dur / 60000)) + " min. " + (q2.any ? (q2.a ? "Przepisuję resztę: " + q2.a + " kawałków…" : "Wysyłam ostatni tekst…") : "Wszystko wysłane. Claude układa ostateczną notatkę – zwykle kilka minut.");
+      recBox.querySelector(".rdone").textContent = Ln("Nagranie: ") + Math.max(1, Math.round(DONE.dur / 60000)) + " min. " + (q2.any ? (q2.a ? Ln("Przepisuję resztę: ") + q2.a + Ln(" kawałków…") : Ln("Wysyłam ostatni tekst…")) : Ln("Wszystko wysłane. Claude układa ostateczną notatkę – zwykle kilka minut."));
       recBox.querySelector(".rstat").textContent = recErr || (q2.any ? "" : noteLine(DONE.folder, DONE.day));
     }
   }
@@ -4410,11 +4640,11 @@ html.rec-open { overflow: hidden; }
   function openTranscript(folder, day, at) {
     var f = F(folder);
     $("trs-ctx").textContent = (f ? fname(f) + " · " : "") + dayLabel(day) + (at ? " · od " + at : "");
-    trsLog.textContent = ""; trsLog.appendChild(el("p", { class: "hint", text: "Wczytuję…" }));
+    trsLog.textContent = ""; trsLog.appendChild(el("p", { class: "hint", text: Ln("Wczytuję…") }));
     trs.hidden = false; trsBack.hidden = false; document.documentElement.classList.add("ask-open");
     loadSpeech(folder, day).then(function (segs) {
       trsLog.textContent = "";
-      if (!segs.length) { trsLog.appendChild(el("p", { class: "hint", text: "Nie ma jeszcze tekstu z nagrania." })); return; }
+      if (!segs.length) { trsLog.appendChild(el("p", { class: "hint", text: Ln("Nie ma jeszcze tekstu z nagrania.") })); return; }
       var first = null, lastMin = "", from = at ? at + ":00" : "", until = at ? hms(new Date(Date.parse("2000-01-01T" + at + ":00") + 150000)) : "";
       segs.forEach(function (s) {
         var on = at && s[0] >= from && s[0] < until, mn = s[0].slice(0, 5);
@@ -4423,7 +4653,7 @@ html.rec-open { overflow: hidden; }
         if (on && !first) first = p;
       });
       if (first) first.scrollIntoView({ block: "center" });
-    }, function () { trsLog.textContent = ""; trsLog.appendChild(el("p", { class: "hint", text: "Nie udało się wczytać nagrania." })); });
+    }, function () { trsLog.textContent = ""; trsLog.appendChild(el("p", { class: "hint", text: Ln("Nie udało się wczytać nagrania.") })); });
   }
   function closeTranscript() { trs.hidden = true; trsBack.hidden = true; document.documentElement.classList.remove("ask-open"); }
   $("trs-x").addEventListener("click", closeTranscript);
@@ -4443,7 +4673,7 @@ html.rec-open { overflow: hidden; }
 
   /* --- podgląd zdjęcia --- */
   function openLb(p) {
-    lbPath = p; wantDel = false; lbDel.textContent = "Usuń zdjęcie"; lbDel.hidden = !!VISIT || stage(p) === "reading";
+    lbPath = p; wantDel = false; lbDel.textContent = Ln("Usuń zdjęcie"); lbDel.hidden = !!VISIT || stage(p) === "reading";
     lbImg.removeAttribute("src"); lb.classList.remove("zoom"); lb.hidden = false;
     blobUrl(p.path).then(function (u) { if (lbPath === p) lbImg.src = u; }, function () {});
   }
@@ -4452,7 +4682,7 @@ html.rec-open { overflow: hidden; }
   lbImg.addEventListener("click", function () { lb.classList.toggle("zoom"); });
   lbDel.addEventListener("click", function () {
     if (!lbPath) return;
-    if (!wantDel) { wantDel = true; lbDel.textContent = "Na pewno? Dotknij jeszcze raz"; return; }
+    if (!wantDel) { wantDel = true; lbDel.textContent = Ln("Na pewno? Dotknij jeszcze raz"); return; }
     var p = lbPath; closeLb(); delPhoto(p);
   });
   document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !lb.hidden) closeLb(); });
@@ -4488,11 +4718,10 @@ html.rec-open { overflow: hidden; }
   document.querySelector(".top").appendChild(themeBtn); showTheme();
 
   if (!VISIT || VISIT.live) {
-    var langSel = el("select", { class: "lang", "aria-label": Ln("Język") }, [["pl", "Polski"], ["en", "English"], ["tr", "Türkçe"]].map(function (o) { var op = el("option", { value: o[0], text: o[1] }); if (o[0] === UILANG) op.selected = true; return op; }));
+    var langSel = el("select", { class: "lang", "aria-label": Ln("Język") }, [["pl", "Polski"], ["en", "English"]].concat(VISIT ? [["tr", "Türkçe"]] : []).map(function (o) { var op = el("option", { value: o[0], text: o[1] }); if (o[0] === UILANG) op.selected = true; return op; }));
     langSel.addEventListener("change", function () { lsSet(LS_LANG, langSel.value); location.reload(); });
     document.querySelector(".top").insertBefore(langSel, themeBtn);
     $("pk-go").textContent = Ln("Otwórz w notatce"); $("lb-x").textContent = Ln("Zamknij");
-    [tabK, tabA, tabN].forEach(function (t) { t.childNodes.forEach(function (n) { if (n.nodeType === 3 && n.nodeValue.trim()) n.nodeValue = Ln(n.nodeValue.trim()); }); });
   }
   if (VISIT && VISIT.live) {
     document.body.classList.add("visit", "znajomi"); tab = "notatki"; tabK.parentNode.hidden = true;
@@ -4501,8 +4730,8 @@ html.rec-open { overflow: hidden; }
     document.addEventListener("visibilitychange", function () { if (!document.hidden) reLive(); });
   } else if (VISIT) {
     document.body.classList.add("visit"); tabA.hidden = true; if (tab === "aparat") tab = "nauka";
-    var br = document.querySelector(".top .brand"); br.textContent = "SimpleAGH · podgląd notatek";
-    visitReady.then(function () { var d = new Date(VISIT.expires); br.textContent = "SimpleAGH · podgląd do " + d.getDate() + "." + pad(d.getMonth() + 1); }, function () {});
+    var br = document.querySelector(".top .brand"); br.textContent = Ln("SimpleAGH · podgląd notatek");
+    visitReady.then(function () { var d = new Date(VISIT.expires); br.textContent = Ln("SimpleAGH · podgląd do ") + d.getDate() + "." + pad(d.getMonth() + 1); }, function () {});
   }
   var kxs = $("katex-js"); if (kxs && !window.katex) kxs.addEventListener("load", function () { texCache = {}; render(); });
   setTab(tab);
