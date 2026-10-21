@@ -403,6 +403,56 @@ html[lang] .md .zref + .zref::before, html[lang] .md .tref + .tref::before { con
 .md .gt-fx { overflow-x: auto; padding: 10px 12px; text-align: center; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }   /* formuła: tabela prawdy jak na kartce */
 .md .gt-fx .katex { font-size: 1.3em; }
 .md .gt-tw { overflow-x: auto; }
+/* przebieg: rozwiązanie klatka po klatce */
+.md .pb { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; padding: 12px; border: 1px solid var(--line); border-radius: 14px; background: var(--bg); scroll-margin-top: 140px; outline: none; }
+.md .pb-top { display: flex; align-items: baseline; gap: 8px; font-family: var(--font); min-height: 1em; }
+.md .pb-t { font-size: 0.8rem; font-weight: 700; color: var(--muted); }
+.md .pb-k { margin-left: auto; font-size: 0.78rem; font-weight: 600; color: var(--faint); font-variant-numeric: tabular-nums; }
+.md .pb-cap { font-family: var(--font); font-weight: 700; font-size: 1rem; color: var(--ink); margin-top: -4px; }
+.md .pb-st { display: grid; gap: 12px; justify-items: center; padding: 14px 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow-x: auto; container-type: inline-size; }
+.md .pb-g { display: grid; gap: 0.33em 0.27em; align-items: center; font-family: ui-monospace, "SF Mono", Menlo, monospace; font-variant-numeric: tabular-nums; font-size: var(--pbf, 15.5px); }
+.md .pb-l { grid-column: 1; justify-self: end; padding-right: 0.5em; font-family: var(--font); font-size: 0.82em; color: var(--muted); white-space: nowrap; }
+.md .pb-c { min-width: 2.3em; height: 2.3em; padding: 0 0.45em; box-sizing: border-box; display: grid; place-items: center; border: 1.5px solid var(--line); border-radius: 0.45em; background: var(--surface); font-weight: 600; color: var(--ink); white-space: nowrap; }
+.md .pb-c.n { background: var(--hl); border-color: color-mix(in srgb, var(--warn) 45%, var(--line)); }
+.md .pb-c.f { border-color: var(--accent); box-shadow: 0 0 0 1.5px var(--accent); }
+.md .pb-c.d { color: var(--faint); border-style: dashed; font-weight: 500; }
+.md .pb-c.r { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+.md .pb-c.x { color: var(--hot); border-color: var(--hot); text-decoration: line-through; }
+.md .pb-c.e { border-style: dashed; }
+.md .pb-s { justify-self: center; font-size: 0.78em; font-weight: 600; color: var(--faint); white-space: nowrap; }
+.md .pb-s.n { color: var(--warn); font-weight: 800; }
+.md .pb-p { justify-self: center; display: grid; justify-items: center; gap: 1px; font-family: var(--font); font-size: max(0.8em, 11px); color: var(--accent); line-height: 1.15; }
+.md .pb-p::before { content: ""; width: 0; height: 0; border: 5px solid transparent; border-top: 0; border-bottom: 7px solid currentColor; }
+.md .pb-p b { font-weight: 800; }
+.md .pb-p.n { color: var(--warn); }
+.md .pb-line { align-self: center; height: 0; border-top: 2px solid var(--ink); }
+.md .pb-vars { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+.md .pb-v { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.8rem; padding: 3px 10px; border-radius: 99px; background: var(--bg); border: 1px solid var(--line); color: var(--muted); }
+.md .pb-v b { color: var(--ink); }
+.md .pb-v.n { background: var(--hl); border-color: color-mix(in srgb, var(--warn) 45%, var(--line)); }
+.md .pb .pb-out { justify-self: stretch; }
+.md .pb .pb-out .pb-new { color: #ffd479; }
+.md .pb .gt-sv { justify-self: stretch; border: 0; padding: 0; }
+.md .pb .gt-sv svg { max-width: 100%; height: auto; }
+.md .pb-g.sm { gap: 0.3em 0.2em; }
+.md .pb-g.sm .pb-c { min-width: 1.8em; height: 2.1em; padding: 0 0.3em; }
+.md .pb-txt { display: grid; gap: 6px; }
+.md .pb-txt p { margin: 0; }
+.md .pb-ctl { display: flex; align-items: center; gap: 8px; }
+.md .pb-ctl button { appearance: none; border: 0; flex: none; height: 38px; border-radius: 99px; cursor: pointer; font-family: var(--font); }
+.md .pb-ctl button svg { width: 18px; height: 18px; }
+.md .pb-prev { width: 38px; padding: 0; display: grid; place-items: center; background: var(--surface); color: var(--ink); box-shadow: inset 0 0 0 1px var(--line); }
+.md .pb-prev:disabled { opacity: 0.35; cursor: default; }
+.md .pb-next { display: inline-flex; align-items: center; gap: 4px; padding: 0 14px 0 16px; background: var(--accent); color: var(--surface); font-size: 0.92rem; font-weight: 700; }
+.md .pb-dots { flex: 1; min-width: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 0; }
+.md .pb-dot { appearance: none; width: 18px; height: 22px; padding: 0; border: 0; background: none; cursor: pointer; display: grid; place-items: center; }
+.md .pb-dot::before { content: ""; width: 8px; height: 8px; border-radius: 50%; box-sizing: border-box; border: 1.5px solid var(--faint); }
+.md .pb-dot.ok::before { background: var(--accent); border-color: var(--accent); opacity: 0.55; }
+.md .pb-dot.cur::before { width: 10px; height: 10px; background: var(--accent); border-color: var(--accent); }
+.md .pb-rng { flex: 1; min-width: 40px; accent-color: var(--accent); }
+.md .pb .n { animation: pbin .45s ease-out both; }
+@keyframes pbin { from { transform: scale(0.86); } to { transform: none; } }
+@media (prefers-reduced-motion: reduce) { .md .pb .n { animation: none; } }
 .md .gt-ft { margin: 0; }
 .md .gt-ft th, .md .gt-ft td { padding: 5px 3px; }
 .md .gt-ft .gt-v { position: sticky; z-index: 1; padding-inline: 0; box-sizing: border-box; background: var(--bg); }
@@ -873,7 +923,7 @@ html.rec-open { overflow: hidden; }
       "Klucz ma tylko odczyt, więc pytanie nie poszło.": "The key is read-only, so the question was not sent.",
       "Klucz ma tylko odczyt. Potrzebny nowy klucz z uprawnieniem Contents: Read and write.": "The key is read-only. You need a new key with the Contents: Read and write permission.",
       "Kompilacja się nie udała – popraw błąd i uruchom jeszcze raz.": "Compilation failed – fix the error and run it again.", "Kończę…": "Finishing…", "Krok dalej": "Step forward", "Krok programu": "Program step",
-      "Krok wstecz": "Step back",
+      "Krok wstecz": "Step back", "Od początku": "From the start",
       "Masz już klucz w Safari? Otwórz tę stronę w Safari, dotknij „Skopiuj klucz” na górze strony i wróć tutaj do „Wklej ze schowka”.": "Already have the key in Safari? Open this page in Safari, tap “Copy key” at the top and come back here to “Paste from clipboard”.",
       "Materiały do ćwiczenia są tylko w Twojej aplikacji, nie w podglądzie gościa.": "Practice materials are only in your own app, not in the guest preview.", "Mowa na tekst": "Speech to text",
       "Na co się przygotować na jutro?": "What should I prepare for tomorrow?",
@@ -948,7 +998,7 @@ html.rec-open { overflow: hidden; }
       "Weź podpowiedź – pokaże krok po kroku, co wstawić i gdzie.": "İpucu al – neyi nereye koyacağını adım adım gösterir.",
       "{a} z {b} za pierwszym razem": "{b} sorudan {a} tanesi ilk denemede", ". Wszystko dobrze.": ". Hepsi doğru.",
       ". Pomarańczowe kropki to pytania, przy których była pomyłka albo podpowiedź – warto zrobić je jeszcze raz.": ". Turuncu noktalar hata yaptığın ya da ipucu aldığın sorular – onları tekrar yapmaya değer.",
-      "Następny zestaw": "Sonraki set", "Jeszcze raz": "Tekrar",
+      "Następny zestaw": "Sonraki set", "Jeszcze raz": "Tekrar", "Od początku": "Baştan", "Krok wstecz": "Geri",
       "Ułóż dowód": "İspatı kur", "Krok {a} z {b}": "Adım {a} / {b}", "DOWÓD": "İSPAT", "Dowód gotowy.": "İspat tamam.", "Pomyłki po drodze: {a}. Przeczytaj teraz cały dowód od góry – tak go zapiszesz na kolokwium.": "Yoldaki hatalar: {a}. Şimdi tüm ispatı baştan oku – sınavda böyle yazacaksın.",
       "Bez ani jednej pomyłki.": "Hiç hata yok.", "Następny dowód": "Sonraki ispat", "Ułóż jeszcze raz": "Tekrar kur", "Zakończ dowód": "İspatı bitir",
       "od razu całe": "hepsini göster", "Następny krok ({a} z {b})": "Sonraki adım ({a} / {b})", "To całe rozwiązanie": "Çözümün tamamı bu",
@@ -2266,7 +2316,7 @@ html.rec-open { overflow: hidden; }
   var GT = [], GT_LS = "notatki-bramki-v1", GT_ALL = ["AND", "OR", "NOT", "NAND", "NOR", "XOR", "XNOR"];
   var GT_F = { and: function (a, b) { return a & b; }, or: function (a, b) { return a | b; }, xor: function (a, b) { return a ^ b; },
     nand: function (a, b) { return 1 - (a & b); }, nor: function (a, b) { return 1 - (a | b); }, xnor: function (a, b) { return 1 - (a ^ b); }, not: function (a) { return 1 - a; },
-    imp: function (a, b) { return (1 - a) | b; }, iff: function (a, b) { return 1 - (a ^ b); } };
+    imp: function (a, b) { return (1 - a) | b; }, iff: function (a, b) { return 1 - (a ^ b); }, mux: function (s, a, b) { return s ? b : a; } };
   function gtLex(s) {
     var out = [], re = /\s*(?:([A-Za-z_][A-Za-z0-9_]*)|([01])|(\()|(\))|(¬|!|~)|(')|(&&?|·|\*|∧|⋅)|(\|\|?|\+|∨)|(\^|⊕)|(<=>|<->|⇔|↔)|(=>|->|⇒|→)|(\S))/g, m;
     while ((m = re.exec(s)) && m[0].length) {
@@ -2369,7 +2419,7 @@ html.rec-open { overflow: hidden; }
     q.outs.forEach(function (o) { c.o.push(walk(o.e)); });
     return c;
   }
-  function gtArity(t) { return t === "NOT" ? 1 : 2; }
+  function gtArity(t) { return t === "NOT" ? 1 : t === "MUX" ? 3 : 2; }   // MUX (tylko w ```przebieg): wejścia S, A, B – S = 0 przepuszcza A, S = 1 przepuszcza B; na rysunku wejście 1 na górze, jak I1 w klocku Mux z labu
   function gtRun(c, env) {   // wartość każdego węzła; null = coś niepodłączone
     var val = {}; for (var v in env) val[v] = env[v];
     c.g.forEach(function (g, k) {
@@ -2389,7 +2439,8 @@ html.rec-open { overflow: hidden; }
     cols = []; for (var d = 0; d <= maxD; d++) cols.push([]);
     q.vars.forEach(function (v) { cols[0].push(v); });
     c.g.forEach(function (_, k) { cols[dep["#" + k]].push("#" + k); });
-    var n = Math.max(c.o.length, Math.max.apply(null, cols.map(function (x) { return x.length; }))), h = n * H + 12, OX = 30 + (maxD + 1) * W - 30, w = OX + 58;
+    var ow = Math.max.apply(null, [50].concat(q.outs.map(function (o) { return 8 + 7.2 * (String(o.n).length + 4); })));   // okienko wyjścia mieści „CARRY_OUT = 1”
+    var n = Math.max(c.o.length, Math.max.apply(null, cols.map(function (x) { return x.length; }))), h = n * H + 12, OX = 30 + (maxD + 1) * W - 30, w = OX + ow + 8;
     cols.forEach(function (list, d) { var off = (h - list.length * H) / 2; list.forEach(function (id, j) { pos[id] = { x: d ? 30 + d * W - 40 : 22, y: off + j * H + H / 2 }; }); });
     function outPin(id) { return id.charAt(0) === "#" ? { x: pos[id].x + 40, y: pos[id].y } : { x: pos[id].x + 13, y: pos[id].y }; }
     function wcls(id) { if (!canSim) return "gt-w"; var v = id == null ? null : val[id]; return "gt-w" + (v === 1 ? " on" : v == null ? " nc" : ""); }
@@ -2397,11 +2448,17 @@ html.rec-open { overflow: hidden; }
     c.g.forEach(function (g, k) {
       var id = "#" + k, p = pos[id], ar = gtArity(g.t);
       g.a.slice(0, ar).forEach(function (s, j) {
-        var ty = ar === 1 ? p.y : p.y + (j ? 8 : -8), tx = p.x + 4;
+        var ty = ar === 1 ? p.y : ar === 3 ? p.y + [13, 1, -11][j] : p.y + (j ? 8 : -8), tx = p.x + 4;
         if (s == null || !pos[s]) { wires += '<path class="gt-w nc" d="M' + (tx - 16) + " " + ty + "H" + tx + '"/>'; return; }
         var a = outPin(s), mx = p.x - 12 - j * 7;
         wires += '<path class="' + wcls(s) + '" d="M' + a.x + " " + a.y + "H" + mx + "V" + ty + "H" + tx + '"/>';
       });
+      if (g.t === "MUX") {
+        body += '<g transform="translate(' + p.x + " " + p.y + ')"><path class="' + wcls(id) + '" d="M30 0H40"/><path class="gt-b" d="M0 -20L30 -11V11L0 20Z"/>' +
+          '<text class="gt-gt" x="6" y="-8">1</text><text class="gt-gt" x="6" y="4">0</text><text class="gt-gt" x="6" y="16">S</text>' +
+          '<text class="gt-gl" x="14" y="-24">G' + (k + 1) + "</text></g>";
+        return;
+      }
       var bub = /^(NOT|NAND|NOR|XNOR)$/.test(g.t), base = g.t === "NOT" ? "NOT" : /AND/.test(g.t) ? "AND" : "OR";
       body += '<g transform="translate(' + p.x + " " + p.y + ')">' + (bub ? "" : '<path class="' + wcls(id) + '" d="M30 0H40"/>') +
         (/XOR|XNOR/.test(g.t) ? '<path class="gt-b gt-arc" d="M-5 -15Q5 0 -5 15"/>' : "") + '<path class="gt-b" d="' + GT_SHAPE[base] + '"/>' +
@@ -2415,7 +2472,7 @@ html.rec-open { overflow: hidden; }
     c.o.forEach(function (s, i) {
       var y = (h - c.o.length * H) / 2 + i * H + H / 2, v = s == null ? null : val[s];
       if (s != null && pos[s]) { var a = outPin(s); wires += '<path class="' + wcls(s) + '" d="M' + a.x + " " + a.y + "H" + (OX - 14) + "V" + y + "H" + OX + '"/>'; }
-      body += '<g class="gt-out' + (canSim && v === 1 ? " on" : "") + '" transform="translate(' + OX + " " + y + ')"><rect x="0" y="-13" width="50" height="26" rx="7"/><text x="25" y="4">' + esc(q.outs[i].n) + " = " + (v == null || !canSim ? "?" : v) + "</text></g>";
+      body += '<g class="gt-out' + (canSim && v === 1 ? " on" : "") + '" transform="translate(' + OX + " " + y + ')"><rect x="0" y="-13" width="' + ow + '" height="26" rx="7"/><text x="' + ow / 2 + '" y="4">' + esc(q.outs[i].n) + " = " + (v == null || !canSim ? "?" : v) + "</text></g>";
     });
     return '<div class="gt-sv"><svg viewBox="0 0 ' + w + " " + h + '" width="' + w + '" height="' + h + '" role="img" aria-label="' + Ln("Schemat układu") + '">' + wires + body + "</svg></div>";
   }
@@ -2531,10 +2588,156 @@ html.rec-open { overflow: hidden; }
     else { var g = c.g[+sel.getAttribute("data-k")], f = sel.getAttribute("data-f"); if (f === "t") g.t = v; else g.a[+f] = v; }
     u.fb = ""; u.ok = false; gtSave(p); gtDraw(box);
   });
+
+  /* --- ```przebieg: rozwiązanie klatka po klatce – tablica ze wskaźnikami, słupki z przeniesieniami, bity z wagami, schemat bramek; pod klatką jedno zdanie, co się stało.
+     „== podpis” zaczyna klatkę; „etykieta | komórki” (spacjami albo „|”), etykieta „~…” – drobny wiersz (indeksy, wagi, przeniesienia), „^…” – wskaźniki pod kolumnami,
+     „=…” – kreska nad wierszem (wynik); komórka [x] – patrz tu, (x) – nieaktualne, {x} – wynik, !x – zgubione, „.” – nic, „_” – pusta kratka.
+     „@ a=1 b=2” – zmienne (dopisują się do poprzednich), „ekran: …” – co program wypisał, „układ: G1 = A nand B ; Y = …” – schemat (wejścia z „@”), „> …” i „:: $…$” – opis.
+     Klatka bez wierszy, bez układu: te same co w poprzedniej. Komórka, zmienna albo wskaźnik, które zmieniły się od poprzedniej klatki, dostają podświetlenie same. --- */
+  var PB = [];
+  function pbCells(s) {
+    s = s.trim();
+    if (s.indexOf("|") >= 0) return s.split("|").map(function (x) { return x.trim(); });
+    return s ? s.split(/\s+/).map(function (x) { return x.replace(/~/g, " "); }) : [];
+  }
+  function pbBare(v) { var m = /^[\[{](.*)[\]}]$/.exec(v) || (v.length > 2 && /^\((.*)\)$/.exec(v)) || (v.length > 1 && /^!(.+)$/.exec(v)); return m ? m[1] : v; }
+  function pbCirc(spec) {   // „G1 = A nand B ; Y = G1 xor C” → bramki dla gtSvg; nazwa G<n> to bramka w środku, inna – wyjście z okienkiem
+    var c = { g: [], o: [] }, q = { vars: [], outs: [] }, named = {};
+    spec.split(/\s*;\s*/).filter(Boolean).forEach(function (d) {
+      var m = /^([A-Za-z_]\w*)\s*=\s*(.+)$/.exec(d); if (!m) throw new Error(d);
+      var mx = /^mux\s*\(\s*(\w+)\s*,\s*(\w+)\s*,\s*(\w+)\s*\)$/i.exec(m[2]);   // klocek multipleksera: mux(S, A, B)
+      var id = mx ? (c.g.push({ t: "MUX", a: mx.slice(1).map(function (v) { if (named[v]) return named[v]; if (q.vars.indexOf(v) < 0) q.vars.push(v); return v; }) }), "#" + (c.g.length - 1)) : (function walk(n) {
+        if (n.v) { if (named[n.v]) return named[n.v]; if (q.vars.indexOf(n.v) < 0) q.vars.push(n.v); return n.v; }
+        if (n.c != null || !GT_F[n.o] || /^(imp|iff)$/.test(n.o)) throw new Error(d);
+        var a = n.a.map(walk); c.g.push({ t: n.o.toUpperCase(), a: a }); return "#" + (c.g.length - 1);
+      })(gtParse(m[2]));
+      named[m[1]] = id;
+      if (!/^G\d+$/.test(m[1])) { c.o.push(id); q.outs.push({ n: m[1] }); }
+    });
+    return { q: q, c: c };
+  }
+  function pbParse(src) {
+    var out = { title: "", fr: [] }, f = null, prev = null;
+    function start(cap) {
+      prev = f;
+      f = { cap: cap, rows: [], own: false, vars: prev ? Object.assign({}, prev.vars) : {}, order: prev ? prev.order.slice() : [], chg: {}, out: prev ? prev.out.slice() : [], nout: 0, circ: prev ? prev.circ : null, txt: [] };
+      out.fr.push(f);
+    }
+    src.split("\n").forEach(function (ln) {
+      var t = ln.trim(), m; if (!t) return;
+      if (!out.fr.length && !out.title && /^#\s+/.test(t)) { out.title = t.replace(/^#\s+/, ""); return; }
+      if ((m = /^==\s*(.*)$/.exec(t))) { start(m[1]); return; }
+      if (!f) start("");
+      if ((m = /^@\s*(.*)$/.exec(t))) {
+        m[1].split(/\s+(?=[^\s=]+\s*=)/).forEach(function (kv) {
+          var mm = /^([^\s=]+)\s*=\s*(.*)$/.exec(kv.trim()); if (!mm) return;
+          if (f.order.indexOf(mm[1]) < 0) f.order.push(mm[1]);
+          if (!prev || prev.vars[mm[1]] !== mm[2]) f.chg[mm[1]] = !!prev;
+          f.vars[mm[1]] = mm[2];
+        });
+        return;
+      }
+      if ((m = /^(?:ekran|screen)\s*:\s?(.*)$/i.exec(t))) { f.out.push(m[1]); f.nout++; return; }
+      if ((m = /^(?:uk[łl]ad|circuit|devre)\s*:\s*(.+)$/i.exec(t))) { f.circ = m[1]; return; }
+      if (/^::/.test(t)) { f.txt.push(t); return; }
+      if ((m = /^>\s?(.*)$/.exec(t))) { f.txt.push(m[1]); return; }
+      var bar = t.indexOf("|");
+      if (bar < 0) { f.txt.push(t); return; }
+      var lab = t.slice(0, bar).trim(), kind = /^~/.test(lab) ? "s" : /^\^/.test(lab) ? "p" : /^=/.test(lab) ? "sum" : "c";
+      if (kind !== "c") lab = lab.slice(1).trim();
+      if (!f.own) { f.rows = []; f.own = true; }
+      f.rows.push({ k: kind, lab: lab, cells: pbCells(t.slice(bar + 1)) });
+    });
+    out.fr.forEach(function (fr, j) {
+      if (!fr.own && j) fr.rows = out.fr[j - 1].rows;
+      var seen = {};
+      fr.rows.forEach(function (r) { var key = r.k + "\u0001" + r.lab; seen[key] = (seen[key] || 0) + 1; r.key = key + "\u0001" + seen[key]; });
+    });
+    return out;
+  }
+  function pbFrame(p, k) {
+    var fr = p.fr[k], pf = k ? p.fr[k - 1] : null, N = 0, h = "";
+    fr.rows.forEach(function (r) { N = Math.max(N, r.cells.length); });
+    var old = {}; if (pf) pf.rows.forEach(function (r) { old[r.key] = r; });
+    if (N) {
+      var g = "", row = 0, labs = fr.rows.some(function (r) { return r.lab; });
+      fr.rows.forEach(function (r) {
+        var o = old[r.key], off = N - r.cells.length;
+        row++;
+        if (r.k === "sum") { g += '<i class="pb-line" style="grid-row:' + row + ";grid-column:" + (labs ? 2 : 1) + ' / -1"></i>'; row++; }
+        if (labs) g += '<span class="pb-l" style="grid-row:' + row + '">' + inline(esc(r.lab)) + "</span>";
+        r.cells.forEach(function (v, j) {
+          if (v === ".") return;
+          var was = o ? o.cells[o.cells.length - r.cells.length + j] : undefined, bare = pbBare(v), cls, x = (labs ? 2 : 1) + off + j;
+          var nw = !!pf && (was === undefined || was === "." || pbBare(was) !== bare);
+          var at = ' style="grid-row:' + row + ";grid-column:" + x + '"';
+          if (r.k === "p") {
+            g += '<span class="pb-p' + (nw ? " n" : "") + '"' + at + ">" + bare.split(",").map(function (n) { return "<b>" + esc(n.trim()) + "</b>"; }).join("") + "</span>";
+            return;
+          }
+          cls = r.k === "s" ? "pb-s" : "pb-c";
+          if (r.k !== "s") cls += v === "_" ? " e" : /^\[.*\]$/.test(v) ? " f" : /^\{.*\}$/.test(v) ? " r" : bare !== v && v.charAt(0) === "(" ? " d" : bare !== v ? " x" : "";
+          if (nw) cls += " n";
+          g += '<span class="' + cls + '"' + at + ">" + (v === "_" ? "" : /[$`]/.test(bare) ? inline(esc(bare)) : esc(bare)) + "</span>";
+        });
+      });
+      var wide = 0; fr.rows.forEach(function (r) { r.cells.forEach(function (v) { wide = Math.max(wide, pbBare(v).length); }); });
+      var lw = labs ? Math.max.apply(null, fr.rows.map(function (r) { return r.lab.length; })) * 0.47 + 0.7 : 0, cw = (N > 8 ? 1.8 : 2.3) + 0.3 + Math.max(0, wide - 3) * 0.6;   // szerokość w em: tyle, żeby cała tablica weszła na ekran telefonu
+      h += '<div class="pb-g' + (N > 8 ? " sm" : "") + '" style="--pbf:min(15.5px,calc(100cqw / ' + (N * cw + lw + 0.3).toFixed(2) + "));grid-template-columns:" + (labs ? "auto " : "") + "repeat(" + N + ",minmax(" + (N > 8 ? 1.8 : 2.3) + 'em,max-content))">' + g + "</div>";
+    }
+    if (fr.circ) {
+      try {
+        var cc = pbCirc(fr.circ), env = {}, at = function (v) { var j = fr.order.indexOf(v); return j < 0 ? 1e3 + cc.q.vars.indexOf(v) : j; };
+        cc.q.vars.sort(function (x, y) { return at(x) - at(y); });   // wejścia z góry na dół w kolejności z „@”
+        cc.q.vars.forEach(function (v) { env[v] = fr.vars[v] === "1" ? 1 : 0; });
+        h += gtSvg(cc.q, cc.c, env, true).replace(/ data-sim="[^"]*" role="button" tabindex="0"/g, "").replace(/(gt-in(?: on)?) sim/g, "$1");
+      } catch (e) { h += "<pre><code>" + esc(fr.circ) + "</code></pre>"; }
+    }
+    var vs = fr.order;
+    if (vs.length) h += '<div class="pb-vars">' + vs.map(function (n) { return '<span class="pb-v' + (fr.chg[n] ? " n" : "") + '"><span>' + esc(n) + "</span> = <b>" + esc(fr.vars[n]) + "</b></span>"; }).join("") + "</div>";
+    if (fr.out.length) h += '<div class="term pb-out">' + fr.out.map(function (l, j) { return '<div class="tl-out' + (j >= fr.out.length - fr.nout ? " pb-new" : "") + '">' + (esc(l) || "&nbsp;") + "</div>"; }).join("") + "</div>";
+    return h;
+  }
+  function pbInner(i) {
+    var p = PB[i], k = p.k, n = p.fr.length, fr = p.fr[k], dots;
+    if (n <= 16) dots = '<span class="pb-dots">' + p.fr.map(function (_, j) { return '<button type="button" class="pb-dot' + (j < k ? " ok" : "") + (j === k ? " cur" : "") + '" data-go="' + j + '" aria-label="' + (j + 1) + " / " + n + '"></button>'; }).join("") + "</span>";
+    else dots = '<input type="range" class="pb-rng" min="1" max="' + n + '" value="' + (k + 1) + '" aria-label="' + Ln("Krok programu") + '">';
+    return '<div class="pb-top">' + (p.title ? '<span class="pb-t">' + inline(esc(p.title)) + "</span>" : "") + '<span class="pb-k">' + (k + 1) + "/" + n + "</span></div>" +
+      (fr.cap ? '<div class="pb-cap">' + inline(esc(fr.cap)) + "</div>" : "") +
+      '<div class="pb-st">' + pbFrame(p, k) + "</div>" +
+      (fr.txt.length ? '<div class="pb-txt">' + md(fr.txt.join("\n"), true) + "</div>" : "") +
+      '<div class="pb-ctl"><button type="button" class="pb-prev" aria-label="' + Ln("Krok wstecz") + '"' + (k ? "" : " disabled") + ">" + CT_I.prev + "</button>" + dots +
+      '<button type="button" class="pb-next">' + (k < n - 1 ? Ln("Dalej") + CT_I.next : CT_I.again + Ln("Od początku")) + "</button></div>";
+  }
+  function pbBlock(src) {
+    var p = pbParse(src); if (!p.fr.length) return "<pre><code>" + esc(src) + "</code></pre>";
+    var h = qzHash("pb" + src), i = PB.findIndex(function (x) { return x.h === h; });
+    if (i < 0) { p.h = h; p.k = 0; PB.push(p); i = PB.length - 1; }
+    return '<div class="pb" data-pb="' + i + '" tabindex="-1">' + pbInner(i) + "</div>";
+  }
+  function pbGo(box, k) {
+    var p = PB[+box.getAttribute("data-pb")]; p.k = Math.max(0, Math.min(p.fr.length - 1, k));
+    box.innerHTML = pbInner(+box.getAttribute("data-pb"));
+    var t = box.closest(".task"); if (t) taskSync(t);
+  }
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest && e.target.closest(".pb button"); if (!b) return;
+    var box = b.closest(".pb"), p = PB[+box.getAttribute("data-pb")];
+    if (b.hasAttribute("data-go")) pbGo(box, +b.getAttribute("data-go"));
+    else if (b.classList.contains("pb-prev")) pbGo(box, p.k - 1);
+    else if (b.classList.contains("pb-next")) pbGo(box, p.k < p.fr.length - 1 ? p.k + 1 : 0);
+    var nb = box.querySelector(b.classList.contains("pb-prev") && p.k ? ".pb-prev" : ".pb-next"); if (nb) nb.focus({ preventScroll: true });
+  });
+  document.addEventListener("input", function (e) { var r = e.target.closest && e.target.closest(".pb-rng"); if (r) { var box = r.closest(".pb"); pbGo(box, +r.value - 1); var nr = box.querySelector(".pb-rng"); if (nr) nr.focus(); } });
+  document.addEventListener("keydown", function (e) {
+    var box = e.target.closest && e.target.closest(".pb"); if (!box || /^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName) || (e.key !== "ArrowRight" && e.key !== "ArrowLeft")) return;
+    e.preventDefault(); pbGo(box, PB[+box.getAttribute("data-pb")].k + (e.key === "ArrowRight" ? 1 : -1)); var nb = box.querySelector(".pb-next"); if (nb) nb.focus({ preventScroll: true });
+  });
   function codeBlock(lang, src) {
     if (lang === "quiz") return quizBlock(src);
     if (lang === "bramki") return gtBlockHtml(src);
     if (lang === "dowod") return dowodBlock(src);
+    if (lang === "przebieg") return pbBlock(src);
     if (/^(console|terminal|shell|sh|bash)$/.test(lang)) {
       return '<div class="term static">' + src.split("\n").map(function (l) {
         return /^\$ /.test(l) ? '<div class="tl-cmd"><span class="pr">$</span> ' + esc(l.slice(2)) + "</div>" : '<div class="tl-out">' + (esc(l) || "&nbsp;") + "</div>";
@@ -3949,14 +4152,27 @@ html.rec-open { overflow: hidden; }
     var z = e.target.closest && e.target.closest(".zref");
     if (z) { var card = z.closest(".day"), ps = card && card._ps, p = ps && ps[+z.getAttribute("data-z") - 1]; if (p) openLb(p); return; }
     var b = e.target.closest && e.target.closest(".s-next, .s-all"); if (!b) return;
-    var task = b.closest(".task"), sol = task.querySelector(".sol"), steps = solSteps(sol), next = task.querySelector(".s-next");
+    var task = b.closest(".task"), sol = task.querySelector(".sol"), steps = solSteps(sol);
     if (sol.hidden) { sol.hidden = false; steps.forEach(function (x) { x.classList.add("hid"); }); }
-    if (b.classList.contains("s-all")) steps.forEach(function (x) { x.classList.remove("hid"); });
-    else { var h = steps.filter(function (x) { return x.classList.contains("hid"); })[0]; if (h) { h.classList.remove("hid"); h.classList.add("shown"); } }
-    var left = steps.filter(function (x) { return x.classList.contains("hid"); }).length;
-    next.textContent = left ? Lf("Następny krok ({a} z {b})", steps.length - left, steps.length) : Ln("To całe rozwiązanie");
-    next.disabled = !left; task.querySelector(".s-all").hidden = !left;
+    if (b.classList.contains("s-all")) steps.forEach(function (x) { x.classList.remove("hid"); var pb = solPb(x); if (pb) pbGo(pb, PB[+pb.getAttribute("data-pb")].fr.length - 1); });
+    else {
+      var vis = steps.filter(function (x) { return !x.classList.contains("hid"); }), lp = vis.length ? solPb(vis[vis.length - 1]) : null, lq = lp && PB[+lp.getAttribute("data-pb")];
+      if (lq && lq.k < lq.fr.length - 1) pbGo(lp, lq.k + 1);   // przebieg w rozwiązaniu: „Następny krok” to następna klatka
+      else { var h = steps.filter(function (x) { return x.classList.contains("hid"); })[0]; if (h) { h.classList.remove("hid"); h.classList.add("shown"); var hp = solPb(h); if (hp) pbGo(hp, 0); } }
+    }
+    taskSync(task);
   });
+  function solPb(x) { return x.classList.contains("pb") ? x : x.querySelector(".pb"); }
+  function taskSync(task) {   // napis na przycisku: każda klatka przebiegu liczy się jak krok
+    var sol = task.querySelector(".sol"), next = task.querySelector(".s-next"), all = 0, shown = 0; if (!sol || sol.hidden || !next) return;
+    solSteps(sol).forEach(function (x) {
+      var pb = solPb(x), q = pb && PB[+pb.getAttribute("data-pb")];
+      all += q ? q.fr.length : 1; if (!x.classList.contains("hid")) shown += q ? q.k + 1 : 1;
+    });
+    var left = all - shown;
+    next.textContent = left ? Lf("Następny krok ({a} z {b})", shown, all) : Ln("To całe rozwiązanie");
+    next.disabled = !left; task.querySelector(".s-all").hidden = !left;
+  }
 
   /* --- pytania do Claude'a: asks/<id>.json → GitHub Actions (pytania.yml, tools/answer.py) → answers/<id>.json ---
      W notatce Claude widzi tę notatkę i jej zdjęcia (plus UPeL i plan tego przedmiotu); w Nauce cały plan, UPeL, notatki i temat na ekranie. */
