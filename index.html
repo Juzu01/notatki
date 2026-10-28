@@ -438,6 +438,36 @@ html[lang] .md .zref + .zref::before, html[lang] .md .tref + .tref::before { con
 .md .pb-g.sm .pb-c { min-width: 1.8em; height: 2.1em; padding: 0 0.3em; }
 .md .pb-txt { display: grid; gap: 6px; }
 .md .pb-txt p { margin: 0; }
+/* wykres: funkcja klatka po klatce (analiza) */
+.md .wy { justify-self: stretch; display: grid; gap: 8px; min-width: 0; }
+.md .wy-svg { display: block; width: 100%; max-width: 560px; height: auto; margin: 0 auto; touch-action: pan-y; user-select: none; -webkit-user-select: none; font-family: var(--font); cursor: crosshair; }
+.md .wy-grid line { stroke: var(--line); stroke-width: 1; }
+.md .wy-ax line { stroke: var(--muted); stroke-width: 1.2; }
+.md .wy-ax path { fill: var(--muted); }
+.md .wy-tl text { fill: var(--faint); font-size: 10.5px; font-variant-numeric: tabular-nums; }
+.md .wy-tl .wy-axn { fill: var(--muted); font-style: italic; font-size: 12px; font-weight: 600; }
+.md .wy-fn { fill: none; stroke-width: 2.4; stroke-linejoin: round; stroke-linecap: round; }
+.md .wy-fn.n { stroke-width: 2.8; }
+.md .wy-asy { fill: none; stroke: var(--hot); stroke-width: 1.8; stroke-dasharray: 7 5; }
+.md .wy-line { fill: none; stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 4 4; }
+.md .wy-seg { fill: none; stroke: var(--warn); stroke-width: 2.6; stroke-linecap: round; }
+.md .wy-head { fill: var(--warn); }
+.md .wy-band { fill: var(--warn); opacity: 0.14; }
+.md .wy-band.n { opacity: 0.22; }
+.md .wy-area { fill: var(--k-ex); opacity: 0.2; }
+.md .wy-halo { fill: none; stroke: var(--hl); stroke-width: 10; stroke-linecap: round; stroke-linejoin: round; }
+.md .wy-phalo { fill: var(--hl); }
+.md .wy-pt { fill: var(--ink); }
+.md .wy-hole { fill: var(--surface); stroke: var(--ink); stroke-width: 2; }
+.md .wy-labs text { font-size: 12px; font-weight: 700; paint-order: stroke; stroke: var(--surface); stroke-width: 3.5px; stroke-linejoin: round; }
+.md .wy-tr line { stroke: var(--ink); stroke-width: 1; stroke-dasharray: 3 3; opacity: 0.6; }
+.md .wy-tr circle { stroke: var(--surface); stroke-width: 1.5; }
+.md .wy-read { font-family: var(--font); font-size: 0.8rem; color: var(--faint); text-align: center; display: flex; flex-wrap: wrap; justify-content: center; gap: 2px 14px; min-height: 1.3em; font-variant-numeric: tabular-nums; }
+.md .wy-read.on { color: var(--ink); font-size: 0.88rem; }
+.md .wy-sl { display: flex; align-items: center; gap: 10px; font-family: var(--font); font-size: 0.9rem; color: var(--muted); }
+.md .wy-sl span { white-space: nowrap; min-width: 4.6em; font-variant-numeric: tabular-nums; }
+.md .wy-sl b { color: var(--ink); }
+.md .wy-sl input { flex: 1; min-width: 0; accent-color: var(--accent); }
 .md .pb-ctl { display: flex; align-items: center; gap: 8px; }
 .md .pb-ctl button { appearance: none; border: 0; flex: none; height: 38px; border-radius: 99px; cursor: pointer; font-family: var(--font); }
 .md .pb-ctl button svg { width: 18px; height: 18px; }
@@ -923,7 +953,7 @@ html.rec-open { overflow: hidden; }
       "Klucz ma tylko odczyt, więc pytanie nie poszło.": "The key is read-only, so the question was not sent.",
       "Klucz ma tylko odczyt. Potrzebny nowy klucz z uprawnieniem Contents: Read and write.": "The key is read-only. You need a new key with the Contents: Read and write permission.",
       "Kompilacja się nie udała – popraw błąd i uruchom jeszcze raz.": "Compilation failed – fix the error and run it again.", "Kończę…": "Finishing…", "Krok dalej": "Step forward", "Krok programu": "Program step",
-      "Krok wstecz": "Step back", "Od początku": "From the start",
+      "Krok wstecz": "Step back", "Od początku": "From the start", "Dotknij wykresu, żeby odczytać wartości.": "Tap the graph to read the values.", "nie istnieje": "does not exist",
       "Masz już klucz w Safari? Otwórz tę stronę w Safari, dotknij „Skopiuj klucz” na górze strony i wróć tutaj do „Wklej ze schowka”.": "Already have the key in Safari? Open this page in Safari, tap “Copy key” at the top and come back here to “Paste from clipboard”.",
       "Materiały do ćwiczenia są tylko w Twojej aplikacji, nie w podglądzie gościa.": "Practice materials are only in your own app, not in the guest preview.", "Mowa na tekst": "Speech to text",
       "Na co się przygotować na jutro?": "What should I prepare for tomorrow?",
@@ -998,7 +1028,7 @@ html.rec-open { overflow: hidden; }
       "Weź podpowiedź – pokaże krok po kroku, co wstawić i gdzie.": "İpucu al – neyi nereye koyacağını adım adım gösterir.",
       "{a} z {b} za pierwszym razem": "{b} sorudan {a} tanesi ilk denemede", ". Wszystko dobrze.": ". Hepsi doğru.",
       ". Pomarańczowe kropki to pytania, przy których była pomyłka albo podpowiedź – warto zrobić je jeszcze raz.": ". Turuncu noktalar hata yaptığın ya da ipucu aldığın sorular – onları tekrar yapmaya değer.",
-      "Następny zestaw": "Sonraki set", "Jeszcze raz": "Tekrar", "Od początku": "Baştan", "Krok wstecz": "Geri",
+      "Następny zestaw": "Sonraki set", "Jeszcze raz": "Tekrar", "Od początku": "Baştan", "Krok wstecz": "Geri", "Dotknij wykresu, żeby odczytać wartości.": "Değerleri okumak için grafiğe dokun.", "nie istnieje": "tanımsız",
       "Ułóż dowód": "İspatı kur", "Krok {a} z {b}": "Adım {a} / {b}", "DOWÓD": "İSPAT", "Dowód gotowy.": "İspat tamam.", "Pomyłki po drodze: {a}. Przeczytaj teraz cały dowód od góry – tak go zapiszesz na kolokwium.": "Yoldaki hatalar: {a}. Şimdi tüm ispatı baştan oku – sınavda böyle yazacaksın.",
       "Bez ani jednej pomyłki.": "Hiç hata yok.", "Następny dowód": "Sonraki ispat", "Ułóż jeszcze raz": "Tekrar kur", "Zakończ dowód": "İspatı bitir",
       "od razu całe": "hepsini göster", "Następny krok ({a} z {b})": "Sonraki adım ({a} / {b})", "To całe rozwiązanie": "Çözümün tamamı bu",
@@ -2702,12 +2732,13 @@ html.rec-open { overflow: hidden; }
     var p = PB[i], k = p.k, n = p.fr.length, fr = p.fr[k], dots;
     if (n <= 16) dots = '<span class="pb-dots">' + p.fr.map(function (_, j) { return '<button type="button" class="pb-dot' + (j < k ? " ok" : "") + (j === k ? " cur" : "") + '" data-go="' + j + '" aria-label="' + (j + 1) + " / " + n + '"></button>'; }).join("") + "</span>";
     else dots = '<input type="range" class="pb-rng" min="1" max="' + n + '" value="' + (k + 1) + '" aria-label="' + Ln("Krok programu") + '">';
-    return '<div class="pb-top">' + (p.title ? '<span class="pb-t">' + inline(esc(p.title)) + "</span>" : "") + '<span class="pb-k">' + (k + 1) + "/" + n + "</span></div>" +
+    var one = p.wy && n === 1;   // wykres bez klatek: sam rysunek, bez przycisków
+    return (one && !p.title ? "" : '<div class="pb-top">' + (p.title ? '<span class="pb-t">' + inline(esc(p.title)) + "</span>" : "") + (one ? "" : '<span class="pb-k">' + (k + 1) + "/" + n + "</span>") + "</div>") +
       (fr.cap ? '<div class="pb-cap">' + inline(esc(fr.cap)) + "</div>" : "") +
-      '<div class="pb-st">' + pbFrame(p, k) + "</div>" +
-      (fr.txt.length ? '<div class="pb-txt">' + md(fr.txt.join("\n"), true) + "</div>" : "") +
+      '<div class="pb-st">' + (p.wy ? wyFrame(p, k) : pbFrame(p, k)) + "</div>" +
+      (fr.txt.length ? '<div class="pb-txt">' + md(fr.txt.join("\n"), true) + "</div>" : "") + (one ? "" :
       '<div class="pb-ctl"><button type="button" class="pb-prev" aria-label="' + Ln("Krok wstecz") + '"' + (k ? "" : " disabled") + ">" + CT_I.prev + "</button>" + dots +
-      '<button type="button" class="pb-next">' + (k < n - 1 ? Ln("Dalej") + CT_I.next : CT_I.again + Ln("Od początku")) + "</button></div>";
+      '<button type="button" class="pb-next">' + (k < n - 1 ? Ln("Dalej") + CT_I.next : CT_I.again + Ln("Od początku")) + "</button></div>");
   }
   function pbBlock(src) {
     var p = pbParse(src); if (!p.fr.length) return "<pre><code>" + esc(src) + "</code></pre>";
@@ -2733,11 +2764,440 @@ html.rec-open { overflow: hidden; }
     var box = e.target.closest && e.target.closest(".pb"); if (!box || /^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName) || (e.key !== "ArrowRight" && e.key !== "ArrowLeft")) return;
     e.preventDefault(); pbGo(box, PB[+box.getAttribute("data-pb")].k + (e.key === "ArrowRight" ? 1 : -1)); var nb = box.querySelector(".pb-next"); if (nb) nb.focus({ preventScroll: true });
   });
+  /* --- ```wykres: wykres funkcji klatka po klatce (analiza) – te same przyciski co ```przebieg, elementy z klatki zostają w następnych, nowe są podświetlone.
+     „okno: -6..6 ; -4..8” – zakres x ; zakres y (pi w zakresie x = kreski co π/2), „f(x) = …” / „y = …” – krzywa (kilka linii „f(x) = … dla x < 1” = funkcja sklejana,
+     na końcach kawałków kółka: puste przy <, pełne przy ≤), „asymptota: x = 1”, „asymptota: y = -3x - 3”, „prosta: y = …” (pomocnicza, przerywana),
+     „punkt: (3, f(3))”, „dziura: (2, 4)”, „odcinek: (3, f(3)) (3, 0)”, „strzałka: (…) (…)”, „pas: y 0.5..1.5”, „pas: x 1.9..2.1”, „pole: f 0..2” / „pole: f g 0..2”,
+     „napis: (1, 2)”, „@ a=1” – stałe, „suwak: a -3..3” – suwak pod wykresem, „usuń: f” / „wyczyść”; po „ | ” podpis elementu; „> …” i „:: $…$” – opis klatki.
+     Palcem po wykresie: pionowa kreska i wartości funkcji w tym miejscu. --- */
+  var WY_F = {
+    sin: Math.sin, cos: Math.cos, tan: Math.tan, tg: Math.tan, cot: function (x) { return 1 / Math.tan(x); }, ctg: function (x) { return 1 / Math.tan(x); },
+    arcsin: Math.asin, arccos: Math.acos, arctan: Math.atan, arctg: Math.atan, arccot: function (x) { return Math.PI / 2 - Math.atan(x); }, arcctg: function (x) { return Math.PI / 2 - Math.atan(x); },
+    sinh: Math.sinh, cosh: Math.cosh, tanh: Math.tanh, ln: Math.log, log: Math.log10, exp: Math.exp, sqrt: Math.sqrt, cbrt: Math.cbrt, abs: Math.abs, sgn: Math.sign, sign: Math.sign, floor: Math.floor
+  };
+  var WY_C = { pi: Math.PI, e: Math.E };
+  function wyPow(a, b) {   // (−8)^(1/3) = −2 i x^(2/3) dla x < 0: wykładnik p/q z nieparzystym q
+    if (a >= 0 || b === Math.round(b)) return Math.pow(a, b);
+    for (var q = 3; q <= 15; q += 2) { var p = Math.round(b * q); if (Math.abs(p / q - b) < 1e-9) return (p % 2 ? -1 : 1) * Math.pow(-a, b); }
+    return NaN;
+  }
+  function wyNorm(s) {
+    return s.replace(/[−–]/g, "-").replace(/[·⋅×]/g, "*").replace(/π/g, "pi").replace(/²/g, "^2").replace(/³/g, "^3").replace(/√/g, " sqrt ")
+      .replace(/≤/g, "<=").replace(/≥/g, ">=").replace(/≠/g, "!=").replace(/÷/g, "/");
+  }
+  function wyTok(s) {
+    var t = [], i = 0, m;
+    s = wyNorm(s);
+    while (i < s.length) {
+      var c = s.charAt(i);
+      if (/\s/.test(c)) { i++; continue; }
+      if ((m = /^(\d+\.?\d*|\.\d+)(e[-+]?\d+)?/.exec(s.slice(i)))) { t.push({ k: "n", v: parseFloat(m[0]) }); i += m[0].length; continue; }
+      if ((m = /^[A-Za-z_][A-Za-z_0-9]*/.exec(s.slice(i)))) { t.push({ k: "id", v: m[0] }); i += m[0].length; continue; }
+      if ((m = /^(<=|>=|!=|\*\*|[-+*/^(),|<>=])/.exec(s.slice(i)))) { t.push({ k: "op", v: m[0] === "**" ? "^" : m[0] }); i += m[0].length; continue; }
+      throw new Error("znak " + c);
+    }
+    return t;
+  }
+  function wySplitId(id, names) {   // „ax” → a·x, „2pix” → pi·x: zlepione nazwy rozdzielone po znanych
+    if (names[id]) return [id];
+    var out = [], s = id;
+    while (s) {
+      var hit = "";
+      Object.keys(names).forEach(function (n) { if (s.indexOf(n) === 0 && n.length > hit.length) hit = n; });
+      if (!hit) throw new Error("nie znam „" + id + "”");
+      out.push(hit); s = s.slice(hit.length);
+    }
+    return out;
+  }
+  // wyrażenie → funkcja (env) – env.x, env.v (stałe z „@” i suwaków), env.f (nazwane funkcje bloku)
+  function wyExpr(src, names) {
+    var t = wyTok(src), i = 0;
+    var ids = [];   // tokeny id rozbite na znane nazwy
+    t.forEach(function (x) { if (x.k === "id") wySplitId(x.v, names).forEach(function (n) { ids.push({ k: "id", v: n }); }); else ids.push(x); });
+    t = ids;
+    function pk(v) { return t[i] && t[i].k === "op" && t[i].v === v; }
+    function eat(v) { if (!pk(v)) throw new Error("brak „" + v + "”"); i++; }
+    function starts() { var x = t[i]; return x && (x.k === "n" || x.k === "id" || (x.k === "op" && x.v === "(")); }
+    function expr() {
+      var a = term();
+      while (pk("+") || pk("-")) { var o = t[i++].v, b = term(); a = (function (a, b, o) { return o === "+" ? function (e) { return a(e) + b(e); } : function (e) { return a(e) - b(e); }; })(a, b, o); }
+      return a;
+    }
+    function term() {
+      var a = unary();
+      for (;;) {
+        if (pk("*") || pk("/")) { var o = t[i++].v, b = unary(); a = (function (a, b, o) { return o === "*" ? function (e) { return a(e) * b(e); } : function (e) { return a(e) / b(e); }; })(a, b, o); }
+        else if (starts()) { var c = power(); a = (function (a, c) { return function (e) { return a(e) * c(e); }; })(a, c); }   // 2x, 3sin(x), (x+1)(x-1)
+        else return a;
+      }
+    }
+    function unary() {
+      if (pk("-")) { i++; var a = unary(); return function (e) { return -a(e); }; }
+      if (pk("+")) { i++; return unary(); }
+      return power();
+    }
+    function power() {
+      var a = primary();
+      if (pk("^")) { i++; var b = unary(); return function (e) { return wyPow(a(e), b(e)); }; }
+      return a;
+    }
+    function primary() {
+      var x = t[i];
+      if (!x) throw new Error("urwane wyrażenie");
+      if (x.k === "n") { i++; return function () { return x.v; }; }
+      if (pk("(")) { i++; var a = expr(); eat(")"); return a; }
+      if (pk("|")) { i++; var b = expr(); eat("|"); return function (e) { return Math.abs(b(e)); }; }
+      if (x.k === "id") {
+        i++;
+        var n = x.v;
+        if (WY_F[n]) {
+          var fn = WY_F[n];
+          if (pk("^") && t[i + 1] && t[i + 1].k === "n" && t[i + 2] && !(t[i + 2].k === "op" && /[-+*/)]/.test(t[i + 2].v))) {   // sin^2 x
+            i++; var ex = t[i++].v, arg2 = power(); return function (e) { return Math.pow(fn(arg2(e)), ex); };
+          }
+          var arg = pk("(") ? primary() : power(); return function (e) { return fn(arg(e)); };   // sin(1/x)^2 = (sin(1/x))², sin x^2 = sin(x²)
+        }
+        if (names[n] === "f") { eat("("); var fa = expr(); eat(")"); return function (e) { var f = e.f[n]; return f ? f(fa(e), e) : NaN; }; }
+        if (n === "x") return function (e) { return e.x; };
+        if (WY_C[n] !== undefined && names[n] !== "v") return function () { return WY_C[n]; };
+        return function (e) { var v = e.v[n]; return v === undefined ? NaN : v; };
+      }
+      throw new Error("nie rozumiem „" + x.v + "”");
+    }
+    var r = expr();
+    if (i < t.length) throw new Error("za dużo: „" + t.slice(i).map(function (x) { return x.v; }).join(" ") + "”");
+    return r;
+  }
+  function wyCond(src, names) {   // „x < 1”, „-1 <= x < 2”, „x != 0” → test i końce przedziału (kółka na wykresie)
+    var parts = wyNorm(src).split(/(<=|>=|!=|<|>|=)/), ex = [], op = [], ends = [];
+    for (var j = 0; j < parts.length; j++) (j % 2 ? op : ex).push(parts[j].trim());
+    if (op.length < 1 || ex.length !== op.length + 1) throw new Error("warunek „" + src + "”");
+    var fs = ex.map(function (s) { return wyExpr(s, names); });
+    op.forEach(function (o, j) {
+      var lx = ex[j] === "x", rx = ex[j + 1] === "x";
+      if (lx === rx || o === "!=" || o === "=") return;
+      var b = lx ? fs[j + 1] : fs[j], cl = o.length === 2, up = (o.charAt(0) === "<") === lx;   // up: x jest poniżej końca (prawy koniec)
+      ends.push({ b: b, cl: cl, side: up ? -1 : 1 });
+    });
+    return {
+      t: function (e) { for (var j = 0; j < op.length; j++) { var a = fs[j](e), b = fs[j + 1](e), o = op[j]; if (!(o === "<" ? a < b : o === "<=" ? a <= b + 1e-12 : o === ">" ? a > b : o === ">=" ? a >= b - 1e-12 : o === "!=" ? Math.abs(a - b) > 1e-12 : Math.abs(a - b) <= 1e-12)) return false; } return true; },
+      ends: ends
+    };
+  }
+  function wyPt(s, names) {   // „(3, f(3))” → [fx, fy]; przecinek na najwyższym poziomie
+    s = s.trim(); var m = /^\((.*)\)$/.exec(s); if (!m) throw new Error("punkt „" + s + "”");
+    var d = 0, cut = -1, z = m[1];
+    for (var j = 0; j < z.length; j++) { var c = z.charAt(j); if (c === "(") d++; else if (c === ")") d--; else if (c === "," && !d) { cut = j; break; } }
+    if (cut < 0) throw new Error("punkt „" + s + "”");
+    return [wyExpr(z.slice(0, cut), names), wyExpr(z.slice(cut + 1), names)];
+  }
+  function wyPts(s, names) {   // „(1, 2) (3, 4)” → dwa punkty
+    var out = [], d = 0, st = -1;
+    for (var j = 0; j < s.length; j++) { var c = s.charAt(j); if (c === "(") { if (!d) st = j; d++; } else if (c === ")") { d--; if (!d) out.push(wyPt(s.slice(st, j + 1), names)); } }
+    return out;
+  }
+  function wyRange(s, names) { var m = /^(.+?)\.\.(.+)$/.exec(s.trim()); if (!m) throw new Error("zakres „" + s + "”"); return [wyExpr(m[1], names), wyExpr(m[2], names), /pi|π/.test(s)]; }
+  var WY_RE = {
+    win: /^(?:okno|window)\s*:\s*(.+?)\s*[;|]\s*(.+)$/i,
+    sl: /^(?:suwak|slider)\s*:\s*([A-Za-z]\w*)\s+(\S+?)\s*\.\.\s*(\S+)(?:\s+(?:krok|step)\s+(\S+))?$/i,
+    asy: /^(asymptota|asymptote|prosta|line)\s*:\s*([xy])\s*=\s*(.+)$/i,
+    pt: /^(punkt|point|dziura|hole|napis|text)\s*:\s*(.+)$/i,
+    seg: /^(odcinek|segment|strza[łl]ka|arrow)\s*:\s*(.+)$/i,
+    band: /^(?:pas|band)\s*:\s*([xy])\s+(.+)$/i,
+    area: /^(?:pole|area)\s*:\s*([A-Za-z]\w*)(?:\s+([A-Za-z]\w*))?\s+(.+)$/i,
+    rm: /^(?:usu[ńn]|remove)\s*:\s*(.+)$/i,
+    clr: /^(?:wyczy[śs][ćc]|clear)\s*$/i,
+    fn: /^([A-Za-z]\w*)\s*\(\s*x\s*\)\s*=\s*(.+)$/,
+    y: /^y\s*=\s*(.+)$/
+  };
+  function wyLab(t) { var j = t.indexOf(" | "); return j < 0 ? [t, ""] : [t.slice(0, j).trim(), t.slice(j + 3).trim()]; }
+  function wyParse(src) {
+    var lines = src.split("\n").map(function (l) { return l.trim(); }).filter(Boolean), names = {}, m;
+    Object.keys(WY_F).forEach(function (n) { names[n] = "fn"; });
+    Object.keys(WY_C).forEach(function (n) { names[n] = "c"; });
+    names.x = "x";
+    lines.forEach(function (l) {   // pierwsze przejście: nazwy funkcji i stałych, żeby „ax” i „f(3)” dało się rozebrać
+      if ((m = WY_RE.fn.exec(wyLab(l)[0])) && !WY_F[m[1]]) names[m[1]] = "f";
+      if ((m = /^@\s*(.*)$/.exec(l))) m[1].split(/\s+(?=[A-Za-z]\w*\s*=)/).forEach(function (kv) { var mm = /^([A-Za-z]\w*)\s*=/.exec(kv.trim()); if (mm) names[mm[1]] = "v"; });
+      if ((m = WY_RE.sl.exec(l))) names[m[1]] = "v";
+    });
+    var out = { title: "", fr: [], wy: true, err: [], sl: [], vk: [] }, f = null, prev = null;
+    function start(cap) {
+      prev = f;
+      f = { cap: cap, it: prev ? prev.it.slice() : [], win: prev ? prev.win : null, v: prev ? Object.assign({}, prev.v) : {}, chg: {}, txt: [] };
+      out.fr.push(f);
+    }
+    lines.forEach(function (raw) {
+      var t = raw;
+      if (!out.fr.length && !out.title && /^#\s+/.test(t)) { out.title = t.replace(/^#\s+/, ""); return; }
+      if ((m = /^==\s*(.*)$/.exec(t))) { start(m[1]); return; }
+      if (!f) { start(""); f.pre = true; }
+      if (/^::/.test(t)) { f.txt.push(t); return; }
+      if ((m = /^>\s?(.*)$/.exec(t))) { f.txt.push(m[1]); return; }
+      try {
+        if ((m = /^@\s*(.*)$/.exec(t))) {
+          m[1].split(/\s+(?=[A-Za-z]\w*\s*=)/).forEach(function (kv) {
+            var mm = /^([A-Za-z]\w*)\s*=\s*(.+)$/.exec(kv.trim()); if (!mm) return;
+            var v = wyExpr(mm[2], names)({ x: 0, v: f.v, f: {} });
+            if (out.vk.indexOf(mm[1]) < 0) out.vk.push(mm[1]);
+            if (prev && prev.v[mm[1]] !== v) f.chg[mm[1]] = true;
+            f.v[mm[1]] = v;
+          });
+          return;
+        }
+        if ((m = WY_RE.win.exec(t))) { var rx = wyRange(m[1], names), ry = wyRange(m[2], names), e0 = { x: 0, v: f.v, f: {} }; f.win = { x0: rx[0](e0), x1: rx[1](e0), y0: ry[0](e0), y1: ry[1](e0), pi: rx[2] }; return; }
+        if ((m = WY_RE.sl.exec(t))) {
+          var e1 = { x: 0, v: f.v, f: {} };
+          if (!out.sl.some(function (s) { return s.n === m[1]; })) out.sl.push({ n: m[1], a: wyExpr(m[2], names)(e1), b: wyExpr(m[3], names)(e1), st: m[4] ? wyExpr(m[4], names)(e1) : 0 });
+          if (out.vk.indexOf(m[1]) < 0) out.vk.push(m[1]);
+          return;
+        }
+        if ((m = WY_RE.rm.exec(t))) { var w = m[1].trim(); f.it = f.it.filter(function (x) { return x.name !== w && x.lab !== w && x.src.indexOf(w) !== 0; }); return; }
+        if (WY_RE.clr.test(t)) { f.it = []; return; }
+        var ll = wyLab(t), body = ll[0], lab = ll[1], it = { src: t, lab: lab };
+        if ((m = WY_RE.asy.exec(body))) {
+          it.k = /^(asymptot)/i.test(m[1]) ? "asy" : "line"; it.ax = m[2].toLowerCase(); it.g = wyExpr(m[3], names);
+        } else if ((m = WY_RE.pt.exec(body))) {
+          it.k = /^(dziura|hole)/i.test(m[1]) ? "hole" : /^(napis|text)/i.test(m[1]) ? "text" : "pt"; it.p = wyPt(m[2], names);
+        } else if ((m = WY_RE.seg.exec(body))) {
+          var ps = wyPts(m[2], names); if (ps.length !== 2) throw new Error("odcinek potrzebuje dwóch punktów");
+          it.k = /^(odcinek|segment)/i.test(m[1]) ? "seg" : "arr"; it.a = ps[0]; it.b = ps[1];
+        } else if ((m = WY_RE.band.exec(body))) {
+          it.k = "band"; it.ax = m[1].toLowerCase(); it.r = wyRange(m[2], names);
+        } else if ((m = WY_RE.area.exec(body))) {
+          it.k = "area"; it.f1 = m[1]; it.f2 = m[2] || ""; it.r = wyRange(m[3], names);
+          if (names[it.f1] !== "f" || (it.f2 && names[it.f2] !== "f")) throw new Error("pole: nieznana funkcja");
+        } else if ((m = WY_RE.fn.exec(body)) || (m = WY_RE.y.exec(body))) {
+          var named = m.length > 2, ex = named ? m[2] : m[1], cm = /^(.*?)\s+(?:dla|for|when|için)\s+(.+)$/i.exec(ex);
+          it.k = "fn"; it.name = named ? m[1] : ""; it.g = wyExpr(cm ? cm[1] : ex, names); it.c = cm ? wyCond(cm[2], names) : null;
+        } else { f.txt.push(t); return; }
+        f.it = f.it.filter(function (x) { return x.src !== t; }); f.it.push(it);
+      } catch (er) { out.err.push(t + " → " + er.message); }
+    });
+    if (out.fr.length > 1 && out.fr[0].pre && !out.fr[0].txt.length) { out.fr.shift(); out.fr[0].chg = {}; }   // „okno:”, „@”, krzywe przed pierwszym „==” należą do pierwszej klatki
+    if (out.err.length && window.console) console.warn("```wykres:", out.err.join("\n"));
+    out.fr.forEach(function (fr) { if (!fr.win) fr.win = { x0: -5, x1: 5, y0: -5, y1: 5, pi: false }; });
+    var w0 = out.fr.length ? out.fr[0].win : null;
+    out.asp = w0 ? Math.max(0.56, Math.min(1.1, (w0.y1 - w0.y0) / (w0.x1 - w0.x0))) : 0.75;   // te same jednostki na osiach, o ile wykres nie wyjdzie za wąski albo za wysoki
+    return out;
+  }
+  function wyNum(v, d) {
+    if (!isFinite(v)) return v > 0 ? "∞" : v < 0 ? "−∞" : "—";
+    if (d == null) d = Math.abs(v) >= 100 ? 1 : Math.abs(v) >= 10 ? 2 : 3;
+    var s = (Math.round(v * Math.pow(10, d)) / Math.pow(10, d)).toFixed(d).replace(/\.?0+$/, "");
+    if (s === "-0") s = "0";
+    return s.replace("-", "−").replace(".", UILANG === "en" ? "." : ",");
+  }
+  function wyPiLab(k) {   // k = wielokrotność π/2
+    if (!k) return "0";
+    var n = k, d = 2; if (n % 2 === 0) { n /= 2; d = 1; }
+    return (n < 0 ? "−" : "") + (Math.abs(n) === 1 ? "" : Math.abs(n)) + "π" + (d === 2 ? "/2" : "");
+  }
+  function wyFns(it, env) {   // nazwane funkcje z kawałków: f(x) liczy kawałek, którego warunek jest spełniony
+    var by = {};
+    it.forEach(function (x) { if (x.k === "fn" && x.name) (by[x.name] = by[x.name] || []).push(x); });
+    var fs = {};
+    Object.keys(by).forEach(function (n) {
+      fs[n] = function (xv, e) {
+        var ee = { x: xv, v: (e || env).v, f: fs }, ps = by[n];
+        for (var j = 0; j < ps.length; j++) if (!ps[j].c || ps[j].c.t(ee)) return ps[j].g(ee);
+        return NaN;
+      };
+    });
+    return fs;
+  }
+  function wySvg(p, k) {
+    var fr = p.fr[k], W = 360, H = Math.round(W * p.asp), w = fr.win, pad = 4;
+    var v = Object.assign({}, fr.v, p.uv || {}), env = { x: 0, v: v, f: {} };
+    env.f = wyFns(fr.it, env);
+    var sx = function (x) { return pad + (x - w.x0) / (w.x1 - w.x0) * (W - 2 * pad); }, sy = function (y) { return H - pad - (y - w.y0) / (w.y1 - w.y0) * (H - 2 * pad); };
+    var R = function (n) { return Math.round(n * 10) / 10; };
+    var old = {}; if (k) p.fr[k - 1].it.forEach(function (x) { old[x.src] = 1; });
+    var ev = function (g, xv) { env.x = xv; try { return g(env); } catch (e) { return NaN; } };
+    var h = "", over = "", labs = [], ci = 0, cols = ["var(--k-ex)", "var(--k-thm)", "var(--accent)", "var(--sx-s)"], fcol = {}, YH = w.y1 - w.y0;
+    // siatka i osie
+    var nice = function (r) { var s = Math.pow(10, Math.floor(Math.log10(r / 7))), m = r / 7 / s; return s * (m < 1.5 ? 1 : m < 3.5 ? 2 : m < 7.5 ? 5 : 10); };
+    var stx = w.pi ? Math.PI / 2 * Math.max(1, Math.round((w.x1 - w.x0) / 8 / (Math.PI / 2))) : nice(w.x1 - w.x0), sty = nice(YH);
+    var ax = Math.min(Math.max(sx(0), pad), W - pad), ay = Math.min(Math.max(sy(0), pad), H - pad), g = "", tl = "";
+    for (var tx = Math.ceil(w.x0 / stx) * stx; tx <= w.x1 + 1e-9; tx += stx) {
+      var X = R(sx(tx)); g += '<line x1="' + X + '" y1="' + pad + '" x2="' + X + '" y2="' + (H - pad) + '"/>';
+      if (Math.abs(tx) > stx / 2 && X > 14 && X < W - 14) tl += '<text x="' + X + '" y="' + R(ay > H - 20 ? ay - 5 : ay + 13) + '" text-anchor="middle">' + (w.pi ? wyPiLab(Math.round(tx / (Math.PI / 2))) : wyNum(tx, 4)) + "</text>";
+    }
+    for (var ty = Math.ceil(w.y0 / sty) * sty; ty <= w.y1 + 1e-9; ty += sty) {
+      var Y = R(sy(ty)); g += '<line x1="' + pad + '" y1="' + Y + '" x2="' + (W - pad) + '" y2="' + Y + '"/>';
+      if (Math.abs(ty) > sty / 2 && Y > 10 && Y < H - 10) { var left = ax > W - 40; tl += '<text x="' + R(left ? ax - 5 : ax + 5) + '" y="' + R(Y + 4) + '" text-anchor="' + (left ? "end" : "start") + '">' + wyNum(ty, 4) + "</text>"; }
+    }
+    h += '<g class="wy-grid">' + g + "</g>";
+    h += '<g class="wy-ax"><line x1="' + pad + '" y1="' + R(ay) + '" x2="' + (W - pad) + '" y2="' + R(ay) + '"/><line x1="' + R(ax) + '" y1="' + pad + '" x2="' + R(ax) + '" y2="' + (H - pad) + '"/>' +
+      '<path d="M' + (W - pad) + " " + R(ay) + "l-7 -3.5v7z M" + R(ax) + " " + pad + 'l-3.5 7h7z"/></g><g class="wy-tl">' + tl +
+      '<text x="' + (W - pad - 4) + '" y="' + R(ay - 7) + '" text-anchor="end" class="wy-axn">x</text><text x="' + R(ax + 8) + '" y="' + (pad + 11) + '" class="wy-axn">y</text></g>';
+    var clip = "wyc" + p.h + k;
+    var body = "", halo = "", dots = "";
+    function path(gf, x0, x1, cond) {   // próbki co piksel; przerwa przy dzieleniu przez zero i skoku (połowienie przedziału)
+      var N = 720, out = "", seg = [], lo = w.y0 - 2 * YH, hi = w.y1 + 2 * YH, xs = [];
+      x0 = Math.max(x0, w.x0); x1 = Math.min(x1, w.x1); if (!(x1 > x0)) return "";
+      for (var j = 0; j <= N; j++) xs.push(x0 + (x1 - x0) * j / N);
+      if (cond) cond.ends.forEach(function (en) { var b = en.b(env); if (b > x0 && b < x1) xs.push(b - 1e-9 * (w.x1 - w.x0), b, b + 1e-9 * (w.x1 - w.x0)); });
+      xs.sort(function (a, b) { return a - b; });
+      var ok = function (xv) { env.x = xv; return !cond || cond.t(env); };
+      function flush() { if (seg.length > 1) out += "M" + seg.join("L"); seg = []; }
+      function jump(xa, ya, xb, yb, d) {   // połowienie: przy ciągłej funkcji różnica wartości maleje do zera, przy skoku albo asymptocie zostaje
+        for (; d > 0; d--) {
+          var xm = (xa + xb) / 2, ym = ev(gf, xm);
+          if (!isFinite(ym)) return true;
+          if (Math.abs(ym - ya) > Math.abs(yb - ym)) { xb = xm; yb = ym; } else { xa = xm; ya = ym; }
+        }
+        return Math.abs(yb - ya) > 0.02 * YH;
+      }
+      var px = null, py = null;
+      xs.forEach(function (xv) {
+        var yv = ok(xv) ? ev(gf, xv) : NaN;
+        if (!isFinite(yv)) { flush(); px = null; return; }
+        if (px !== null && Math.abs(yv - py) > 0.06 * YH && jump(px, py, xv, yv, 40)) flush();
+        if ((yv < lo || yv > hi) && py !== null && (py < lo || py > hi) && seg.length) flush();
+        seg.push(R(sx(xv)) + " " + R(sy(Math.max(lo, Math.min(hi, yv)))));
+        px = xv; py = yv;
+      });
+      flush();
+      return out;
+    }
+    function box(x, y, txt, anc) { var wd = txt.length * 6.7 + 4, x0 = anc === "middle" ? x - wd / 2 : anc === "end" ? x - wd : x; return [x0, y - 11, x0 + wd, y + 3]; }
+    function free(x, y, txt, anc) {
+      var b = box(x, y, txt, anc); if (b[0] < pad || b[2] > W - pad || b[1] < pad || b[3] > H - pad) return false;
+      return labs.every(function (l) { var c = box(l.x, l.y, l.t, l.a); return b[2] < c[0] || c[2] < b[0] || b[3] < c[1] || c[3] < b[1]; });
+    }
+    function place(cs, txt, col) {   // pierwsze miejsce z listy, w którym podpis nie nachodzi na inny i mieści się w ramce
+      if (!cs.length) return;
+      var c = cs.filter(function (q) { return free(q[0], q[1], txt, q[2]); })[0] || cs[0];
+      labs.push({ x: c[0], y: c[1], t: txt, c: col, a: c[2] });
+    }
+    function lab(x, y, txt, col, anc) { place([[x, y, anc || "start"]], txt, col); }
+    function curveLab(gf, txt, col, cond) {   // podpis przy krzywej: od prawej szukamy miejsca, gdzie krzywa jest w oknie, nad nią albo pod nią
+      var cs = [];
+      for (var j = 0; j <= 16; j++) {
+        var fx = 0.86 - j * 0.045, xv = w.x0 + (w.x1 - w.x0) * fx; env.x = xv;
+        if (cond && !cond.t(env)) continue;
+        var yv = ev(gf, xv);
+        if (isFinite(yv) && yv > w.y0 + 0.08 * YH && yv < w.y1 - 0.06 * YH) cs.push([sx(xv), sy(yv) - 8, "middle"], [sx(xv), sy(yv) + 17, "middle"]);
+      }
+      place(cs, txt, col);
+    }
+    var tr = [];
+    // kolejność: pasy i pola, proste, krzywe, odcinki, punkty
+    var order = { band: 0, area: 1, line: 2, asy: 3, fn: 4, seg: 5, arr: 5, hole: 6, pt: 7, text: 8 };
+    fr.it.slice().sort(function (a, b) { return order[a.k] - order[b.k]; }).forEach(function (it) {
+      var nw = k > 0 && !old[it.src], cls = nw ? " n" : "";
+      if (it.k === "band") {
+        var a = it.r[0](env), b = it.r[1](env), x0 = it.ax === "x" ? sx(Math.min(a, b)) : pad, x1 = it.ax === "x" ? sx(Math.max(a, b)) : W - pad, y0 = it.ax === "y" ? sy(Math.max(a, b)) : pad, y1 = it.ax === "y" ? sy(Math.min(a, b)) : H - pad;
+        x0 = Math.max(pad, x0); x1 = Math.min(W - pad, x1); y0 = Math.max(pad, y0); y1 = Math.min(H - pad, y1);
+        if (x1 <= x0 || y1 <= y0) return;
+        body += '<rect class="wy-band' + cls + '" x="' + R(x0) + '" y="' + R(y0) + '" width="' + R(x1 - x0) + '" height="' + R(y1 - y0) + '"/>';
+        if (it.lab) { if (it.ax === "x") place([[(x0 + x1) / 2, pad + 13, "middle"], [(x0 + x1) / 2, H - pad - 6, "middle"], [x1 + 4, pad + 13, "start"]], it.lab, "var(--warn)"); else place([[W - pad - 6, (y0 + y1) / 2 + 4, "end"], [pad + 6, (y0 + y1) / 2 + 4, "start"]], it.lab, "var(--warn)"); }
+      } else if (it.k === "area") {
+        var a2 = Math.max(it.r[0](env), w.x0), b2 = Math.min(it.r[1](env), w.x1), f1 = env.f[it.f1], f2 = it.f2 ? env.f[it.f2] : null, top = [], bot = [];
+        for (var j = 0; j <= 240; j++) {
+          var xv = a2 + (b2 - a2) * j / 240, y1v = f1(xv), y2v = f2 ? f2(xv) : 0;
+          if (isFinite(y1v) && isFinite(y2v)) { top.push(R(sx(xv)) + " " + R(sy(Math.max(w.y0 - YH, Math.min(w.y1 + YH, y1v))))); bot.unshift(R(sx(xv)) + " " + R(sy(Math.max(w.y0 - YH, Math.min(w.y1 + YH, y2v))))); }
+        }
+        if (top.length > 1) body += '<path class="wy-area' + cls + '" d="M' + top.join("L") + "L" + bot.join("L") + 'Z"/>';
+        if (it.lab) { var xm = (a2 + b2) / 2, ym = (f1(xm) + (f2 ? f2(xm) : 0)) / 2; if (isFinite(ym) && ym > w.y0 && ym < w.y1) lab(sx(xm), sy(ym) + 4, it.lab, "var(--ink)", "middle"); }
+      } else if (it.k === "line" || it.k === "asy") {
+        var lc = it.k === "asy" ? "var(--hot)" : "var(--muted)", d = "";
+        if (it.ax === "x") { var xv2 = it.g(env); if (isFinite(xv2) && xv2 >= w.x0 && xv2 <= w.x1) { d = "M" + R(sx(xv2)) + " " + pad + "L" + R(sx(xv2)) + " " + (H - pad); if (it.lab) place([[sx(xv2) + 5, pad + 13, "start"], [sx(xv2) - 5, pad + 13, "end"], [sx(xv2) + 5, H - pad - 6, "start"], [sx(xv2) - 5, H - pad - 6, "end"], [sx(xv2) + 5, H / 2, "start"]], it.lab, lc); } }
+        else { d = path(it.g, w.x0, w.x1, null); if (it.lab) curveLab(it.g, it.lab, lc, null); }
+        if (d) { if (nw) halo += '<path class="wy-halo" d="' + d + '"/>'; body += '<path class="wy-' + it.k + cls + '" d="' + d + '"/>'; }
+      } else if (it.k === "fn") {
+        var key = it.name || it.src, col = fcol[key] || (fcol[key] = cols[ci++ % cols.length]), d2 = path(it.g, w.x0, w.x1, it.c);
+        if (d2) { if (nw) halo += '<path class="wy-halo" d="' + d2 + '"/>'; body += '<path class="wy-fn' + cls + '" style="stroke:' + col + '" d="' + d2 + '"/>'; }
+        if (it.lab) curveLab(it.g, it.lab, col, it.c);
+        if (!tr.some(function (q) { return q.key === key; })) tr.push({ key: key, n: it.name, f: it.name ? null : it.g, c: col });
+        if (it.c) it.c.ends.forEach(function (en) {   // końce kawałka: puste kółko przy <, pełne przy ≤
+          var b = en.b(env), yb = ev(it.g, b);
+          if (!isFinite(yb)) yb = ev(it.g, b + en.side * 1e-7 * (w.x1 - w.x0));
+          if (isFinite(b) && isFinite(yb) && b >= w.x0 && b <= w.x1 && yb >= w.y0 && yb <= w.y1) dots += '<circle class="' + (en.cl ? "wy-pt" : "wy-hole") + '" cx="' + R(sx(b)) + '" cy="' + R(sy(yb)) + '" r="4" style="' + (en.cl ? "fill:" : "stroke:") + col + '"/>';
+        });
+      } else if (it.k === "seg" || it.k === "arr") {
+        var A = [it.a[0](env), it.a[1](env)], B = [it.b[0](env), it.b[1](env)];
+        if ([A[0], A[1], B[0], B[1]].every(isFinite)) {
+          var X1 = R(sx(A[0])), Y1 = R(sy(A[1])), X2 = R(sx(B[0])), Y2 = R(sy(B[1]));
+          if (nw) halo += '<path class="wy-halo" d="M' + X1 + " " + Y1 + "L" + X2 + " " + Y2 + '"/>';
+          body += '<path class="wy-seg' + cls + '" d="M' + X1 + " " + Y1 + "L" + X2 + " " + Y2 + '"/>';
+          if (it.k === "arr") { var an = Math.atan2(Y2 - Y1, X2 - X1), q = function (da) { return R(X2 - 9 * Math.cos(an + da)) + " " + R(Y2 - 9 * Math.sin(an + da)); }; body += '<path class="wy-head" d="M' + X2 + " " + Y2 + "L" + q(0.45) + "L" + q(-0.45) + 'Z"/>'; }
+          if (it.lab && (X1 + X2) / 2 > pad && (X1 + X2) / 2 < W - pad && (Y1 + Y2) / 2 > pad && (Y1 + Y2) / 2 < H - pad) {   // podpis obok kreski; środek kreski poza oknem – bez podpisu, po jednej albo drugiej stronie (prostopadle do niej)
+            var mx = (X1 + X2) / 2, my = (Y1 + Y2) / 2, L = Math.hypot(X2 - X1, Y2 - Y1) || 1, nx = -(Y2 - Y1) / L, ny = (X2 - X1) / L, an2 = function (v) { return v > 0.35 ? "start" : v < -0.35 ? "end" : "middle"; };
+            place([[mx + nx * 9, my + ny * 9 + 4 + (ny > 0.35 ? 6 : ny < -0.35 ? -2 : 0), an2(nx)], [mx - nx * 9, my - ny * 9 + 4 + (-ny > 0.35 ? 6 : -ny < -0.35 ? -2 : 0), an2(-nx)], [mx + nx * 9, my + ny * 9 - 10, an2(nx)], [mx - nx * 9, my - ny * 9 + 18, an2(-nx)]], it.lab, "var(--warn)");
+          }
+        }
+      } else {
+        var P = [it.p[0](env), it.p[1](env)];
+        if (isFinite(P[0]) && isFinite(P[1]) && P[0] >= w.x0 && P[0] <= w.x1 && P[1] >= w.y0 && P[1] <= w.y1) {   // punkt spoza okna (np. przy zbliżeniu) znika razem z podpisem
+          var PX = R(sx(P[0])), PY = R(sy(P[1]));
+          if (it.k !== "text") {
+            if (nw) over += '<circle class="wy-phalo" cx="' + PX + '" cy="' + PY + '" r="10"/>';
+            dots += '<circle class="' + (it.k === "hole" ? "wy-hole" : "wy-pt") + '" cx="' + PX + '" cy="' + PY + '" r="' + (it.k === "hole" ? 4.5 : 4) + '"/>';
+          }
+          if (it.lab) place(it.k === "text" ? [[PX, PY + 4, "middle"]] : [[PX + 8, PY - 8, "start"], [PX - 8, PY - 8, "end"], [PX + 8, PY + 17, "start"], [PX - 8, PY + 17, "end"], [PX, PY - 12, "middle"], [PX, PY + 21, "middle"]], it.lab, "var(--ink)");
+        }
+      }
+    });
+    h += '<clipPath id="' + clip + '"><rect x="' + pad + '" y="' + pad + '" width="' + (W - 2 * pad) + '" height="' + (H - 2 * pad) + '"/></clipPath>';
+    h += '<g clip-path="url(#' + clip + ')">' + halo + body + "</g>" + over + dots;
+    h += '<g class="wy-labs">' + labs.map(function (l) { return '<text x="' + R(Math.max(pad + 2, Math.min(W - pad - 2, l.x))) + '" y="' + R(Math.max(12, Math.min(H - 5, l.y))) + '" text-anchor="' + l.a + '" style="fill:' + l.c + '">' + esc(l.t) + "</text>"; }).join("") + "</g>";
+    h += '<g class="wy-tr"></g>';
+    p.view = { w: w, W: W, H: H, pad: pad, tr: tr, env: env, sx: sx, sy: sy };
+    return '<svg class="wy-svg" viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="' + esc(p.title || fr.cap || "wykres") + '">' + h + "</svg>";
+  }
+  function wyFrame(p, k) {
+    var fr = p.fr[k];
+    if (p.lk !== k) { p.uv = {}; p.lk = k; }   // nowa klatka: suwaki wracają do wartości z „@”
+    var h = '<div class="wy"><div class="wy-plot">' + wySvg(p, k) + "</div>";
+    var vs = p.vk.filter(function (n) { return fr.v[n] !== undefined && !p.sl.some(function (s) { return s.n === n; }); });
+    if (vs.length) h += '<div class="pb-vars">' + vs.map(function (n) { return '<span class="pb-v' + (fr.chg[n] ? " n" : "") + '"><span>' + esc(n) + "</span> = <b>" + wyNum(fr.v[n]) + "</b></span>"; }).join("") + "</div>";
+    p.sl.forEach(function (s) {
+      var st = s.st || Math.pow(10, Math.floor(Math.log10((s.b - s.a) / 50))), v = p.uv[s.n] !== undefined ? p.uv[s.n] : fr.v[s.n] !== undefined ? fr.v[s.n] : (s.a + s.b) / 2;
+      h += '<label class="wy-sl"><span>' + esc(s.n) + " = <b>" + wyNum(v) + '</b></span><input type="range" min="' + s.a + '" max="' + s.b + '" step="' + st + '" value="' + v + '" data-v="' + esc(s.n) + '"></label>';
+    });
+    if (p.view.tr.length) h += '<div class="wy-read">' + Ln("Dotknij wykresu, żeby odczytać wartości.") + "</div>";
+    return h + "</div>";
+  }
+  function wyBlock(src) {
+    var p = wyParse(src); if (!p.fr.length) return "<pre><code>" + esc(src) + "</code></pre>";
+    var h = qzHash("wy" + src), i = PB.findIndex(function (x) { return x.h === h; });
+    if (i < 0) { p.h = h; p.k = 0; PB.push(p); i = PB.length - 1; }
+    return '<div class="pb wyk" data-pb="' + i + '" tabindex="-1">' + pbInner(i) + "</div>";
+  }
+  function wyTrace(svg, e) {   // pionowa kreska pod palcem i wartości funkcji w tym miejscu
+    var box = svg.closest(".pb"), p = PB[+box.getAttribute("data-pb")], V = p.view; if (!V || !V.tr.length) return;
+    var r = svg.getBoundingClientRect(), X = (e.clientX - r.left) / r.width * V.W, w = V.w;
+    var xv = w.x0 + (X - V.pad) / (V.W - 2 * V.pad) * (w.x1 - w.x0), st = Math.pow(10, Math.floor(Math.log10((w.x1 - w.x0) / 200)));
+    xv = Math.max(w.x0, Math.min(w.x1, Math.round(xv / st) * st));
+    var env = V.env, R = function (n) { return Math.round(n * 10) / 10; }, g = '<line x1="' + R(V.sx(xv)) + '" y1="' + V.pad + '" x2="' + R(V.sx(xv)) + '" y2="' + (V.H - V.pad) + '"/>', rd = [];
+    var dec = Math.max(0, -Math.round(Math.log10(st)));
+    V.tr.forEach(function (q) {
+      env.x = xv; var yv; try { yv = q.n ? env.f[q.n](xv) : q.f(env); } catch (er) { yv = NaN; }
+      var nm = q.n ? q.n + "(" + wyNum(xv, dec) + ")" : "y";
+      if (isFinite(yv)) { if (yv >= w.y0 && yv <= w.y1) g += '<circle cx="' + R(V.sx(xv)) + '" cy="' + R(V.sy(yv)) + '" r="4.5" style="fill:' + q.c + '"/>'; rd.push('<span style="color:' + q.c + '">' + esc(nm) + " = <b>" + wyNum(yv) + "</b></span>"); }
+      else rd.push('<span style="color:' + q.c + '">' + esc(nm) + " – <b>" + Ln("nie istnieje") + "</b></span>");
+    });
+    svg.querySelector(".wy-tr").innerHTML = g;
+    var out = box.querySelector(".wy-read"); if (out) { out.classList.add("on"); out.innerHTML = "<span>x = <b>" + wyNum(xv, dec) + "</b></span>" + rd.join(""); }
+  }
+  document.addEventListener("pointerdown", function (e) { var s = e.target.closest && e.target.closest(".wy-svg"); if (s) wyTrace(s, e); });
+  document.addEventListener("pointermove", function (e) { var s = e.target.closest && e.target.closest(".wy-svg"); if (s && (e.pointerType === "mouse" || e.buttons || e.pressure)) wyTrace(s, e); });
+  document.addEventListener("input", function (e) {
+    var r = e.target.closest && e.target.closest(".wy-sl input"); if (!r) return;
+    var box = r.closest(".pb"), p = PB[+box.getAttribute("data-pb")];
+    p.uv[r.getAttribute("data-v")] = +r.value;
+    box.querySelector(".wy-plot").innerHTML = wySvg(p, p.k);
+    r.parentNode.querySelector("b").textContent = wyNum(+r.value);
+    var out = box.querySelector(".wy-read"); if (out) { out.classList.remove("on"); out.textContent = Ln("Dotknij wykresu, żeby odczytać wartości."); }
+  });
   function codeBlock(lang, src) {
     if (lang === "quiz") return quizBlock(src);
     if (lang === "bramki") return gtBlockHtml(src);
     if (lang === "dowod") return dowodBlock(src);
     if (lang === "przebieg") return pbBlock(src);
+    if (lang === "wykres") return wyBlock(src);
     if (/^(console|terminal|shell|sh|bash)$/.test(lang)) {
       return '<div class="term static">' + src.split("\n").map(function (l) {
         return /^\$ /.test(l) ? '<div class="tl-cmd"><span class="pr">$</span> ' + esc(l.slice(2)) + "</div>" : '<div class="tl-out">' + (esc(l) || "&nbsp;") + "</div>";
