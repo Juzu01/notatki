@@ -309,6 +309,7 @@ html[lang] .md .zref + .zref::before, html[lang] .md .tref + .tref::before { con
 .md code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.86em; background: var(--bg); border-radius: 4px; padding: 0 4px; white-space: pre-wrap; }
 .md pre { margin: 0; background: var(--bg); border-radius: 8px; padding: 10px 12px; overflow-x: auto; font-size: 0.84rem; line-height: 1.5; }
 .md code.nw, .md .nw { white-space: nowrap; }
+.md code.cblk { display: block; white-space: pre; overflow-x: auto; margin: 6px 0; padding: 8px 10px; border-radius: 8px; line-height: 1.5; text-align: left; }
 .md a { color: var(--accent); text-decoration-color: color-mix(in srgb, var(--accent) 35%, transparent); text-underline-offset: 3px; }
 .md pre code { padding: 0; background: none; font-size: inherit; }
 .md .runc { display: grid; gap: 8px; }
@@ -1368,9 +1369,37 @@ html.rec-open { overflow: hidden; }
     catch (e) { h = '<span class="tex-raw">' + esc(src) + "</span>"; }
     return (texCache[k] = h);
   }
+  function fmtC(s) {   // kod C z kilku instrukcji wciśnięty w `…` → linie z wcięciami; null, gdy to jedna instrukcja albo nie C
+    if (/\b(then|fi|done|esac|echo)\b|\$\w|\[ |\\;|-exec\b/.test(s)) return null;   // powłoka
+    if (!/[{}]|\b(int|char|float|double|long|unsigned|printf|scanf|return)\b|\b(for|while|if|switch)\s*\(/.test(s)) return null;
+    var out = [], line = "", ind = 0, extra = 0, stack = [], depth = 0, q = null, ctrl = false, afterHdr = false, n = 0, semi = 0, caseAt = -1;
+    function push() { var t = line.trim(); if (t) out.push("    ".repeat(ind + extra + (caseAt === ind && !/^(case\b|default\b|\})/.test(t) ? 1 : 0)) + t); line = ""; }
+    function next(i) { return s.slice(i).replace(/^\s+/, ""); }
+    for (var i = 0; i < s.length; i++) {
+      var ch = s[i];
+      if (q) { line += ch; if (ch === "\\") line += s[++i] || ""; else if (ch === q) q = null; continue; }
+      if (afterHdr && !/\s/.test(ch)) { afterHdr = false; if (ch !== "{" && ch !== ";") { push(); extra++; } }   // pętla/if bez klamer: ciało linię niżej
+      if (/\s/.test(ch) && /(^|\s)$/.test(line)) continue;
+      if (ch === '"' || ch === "'") { q = ch; line += ch; continue; }
+      if (ch === "{" && (depth || /[=,]\s*$/.test(line))) { depth++; line += ch; continue; }   // {1, 2, 3} przy deklaracji tablicy to nie blok
+      if (ch === "}" && depth) { depth--; line += ch; continue; }
+      if (ch === "(") { if (!depth && /\b(for|while|if|switch)\s*$/.test(line)) ctrl = true; depth++; line += ch; continue; }
+      if (ch === ")") { depth = Math.max(0, depth - 1); line += ch; if (!depth && ctrl) { ctrl = false; afterHdr = true; } continue; }
+      if (depth) { line += ch; continue; }
+      if (ch === ";") { line += ch; push(); extra = 0; n++; semi++; continue; }
+      if (ch === "{") { line = line.trim() + " {"; push(); stack.push(extra + 1); ind += extra + 1; extra = 0; n++; continue; }
+      if (ch === "}") { push(); ind = Math.max(0, ind - (stack.pop() || 1)); extra = 0; if (caseAt > ind) caseAt = -1; line = "}"; if (!/^(else|while)\b/.test(next(i + 1))) push(); else line += " "; n++; continue; }
+      if (ch === ":" && /\b(case\s+[^:]+|default)\s*$/.test(line)) { line += ch; push(); caseAt = ind; continue; }   // switch: case w osobnej linii, instrukcje pod nim wcięte
+      line += ch;
+      if (/(^|\s|\})(else|do)$/.test(line) && !/^\w/.test(s.slice(i + 1)) && !/^if\b/.test(next(i + 1))) afterHdr = true;   // else/do bez klamer też jak nagłówek
+    }
+    push();
+    if (semi < 3 && s.length <= 40 && !/[{]|\b(for|while|if|switch|do)\b/.test(s)) return null;   // krótkie „int a = 3; f(a);” zostaje w zdaniu
+    return semi && n >= 2 && out.length >= 2 ? out.join("\n") : null;
+  }
   function inline(s, disp) {  // s już escapowane; [[folder/dzień#sekcja|opis]] – odnośnik do miejsca w notatce (przewodnik po przedmiocie)
     var links = [];
-    s = s.replace(/`([^`]+)`/g, function (_, c) { links.push("<code" + (/^\S{1,24}$/.test(c) ? ' class="nw"' : "") + ">" + c + "</code>"); return "\u0001" + (links.length - 1) + "\u0002"; });   // krótki kod bez spacji (rwxr-x---) w jednej linii
+    s = s.replace(/`([^`]+)`/g, function (_, c) { var f = fmtC(unesc(c)); if (f) { links.push('<code class="cblk">' + CT.highlight(f) + "</code>"); return "\u0001" + (links.length - 1) + "\u0002"; } links.push("<code" + (/^\S{1,24}$/.test(c) ? ' class="nw"' : "") + ">" + c + "</code>"); return "\u0001" + (links.length - 1) + "\u0002"; });   // krótki kod bez spacji (rwxr-x---) w jednej linii
     s = s.replace(/\[([^\[\]\n]+)\]\((https?:\/\/[^\s)]+)\)/g, function (_, label, url) {   // [film](https://…) – zwykły odnośnik, otwiera się w nowej karcie
       links.push('<a href="' + url + '" target="_blank" rel="noopener">' + label + "</a>"); return "\u0001" + (links.length - 1) + "\u0002";
     });
