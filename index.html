@@ -1372,13 +1372,13 @@ html.rec-open { overflow: hidden; }
   function fmtC(s) {   // kod C z kilku instrukcji wciśnięty w `…` → linie z wcięciami; null, gdy to jedna instrukcja albo nie C
     if (/\b(then|fi|done|esac|echo)\b|\$\w|\[ |\\;|-exec\b/.test(s)) return null;   // powłoka
     if (!/[{}]|\b(int|char|float|double|long|unsigned|printf|scanf|return)\b|\b(for|while|if|switch)\s*\(/.test(s)) return null;
-    var out = [], line = "", ind = 0, extra = 0, stack = [], depth = 0, q = null, ctrl = false, afterHdr = false, n = 0, semi = 0, caseAt = -1;
+    var out = [], line = "", ind = 0, extra = 0, stack = [], depth = 0, q = null, ctrl = false, afterHdr = false, n = 0, semi = 0, caseAt = -1, brk = false;
     function push() { var t = line.trim(); if (t) out.push("    ".repeat(ind + extra + (caseAt === ind && !/^(case\b|default\b|\})/.test(t) ? 1 : 0)) + t); line = ""; }
     function next(i) { return s.slice(i).replace(/^\s+/, ""); }
     for (var i = 0; i < s.length; i++) {
       var ch = s[i];
       if (q) { line += ch; if (ch === "\\") line += s[++i] || ""; else if (ch === q) q = null; continue; }
-      if (afterHdr && !/\s/.test(ch)) { afterHdr = false; if (ch !== "{" && ch !== ";") { push(); extra++; } }   // pętla/if bez klamer: ciało linię niżej
+      if (afterHdr && !/\s/.test(ch)) { afterHdr = false; if (ch !== "{" && ch !== ";") { push(); extra++; brk = true; } }   // pętla/if bez klamer: ciało linię niżej
       if (/\s/.test(ch) && /(^|\s)$/.test(line)) continue;
       if (ch === '"' || ch === "'") { q = ch; line += ch; continue; }
       if (ch === "{" && (depth || /[=,]\s*$/.test(line))) { depth++; line += ch; continue; }   // {1, 2, 3} przy deklaracji tablicy to nie blok
@@ -1395,7 +1395,7 @@ html.rec-open { overflow: hidden; }
     }
     push();
     if (semi < 3 && s.length <= 40 && !/[{]|\b(for|while|if|switch|do)\b/.test(s)) return null;   // krótkie „int a = 3; f(a);” zostaje w zdaniu
-    return semi && n >= 2 && out.length >= 2 ? out.join("\n") : null;
+    return semi && (n >= 2 || brk) && out.length >= 2 ? out.join("\n") : null;
   }
   function inline(s, disp) {  // s już escapowane; [[folder/dzień#sekcja|opis]] – odnośnik do miejsca w notatce (przewodnik po przedmiocie)
     var links = [];
