@@ -625,6 +625,74 @@ html[lang] .md .zref + .zref::before, html[lang] .md .tref + .tref::before { con
 .md .qz-bar .qz-nextset { display: none; }
 .md .kol-set:not(:last-of-type) .qz-bar .qz-nextset { display: inline-block; padding: 9px 20px; border-radius: 99px; color: var(--surface); background: var(--accent); }
 .md .kol-set:not(:last-of-type) .qz-bar .qz-again { padding: 4px 0; color: var(--accent); background: none; }
+/* Trening (pilot): nagłówek z punktami, mapa poziomów, poziomy z blokadą, przerwa, „+10” i konfetti */
+.md.tr { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+.tr-head { display: grid; gap: 8px; padding: 14px; border-radius: 14px; background: var(--accent-soft); scroll-margin-top: 140px; }
+.tr-h1 { display: flex; align-items: baseline; gap: 6px; font-family: var(--font); }
+.tr-big { font-size: 2.2rem; font-weight: 800; line-height: 1; color: var(--accent); font-variant-numeric: tabular-nums; }
+.tr-big-u { font-weight: 700; color: var(--accent); }
+.tr-test { margin-left: auto; font-size: 0.85rem; font-weight: 700; color: var(--ink); background: var(--surface); border-radius: 99px; padding: 4px 10px; }
+.tr-bar, .tr-mini { position: relative; height: 10px; border-radius: 99px; background: var(--surface); overflow: hidden; }
+.tr-bar i, .tr-mini i { position: absolute; inset: 0 auto 0 0; border-radius: 99px; background: var(--accent); transition: width 0.6s ease; }
+.md .tr-sub { margin: 0; font-family: var(--font); font-size: 0.82rem; color: var(--muted); }
+.tr-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.tr-chip { display: inline-grid; gap: 4px; min-width: 0; padding: 6px 10px; border-radius: 10px; background: var(--surface); font-family: var(--font); font-size: 0.85rem; }
+.tr-chip .tr-mini { height: 5px; background: var(--line); }
+.tr-chip.ok b { color: var(--accent); }
+.tr-chip.warn b { color: var(--warn); }
+.tr-brk { display: grid; gap: 8px; padding: 10px 12px; border-radius: 12px; background: var(--surface); font-family: var(--font); }
+.tr-brk > span:first-child { font-size: 1.2rem; font-weight: 800; color: var(--accent); font-variant-numeric: tabular-nums; }
+.tr-brk.back > span:first-child { font-size: 1rem; color: var(--warn); }
+.tr-brk-s { font-size: 0.85rem; color: var(--muted); }
+.tr-b1, .tr-b2 { appearance: none; border: 0; justify-self: start; padding: 9px 18px; border-radius: 99px; font-family: var(--font); font-weight: 700; font-size: 0.92rem; cursor: pointer; }
+.tr-b1 { background: var(--accent); color: var(--surface); }
+.tr-b2 { background: none; color: var(--accent); padding: 9px 6px; }
+.tr-bb { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.md .tr-how { margin: 0; }
+.md .tr-how ul { margin: 0; padding-left: 1.2em; font-family: var(--font); font-size: 0.9rem; display: grid; gap: 4px; }
+.md .tr-intro p { font-size: 0.95rem; }
+.md .tr-rv { display: grid; gap: 8px; }
+.md .tr-rv:empty { display: none; }
+.md .tr-rv-h { margin: 0; font-family: var(--font); font-size: 0.88rem; color: var(--muted); }
+.md .tr-rv-h b { color: var(--warn); }
+.tr-map { display: grid; gap: 2px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+.tr-row { appearance: none; border: 0; background: none; width: 100%; display: flex; align-items: center; gap: 10px; padding: 7px 0; text-align: left; font-family: var(--font); font-size: 0.92rem; color: var(--ink); cursor: pointer; }
+.tr-ic { flex: none; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-size: 0.78rem; font-weight: 800; border: 1.5px solid var(--line); color: var(--muted); box-sizing: border-box; }
+.tr-row.open .tr-ic { border: 2px solid var(--accent); color: var(--accent); }
+.tr-row.cur .tr-ic { background: var(--accent); color: var(--surface); }
+.tr-row.pass .tr-ic, .tr-row.full .tr-ic { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+.tr-row.full .tr-ic { box-shadow: 0 0 0 3px var(--accent-soft); }
+.tr-row.lock { color: var(--faint); }
+.tr-row.lock .tr-ic { background: var(--line) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2389958e' stroke-width='2.4' stroke-linecap='round'%3E%3Crect x='5' y='11' width='14' height='10' rx='2'/%3E%3Cpath d='M8 11V8a4 4 0 0 1 8 0v3'/%3E%3C/svg%3E") center / 14px no-repeat; }
+.tr-rn { flex: 1 1 auto; min-width: 0; line-height: 1.3; }
+.tr-rn b { font-weight: 800; }
+.tr-rp { flex: none; display: grid; gap: 3px; justify-items: end; font-size: 0.8rem; font-weight: 700; color: var(--muted); min-width: 70px; }
+.tr-rp .tr-mini { width: 70px; height: 5px; background: var(--line); }
+.md .tr-lv { scroll-margin-top: 120px; }
+.tr-lv-h { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 8px; font-family: var(--font); }
+.tr-lv-n { font-size: 0.78rem; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase; color: var(--c-ma); }
+.tr-lv-h b { font-size: 1.08rem; flex: 1 1 auto; min-width: 0; }
+.tr-lv-p { font-size: 0.82rem; font-weight: 700; color: var(--accent); background: var(--accent-soft); border-radius: 99px; padding: 2px 9px; }
+.tr-lv.locked .tr-lv-h b, .tr-lv.locked .tr-lv-n { color: var(--faint); }
+.tr-lv.locked .tr-lv-p { color: var(--faint); background: var(--line); }
+.md .tr-lock { margin: 0; font-family: var(--font); font-size: 0.9rem; color: var(--muted); padding: 10px 12px; border: 1.5px dashed var(--line); border-radius: 12px; }
+.md .tr-body { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
+.md .tr-body > p { font-size: 0.95rem; }
+.md .tr .quiz { position: relative; }
+.md .tr-done { display: grid; gap: 8px; padding: 12px; border-radius: 12px; background: var(--accent-soft); font-family: var(--font); position: relative; overflow: hidden; }
+.md .tr-done[hidden] { display: none; }
+.md .tr-done-t { margin: 0; font-size: 0.92rem; }
+.md .tr-done-t b { color: var(--accent); }
+.md .tr-nudge { display: grid; gap: 8px; padding: 10px 12px; border-radius: 12px; background: var(--warn-soft); font-family: var(--font); font-size: 0.9rem; }
+.tr-pop { position: absolute; right: 16px; top: 10px; font-family: var(--font); font-weight: 800; font-size: 1.4rem; color: var(--accent); pointer-events: none; animation: trpop 1.2s ease-out forwards; }
+@keyframes trpop { 0% { opacity: 0; transform: translateY(8px) scale(0.6); } 20% { opacity: 1; transform: translateY(0) scale(1.15); } 100% { opacity: 0; transform: translateY(-36px) scale(1); } }
+.tr-cf { position: absolute; top: 40%; width: 7px; height: 11px; border-radius: 2px; pointer-events: none; animation: trcf 1.6s ease-out forwards; }
+@keyframes trcf { 0% { opacity: 1; transform: translate(0, 0) rotate(0); } 100% { opacity: 0; transform: translate(var(--dx), -140px) rotate(var(--rot)); } }
+.md .tr-lv.tr-new { animation: trnew 1.2s ease-out; }
+@keyframes trnew { 0% { box-shadow: 0 0 0 0 var(--accent); } 100% { box-shadow: 0 0 0 14px transparent; } }
+.tr-toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 30; max-width: calc(100% - 32px); padding: 10px 18px; border-radius: 99px; background: var(--accent); color: var(--surface); font-family: var(--font); font-weight: 700; font-size: 0.95rem; box-shadow: 0 6px 20px rgb(0 0 0 / 0.18); transition: opacity 0.5s, transform 0.5s; }
+.tr-toast.out { opacity: 0; transform: translate(-50%, 12px); }
+@media (prefers-reduced-motion: reduce) { .tr-bar i, .tr-mini i { transition: none; } .md .tr-lv.tr-new { animation: none; } .tr-toast { transition: none; } }
 .ask-fab { transition: transform 0.25s ease, opacity 0.2s ease; }
 .ask-fab.away { transform: translateY(calc(100% + 28px)); opacity: 0; pointer-events: none; }
 .seg.wide { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); margin: 0; padding: 4px; border-radius: 12px; }
@@ -878,7 +946,8 @@ html.rec-open { overflow: hidden; }
   else if (!VISIT) UILANG = lsGet(LS_LANG) === "en" ? "en" : "pl";
   if (!/^(pl|en|tr)$/.test(UILANG)) UILANG = "en";
   var I18N = {
-    en: { "Przedmioty": "Courses", "‹ Wszystkie": "‹ All", "Przewodnik": "Guide", "Kolokwia": "Tests", "Dowody": "Proofs", "Zajęcia": "Classes", "Działy": "Topics", "‹ Działy": "‹ Topics",
+    en: { "Trening": "Practice", "10 pkt za zadanie dobrze od razu, 5 po błędzie albo z podpowiedzią, 2 po „Pokaż rozwiązanie”. Liczy się Twój najlepszy wynik.": "10 pts for a task right on the first try, 5 after a mistake or a hint, 2 after “Show solution”. Your best result counts.", "{a} z {b} pkt za zadania w tym treningu": "{a} of {b} pts for tasks in this practice", "Bez przerwy": "No break", "dobry powrót": "welcome back", "Do otwarcia następnego brakuje {a} pkt: zrób zestaw jeszcze raz – liczy się najlepszy wynik.": "{a} more pts to unlock the next one: do the set again – your best result counts.", "Dziś {a}/{b}": "Today {a}/{b}", "Dzisiejszy cel zrobiony!": "Today's goal done!", "Jak to działa": "How it works", "Koniec przerwy! Wracaj po bonus.": "Break over! Come back for the bonus.", "Masz już tu {a} pkt.": "You already have {a} pts here.", "Następny poziom jest otwarty.": "The next level is open.", "Następny poziom otwiera się przy 70% punktów poprzedniego – nie musisz mieć wszystkiego.": "The next level opens at 70% of the points of the previous one – you don't need everything.", "Odblokowany poziom {a}!": "Level {a} unlocked!", "od razu dobrze = pełne punkty i +5": "right on the first try = full points and +5", "pkt": "pts", "Po każdym poziomie zrób 5 minut przerwy – za powrót jest +5.": "Take a 5-minute break after each level – coming back gives +5.", "Pokaż podpowiedź": "Show a hint", "powtórka zaliczona": "review done", "Powtórki: {a}": "Reviews: {a}", "Powtórki na dziś": "Today's reviews", "Powtórki na dziś: {a}": "Today's reviews: {a}", "Poziom {a}": "Level {a}", "Poziom skończony: {a}/{b} pkt": "Level finished: {a}/{b} pts", "Poziomy": "Levels", "Poziom zaliczony: {a}/{b} pkt": "Level passed: {a}/{b} pts", "Przerwa 5 min": "5-min break", "Przerwa: {a}": "Break: {a}", "Punkty zapisują się w tym telefonie.": "Points are saved on this phone.", "seria {a}": "streak {a}", "Seria: {a} dni": "Streak: {a} days", "Seria: od trzeciego zadania z rzędu dobrze od razu każde następne daje +5.": "Streak: from the third first-try answer in a row, each next one gives +5.", "Seria: zrób dziś cel": "Streak: hit today's goal", "Siedzisz nad jednym zadaniem 8 minut? Strona podsunie podpowiedź: lepiej 5 pkt teraz niż godzina męki.": "Stuck on one task for 8 minutes? The page will offer a hint: 5 pts now beats an hour of pain.", "Siedzisz nad tym zadaniem 8 minut. Weź podpowiedź – lepiej 5 pkt teraz niż godzina męki.": "You've been on this task for 8 minutes. Take a hint – 5 pts now beats an hour of pain.", "Teraz: {a}/{b}.": "Now: {a}/{b}.", "Test dziś": "Test today", "Test jutro": "Test tomorrow", "Test już był": "Test is over", "Test za {a} dni": "Test in {a} days", "To był ostatni poziom pilota.": "That was the last level of the pilot.", "Wracam (+5 pkt)": "I'm back (+5 pts)", "Wracam wcześniej": "Back early", "wstań, napij się wody, nie patrz w telefon": "stand up, drink some water, put the phone down", "zablokowany": "locked", "Zablokowany. Zdobądź {a} pkt w poprzednim poziomie, żeby go otworzyć.": "Locked. Get {a} pts in the previous level to open it.", "Zadanie bez pełnych 10 pkt wraca jutro w powtórkach: od razu dobrze to pełne punkty i +5.": "A task without the full 10 pts comes back tomorrow in reviews: right on the first try gives full points and +5.", 
+      "Przedmioty": "Courses", "‹ Wszystkie": "‹ All", "Przewodnik": "Guide", "Kolokwia": "Tests", "Dowody": "Proofs", "Zajęcia": "Classes", "Działy": "Topics", "‹ Działy": "‹ Topics",
       "ostatnio · ": "latest · ", "Część tej notatki jest też w dziale: ": "Part of this note is also in: ", "Pokaż notatkę": "Show note", "Kopiuj": "Copy", "Skopiowane": "Copied", "Nie udało się": "Failed", "Zwiń": "Collapse",
       "Nowa notatka": "New note", "Jeszcze nie ma notatek z tego przedmiotu. Zrób zdjęcie tablicy w zakładce Aparat.": "No notes for this course yet.",
       "† dopisane przez Claude'a, nie było na zajęciach · zdj. N – zdjęcie, z którego to pochodzi": "† added by Claude, not from class · photo N – the photo it comes from",
@@ -2147,6 +2216,7 @@ html.rec-open { overflow: hidden; }
   function qzProgress() {   // po skończonym zestawie: ✓ w spisie tematów notatki i lista zestawów w Kolokwiach
     document.querySelectorAll(".toc button").forEach(tocMark);
     if (kolRefresh) kolRefresh();
+    if (trRefresh) trRefresh();
     if (typeof rdLater === "function") rdLater();
   }
   function quizAfter(h) {   // blok quiz w temacie pod nagłówkiem h (do następnego nagłówka tego samego poziomu)
@@ -2170,6 +2240,7 @@ html.rec-open { overflow: hidden; }
       p.qs.forEach(function (q) { q.order = q.opts.map(function (_, j) { return j; }).sort(function () { return rnd() - 0.5; }); });   // dobra odpowiedź nie zawsze pierwsza
       var saved = qzSaved()[h];
       p.h = h; p.st = { k: saved ? p.qs.length : 0, res: saved && saved.length === p.qs.length ? saved : p.qs.map(function () { return null; }) };
+      if (TRQ[h]) trResume(p);   // Trening: wznów od pierwszego zadania bez punktów
       qzReset(p, false); QZ.push(p); i = QZ.length - 1;
     }
     var pf = QZ[i].figs = QZ[i].figs || {}; for (var fk in mdFigs || {}) pf[fk] = mdFigs[fk];
@@ -2240,6 +2311,7 @@ html.rec-open { overflow: hidden; }
     if (ok) {
       s.solved = true; s.res[s.k] = s.tries === 0 && s.hints === 0 && !s.showAll ? "ok" : "meh";
       s.fb = Ln("**Dobrze.**") + (s.tries || s.hints ? "" : Ln(" Za pierwszym razem."));
+      if (TRQ[p.h]) trOnSolve(p, s, box);   // Trening: punkty
     } else {
       s.tries++; s.fb = Ln("**Jeszcze nie.** ") + (fb || (s.tries >= 2 ? Ln("Weź podpowiedź – pokaże krok po kroku, co wstawić i gdzie.") : Ln("Spróbuj jeszcze raz.")));
     }
@@ -2271,6 +2343,229 @@ html.rec-open { overflow: hidden; }
     if (e.key !== "Enter" || !e.target.classList || !e.target.classList.contains("qz-ans")) return;
     e.preventDefault(); qzCheck(e.target.closest(".quiz"));
   });
+  /* --- Trening (pilot 2.11.2026; żeby usunąć: ten blok, style .tr-*, zakładka „tre” w drawCourse i 3 haki: TRQ w quizBlock, qzCheck i qzProgress).
+     kolokwia/<przedmiot>.trening.md → zakładka „Trening”. Na górze „termin: RRRR-MM-DD” i „cel: N” (punkty dziennie), poziomy to „## <nr> · tytuł”,
+     w każdym krótki wstęp i jeden ```quiz (zadania z książki). Punkty za zadanie (liczy się najlepszy wynik): 10 od razu, 5 po błędzie albo z podpowiedzią,
+     2 po „Pokaż rozwiązanie”; od trzeciego „od razu” z rzędu +5 premii. Poziom otwiera się przy 70% punktów poprzedniego. Zadanie bez 10 pkt wraca
+     następnego dnia w powtórkach (od razu dobrze: pełne punkty i +5). Po skończonym poziomie propozycja 5 min przerwy (+5 za powrót).
+     Po 8 min nad jednym zadaniem (strona widoczna) podsuwa podpowiedź. Stan tylko w tym telefonie: localStorage „notatki-trening-v1”. --- */
+  var TR_LS = "notatki-trening-v1", TRQ = {}, trRefresh = null, trCombo = 0, trSeen = {}, trTick = null, TR_BRK = 5 * 60000, TR_BACK = 15 * 60000;
+  function trLoad() {
+    var o; try { o = JSON.parse(lsGet(TR_LS) || "{}") || {}; } catch (e) { o = {}; }
+    ["s", "d", "rv", "done", "brk", "bc"].forEach(function (k) { if (!o[k] || typeof o[k] !== "object") o[k] = {}; });
+    return o;
+  }
+  function trSave(o) { lsSet(TR_LS, JSON.stringify(o)); }
+  function trDay(t) { var d = t ? new Date(t) : new Date(); return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
+  function trAddDays(day, n) { var d = new Date(day + "T12:00:00"); d.setDate(d.getDate() + n); return trDay(d.getTime()); }
+  function trSplit(src) {   // osobne źródło każdego pytania (do powtórek); te same pytania, które zostawia qzParse
+    var out = [], cur = null;
+    src.split("\n").forEach(function (ln) {
+      if (/^\s*\?\s+/.test(ln)) { cur = [ln]; out.push(cur); return; }
+      if (cur) cur.push(ln);
+    });
+    return out.map(function (x) { return x.join("\n"); }).filter(function (x) { return qzParse(x).qs.length === 1; });
+  }
+  function trParse(src, course) {
+    var L = src.split("\n"), out = { meta: {}, intro: [], lv: [] }, cur = null, m;
+    for (var i = 0; i < L.length; i++) {
+      var ln = L[i];
+      if (!cur && !out.title && /^#\s+/.test(ln)) { out.title = ln.replace(/^#\s+/, ""); continue; }
+      if (!cur && (m = /^[^\s:]{2,20}\s*:\s*(\d{4}-\d{2}-\d{2}|\d{1,4})\s*$/.exec(ln.trim()))) { out.meta[m[1].length > 4 ? "termin" : "cel"] = m[1]; continue; }   // „termin: RRRR-MM-DD”, „cel: N” (też po tłumaczeniu)
+      if ((m = /^##\s+(.*)$/.exec(ln))) { cur = { id: (/\d+(?:\.\d+)*[a-z]?/.exec(m[1]) || [String(out.lv.length + 1)])[0], t: m[1].trim(), pre: [], quiz: null }; out.lv.push(cur); continue; }
+      if (cur && !cur.quiz && /^\s*```\s*quiz\s*$/i.test(ln)) { var q = []; i++; while (i < L.length && !/^\s*```/.test(L[i])) q.push(L[i++]); cur.quiz = q.join("\n"); continue; }
+      (cur ? cur.pre : out.intro).push(ln);
+    }
+    out.lv = out.lv.filter(function (v) { return v.quiz && qzParse(v.quiz).qs.length; });
+    out.lv.forEach(function (v) {
+      v.items = trSplit(v.quiz); v.n = v.items.length; v.max = 10 * v.n; v.need = Math.ceil(0.7 * v.max); v.h = qzHash(v.quiz);
+      v.keys = v.items.map(function (_, j) { return course + "|" + v.id + "#" + j; });
+      TRQ[v.h] = { c: course, keys: v.keys };
+    });
+    return out;
+  }
+  function trResume(p) {   // z quizBlock: poziom zaczyna się od pierwszego zadania bez punktów (po odświeżeniu strony też)
+    var R = TRQ[p.h]; if (!R || R.review || R.keys.length !== p.qs.length) return;
+    var o = trLoad(), res = R.keys.map(function (k) { var r = o.s[k]; return r ? (r.p >= 10 ? "ok" : "meh") : null; }), k = res.indexOf(null);
+    if (res.every(function (r) { return r === null; })) return;
+    p.st.res = res; p.st.k = k < 0 ? res.length : k;
+  }
+  function trOnSolve(p, s, box) {   // z qzCheck po dobrej odpowiedzi: punkty, powtórki, dopisek do komunikatu „Dobrze.”
+    var R = TRQ[p.h], key = R && R.keys[s.k]; if (!key) return;
+    var o = trLoad(), day = trDay(), first = !s.tries && !s.hints && !s.showAll, old = o.s[key] ? o.s[key].p : 0;
+    var pts = s.showAll ? 2 : first ? 10 : 5, best = Math.max(old, pts), bonus = 0, goal = R.goal || 100, before = o.d[day] || 0, why = [];
+    trCombo = first ? trCombo + 1 : 0;
+    if (R.review && first) { bonus += 5; why.push(Ln("powtórka zaliczona")); }
+    if (first && trCombo >= 3) { bonus += 5; why.push(Lf("seria {a}", trCombo)); }
+    if (best >= 10) delete o.rv[key]; else o.rv[key] = { due: trAddDays(day, 1) };
+    var gain = best - old + bonus;
+    o.s[key] = { p: best, t: Date.now() };
+    o.bc[R.c] = (o.bc[R.c] || 0) + bonus;
+    o.d[day] = before + gain;
+    trSave(o);
+    s.fb += gain ? " **+" + gain + " " + Ln("pkt") + "**" + (why.length ? " (" + why.join(", ") + ")" : "") : " " + Lf("Masz już tu {a} pkt.", best);
+    if (gain && navigator.vibrate) try { navigator.vibrate(pts >= 10 ? 18 : 8); } catch (e) {}
+    setTimeout(function () {
+      if (gain) trPop(box, "+" + gain);
+      if (before < goal && before + gain >= goal) trToast(Ln("Dzisiejszy cel zrobiony!"));
+      if (trRefresh) trRefresh();
+    }, 0);
+  }
+  function trMotion() { return !(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches); }
+  function trPop(box, t) {
+    if (!trMotion()) return;
+    var e = el("span", { class: "tr-pop", text: t, "aria-hidden": "true" }); box.appendChild(e);
+    setTimeout(function () { e.remove(); }, 1300);
+  }
+  function trToast(t) {
+    var e = el("div", { class: "tr-toast", role: "status", text: t }); document.body.appendChild(e);
+    setTimeout(function () { e.classList.add("out"); }, 2600); setTimeout(function () { e.remove(); }, 3200);
+  }
+  function trConfetti(box) {
+    if (!trMotion()) return;
+    var cs = ["var(--accent)", "var(--c-ma)", "var(--warn)", "var(--c-ics)", "var(--k-thm)"];
+    for (var i = 0; i < 28; i++) {
+      var e = el("i", { class: "tr-cf", "aria-hidden": "true" });
+      e.style.left = (8 + Math.random() * 84) + "%"; e.style.background = cs[i % cs.length];
+      e.style.setProperty("--dx", (Math.random() * 120 - 60).toFixed(0) + "px"); e.style.setProperty("--rot", (Math.random() * 720 - 360).toFixed(0) + "deg");
+      e.style.animationDelay = (Math.random() * 0.25).toFixed(2) + "s";
+      box.appendChild(e);
+      (function (x) { setTimeout(function () { x.remove(); }, 1900); })(e);
+    }
+  }
+  function trDaysWord(n) { return n === 0 ? Ln("Test dziś") : n === 1 ? Ln("Test jutro") : n < 0 ? Ln("Test już był") : Lf("Test za {a} dni", n); }
+  function trStreak(o, goal) {   // dni z rzędu z osiągniętym celem (dziś liczy się, gdy już zrobione; inaczej seria trwa od wczoraj)
+    var day = trDay(), n = 0;
+    if ((o.d[day] || 0) < goal) day = trAddDays(day, -1);
+    while ((o.d[day] || 0) >= goal && n < 400) { n++; day = trAddDays(day, -1); }
+    return n;
+  }
+  function drawTrening(src, course) {
+    var T = trParse(src, course), goal = Math.max(10, +(T.meta.cel || 100) || 100), test = /^\d{4}-\d{2}-\d{2}$/.test(T.meta.termin || "") ? T.meta.termin : null;
+    var root = el("div", { class: "md tr" }), head = el("div", { class: "tr-head" }), rvBox = el("div", { class: "tr-rv" }), map = el("nav", { class: "tr-map", "aria-label": Ln("Poziomy") });
+    Object.keys(TRQ).forEach(function (h) { if (TRQ[h].c === course) TRQ[h].goal = goal; });
+    root.appendChild(head);
+    if (T.intro.join("").trim()) root.appendChild(el("div", { class: "tr-intro", html: md(T.intro.join("\n")) }));
+    var how = [Ln("10 pkt za zadanie dobrze od razu, 5 po błędzie albo z podpowiedzią, 2 po „Pokaż rozwiązanie”. Liczy się Twój najlepszy wynik."),
+      Ln("Seria: od trzeciego zadania z rzędu dobrze od razu każde następne daje +5."),
+      Ln("Następny poziom otwiera się przy 70% punktów poprzedniego – nie musisz mieć wszystkiego."),
+      Ln("Zadanie bez pełnych 10 pkt wraca jutro w powtórkach: od razu dobrze to pełne punkty i +5."),
+      Ln("Po każdym poziomie zrób 5 minut przerwy – za powrót jest +5."),
+      Ln("Siedzisz nad jednym zadaniem 8 minut? Strona podsunie podpowiedź: lepiej 5 pkt teraz niż godzina męki."),
+      Ln("Punkty zapisują się w tym telefonie.")];
+    root.appendChild(el("details", { class: "fold tr-how" }, [el("summary", { text: Ln("Jak to działa") }), el("ul", null, how.map(function (t) { return el("li", { text: t }); }))]));
+    root.appendChild(rvBox); root.appendChild(map);
+    T.lv.forEach(function (v, k) {
+      var s = el("div", { class: "kol-set tr-lv", id: "tr-" + course + "-" + v.id.replace(/[^\w-]/g, "-") });
+      var pill = el("span", { class: "tr-lv-p" });
+      s.appendChild(el("div", { class: "tr-lv-h" }, [el("span", { class: "tr-lv-n", text: Lf("Poziom {a}", k + 1) }), el("b", { text: v.t.replace(/^[\d.]+[a-z]?\s*·\s*/, "") }), pill]));
+      var lock = el("p", { class: "tr-lock" }), body = el("div", { class: "tr-body", html: md(v.pre.join("\n")) + quizBlock(v.quiz) }), done = el("div", { class: "tr-done" });
+      s.appendChild(lock); s.appendChild(body); s.appendChild(done);
+      v.el = { s: s, pill: pill, lock: lock, body: body, done: done };
+      root.appendChild(s);
+    });
+    // powtórki na dziś: zadania bez 10 pkt z poprzednich dni, jeden zestaw (budowany raz przy rysowaniu, żeby nie zniknął w trakcie)
+    (function () {
+      var o = trLoad(), today = trDay(), keys = [], items = [];
+      T.lv.forEach(function (v) { v.keys.forEach(function (key, j) { var r = o.rv[key]; if (r && r.due <= today) { keys.push(key); items.push(v.items[j]); } }); });
+      if (!keys.length) return;
+      var qsrc = "# " + Ln("Powtórki na dziś") + "\n" + items.join("\n"), h = qzHash(qsrc);
+      TRQ[h] = { c: course, keys: keys, review: true, goal: goal };
+      rvBox.appendChild(el("p", { class: "tr-rv-h", html: "<b>" + esc(Lf("Powtórki na dziś: {a}", keys.length)) + "</b> · " + esc(Ln("od razu dobrze = pełne punkty i +5")) }));
+      rvBox.appendChild(el("div", { html: quizBlock(qsrc) }));
+    })();
+    var prevOpen = null;
+    function brkBar(o) {
+      var b = o.br; if (!b) return null;
+      var now = Date.now(), left = b.end - now;
+      if (left > 0) {
+        var m = Math.floor(left / 60000), sec = Math.floor(left % 60000 / 1000);
+        return el("div", { class: "tr-brk on" }, [el("span", { text: Lf("Przerwa: {a}", m + ":" + pad(sec)) }), el("span", { class: "tr-brk-s", text: Ln("wstań, napij się wody, nie patrz w telefon") }),
+          btn("tr-b2", Ln("Wracam wcześniej"), function () { var x = trLoad(); delete x.br; trSave(x); trRefresh(); })]);
+      }
+      if (!b.ok && -left < TR_BACK) return el("div", { class: "tr-brk back" }, [el("span", { text: Ln("Koniec przerwy! Wracaj po bonus.") }),
+        btn("tr-b1", Ln("Wracam (+5 pkt)"), function () { var x = trLoad(), d = trDay(); if (x.br && !x.br.ok) { x.br.ok = 1; x.bc[course] = (x.bc[course] || 0) + 5; x.d[d] = (x.d[d] || 0) + 5; trSave(x); trToast("+5 " + Ln("pkt") + " – " + Ln("dobry powrót")); } trRefresh(); })]);
+      return null;
+    }
+    function drawHead(o, st, tot, max) {
+      var today = trDay(), dz = o.d[today] || 0, str = trStreak(o, goal), due = 0;
+      T.lv.forEach(function (v) { v.keys.forEach(function (k) { if (o.rv[k] && o.rv[k].due <= today) due++; }); });
+      var days = test ? Math.round((new Date(test + "T12:00:00") - new Date(today + "T12:00:00")) / 86400000) : null;
+      head.textContent = "";
+      head.appendChild(el("div", { class: "tr-h1" }, [el("span", { class: "tr-big", text: String(tot) }), el("span", { class: "tr-big-u", text: Ln("pkt") }),
+        days === null ? null : el("span", { class: "tr-test", text: trDaysWord(days) })]));
+      head.appendChild(el("div", { class: "tr-bar", role: "progressbar", "aria-valuemin": "0", "aria-valuemax": String(max), "aria-valuenow": String(Math.min(tot, max)) }, [el("i", { style: "width:" + Math.min(100, Math.round(100 * tot / Math.max(1, max))) + "%" })]));
+      head.appendChild(el("p", { class: "tr-sub", text: Lf("{a} z {b} pkt za zadania w tym treningu", st.reduce(function (a, x) { return a + x.pts; }, 0), max) }));
+      head.appendChild(el("div", { class: "tr-chips" }, [
+        el("span", { class: "tr-chip" + (dz >= goal ? " ok" : "") }, [el("b", { text: Lf("Dziś {a}/{b}", dz, goal) }), el("span", { class: "tr-mini" }, [el("i", { style: "width:" + Math.min(100, Math.round(100 * dz / goal)) + "%" })])]),
+        el("span", { class: "tr-chip" + (str ? " ok" : "") }, [el("b", { text: str ? Lf("Seria: {a} dni", str) : Ln("Seria: zrób dziś cel") })]),
+        due ? el("span", { class: "tr-chip warn" }, [el("b", { text: Lf("Powtórki: {a}", due) })]) : null
+      ]));
+      var bb = brkBar(o); if (bb) head.appendChild(bb);
+    }
+    function stats(o) {
+      var tot = o.bc[course] || 0, max = 0;
+      var st = T.lv.map(function (v) { var pts = 0, ans = 0; v.keys.forEach(function (k) { var r = o.s[k]; if (r) { pts += r.p; ans++; } }); max += v.max; tot += pts; return { pts: pts, ans: ans }; });
+      return { st: st, tot: tot, max: max };
+    }
+    function brkMode(o) { var b = o.br; if (!b) return ""; var left = b.end - Date.now(); return left > 0 ? "on" : !b.ok && -left < TR_BACK ? "back" : ""; }
+    var lastMode = null;
+    trRefresh = function () {
+      if (!document.body.contains(root)) return;
+      var o = trLoad(), now = Date.now(), dirty = false, justDone = null, S = stats(o), st = S.st, tot = S.tot, max = S.max;
+      var open = st.map(function (x, k) { return k === 0 || st[k - 1].pts >= T.lv[k - 1].need; });
+      if (o.br && !o.br.ok && now - o.br.end >= TR_BACK) { delete o.br; dirty = true; }
+      drawHead(o, st, tot, max); lastMode = brkMode(o);
+      map.textContent = "";
+      var cur = open.lastIndexOf(true);
+      T.lv.forEach(function (v, k) {
+        var x = st[k], E = v.el, full = x.pts >= v.max, pass = x.pts >= v.need, complete = x.ans === v.n, dk = course + "|" + v.id;
+        var state = !open[k] ? "lock" : full ? "full" : pass ? "pass" : "open";
+        map.appendChild(btn("tr-row " + state + (k === cur && !pass ? " cur" : ""), null, function () { E.s.scrollIntoView({ behavior: "smooth", block: "start" }); }, [
+          el("span", { class: "tr-ic", "aria-hidden": "true", text: state === "lock" ? "" : state === "open" ? String(k + 1) : "✓" }),
+          el("span", { class: "tr-rn" }, [el("b", { text: v.id }), el("span", { text: " " + v.t.replace(/^[\d.]+[a-z]?\s*·\s*/, "") })]),
+          el("span", { class: "tr-rp" }, [el("span", { text: open[k] ? x.pts + "/" + v.max : Ln("zablokowany") }), el("span", { class: "tr-mini" }, [el("i", { style: "width:" + Math.round(100 * x.pts / v.max) + "%" })])])
+        ]));
+        E.pill.textContent = x.pts + "/" + v.max + " " + Ln("pkt");
+        E.s.classList.toggle("locked", !open[k]); E.s.classList.toggle("passed", pass);
+        E.body.hidden = !open[k]; E.lock.hidden = open[k];
+        if (!open[k]) E.lock.textContent = Lf("Zablokowany. Zdobądź {a} pkt w poprzednim poziomie, żeby go otworzyć.", T.lv[k - 1].need) + " " + Lf("Teraz: {a}/{b}.", st[k - 1].pts, T.lv[k - 1].need);
+        if (prevOpen && open[k] && !prevOpen[k]) { E.s.classList.add("tr-new"); trToast(Lf("Odblokowany poziom {a}!", k + 1)); }
+        if (complete && !o.done[dk]) { o.done[dk] = now; dirty = true; justDone = E.s; }
+        E.done.textContent = ""; E.done.hidden = !complete;
+        if (complete) {
+          E.done.appendChild(el("p", { class: "tr-done-t" }, [el("b", { text: pass ? Lf("Poziom zaliczony: {a}/{b} pkt", x.pts, v.max) : Lf("Poziom skończony: {a}/{b} pkt", x.pts, v.max) }),
+            el("span", { text: " " + (pass ? (k + 1 < T.lv.length ? Ln("Następny poziom jest otwarty.") : Ln("To był ostatni poziom pilota.")) : Lf("Do otwarcia następnego brakuje {a} pkt: zrób zestaw jeszcze raz – liczy się najlepszy wynik.", v.need - x.pts)) })]));
+          if (!o.brk[dk] && now - o.done[dk] < 3600000 && !o.br) E.done.appendChild(el("div", { class: "tr-bb" }, [
+            btn("tr-b1", Ln("Przerwa 5 min"), function () { var y = trLoad(); y.br = { end: Date.now() + TR_BRK, lv: dk }; y.brk[dk] = 1; trSave(y); trRefresh(); head.scrollIntoView({ behavior: "smooth", block: "start" }); }),
+            btn("tr-b2", Ln("Bez przerwy"), function () { var y = trLoad(); y.brk[dk] = 1; trSave(y); trRefresh(); })]));
+        }
+      });
+      prevOpen = open;
+      if (dirty) trSave(o);
+      if (justDone) { trConfetti(justDone); if (navigator.vibrate) try { navigator.vibrate([20, 40, 20]); } catch (e) {} }
+    };
+    trRefresh();
+    paneN.appendChild(el("div", { class: "card day guide" }, [root]));
+    if (trTick) clearInterval(trTick);
+    trTick = setInterval(function () {   // co sekundę: odliczanie przerwy i podpowiedź po 8 min nad jednym zadaniem
+      if (!document.body.contains(root)) { clearInterval(trTick); trTick = null; return; }
+      var o = trLoad(), mode = brkMode(o);
+      if (mode !== lastMode) trRefresh();   // przerwa się zaczęła albo skończyła: nagłówek od nowa
+      else if (mode === "on") { var left = o.br.end - Date.now(), t = head.querySelector(".tr-brk.on > span"); if (t) t.textContent = Lf("Przerwa: {a}", Math.floor(left / 60000) + ":" + pad(Math.floor(left % 60000 / 1000))); }
+      if (document.hidden) return;
+      root.querySelectorAll(".quiz").forEach(function (box) {
+        var p = QZ[+box.getAttribute("data-qz")], s = p && p.st; if (!s || !TRQ[p.h]) return;
+        var key = p.h + ":" + s.k, nx = box.nextElementSibling, nd = nx && nx.classList.contains("tr-nudge") ? nx : null, r = box.getBoundingClientRect();
+        var active = s.k < p.qs.length && !s.solved && !s.hints && !s.showAll && r.bottom > 0 && r.top < window.innerHeight && !box.closest("[hidden]");
+        if (active) trSeen[key] = (trSeen[key] || 0) + 1;
+        var show = active && trSeen[key] >= 480;
+        if (show && !nd) box.parentNode.insertBefore(el("div", { class: "tr-nudge" }, [el("span", { text: Ln("Siedzisz nad tym zadaniem 8 minut. Weź podpowiedź – lepiej 5 pkt teraz niż godzina męki.") }),
+          btn("tr-b1", Ln("Pokaż podpowiedź"), function () { var hb = box.querySelector(".qz-hint"); if (hb) hb.click(); })]), box.nextSibling);
+        if (!show && nd && (s.hints || s.solved || s.showAll || s.k >= p.qs.length)) nd.remove();
+      });
+    }, 1000);
+  }
   /* --- „Ułóż dowód” (blok ```dowod z ~/SimpleAGH/tools/dowody.py): dowód rośnie linijka po linijce, przy każdym kroku wybierasz, co robisz dalej.
      „? ” pytanie kroku, „* ”/„- … >> czemu źle” odpowiedzi, „bo: …” czemu dobrze, „+ …” linie dopisywane do dowodu („+ :: $…$” – wzór). --- */
   var DW = [], DW_LS = "notatki-dowod-v1", dwRefresh = null;
@@ -4432,7 +4727,8 @@ html.rec-open { overflow: hidden; }
   if ("serviceWorker" in navigator) navigator.serviceWorker.addEventListener("message", function (e) { if (e.data && e.data.upel && histCard) loadHist(); });
   document.addEventListener("visibilitychange", function () { if (!document.hidden && histCard) loadHist(); });
   function drawCourse(c) {
-    var f0 = c.folders[0], guide = (INDEX.courses || {})[c.course], kol = (INDEX.kol || {})[c.course], dow = (INDEX.kol || {})[c.course + ".dowody"];
+    var f0 = c.folders[0], guide = (INDEX.courses || {})[c.course], kol = (INDEX.kol || {})[c.course], dow = (INDEX.kol || {})[c.course + ".dowody"], tre = (INDEX.kol || {})[c.course + ".trening"];
+    if (!tre && view.t === "tre") view.t = "days";
     if (!dow && view.t === "dow") view.t = "days";
     if (!guide && view.t === "guide") view.t = "days";
     if (!kol && view.t === "kol") view.t = guide ? "guide" : "days";
@@ -4440,10 +4736,10 @@ html.rec-open { overflow: hidden; }
       btn("back", Ln("‹ Wszystkie"), function () { view = { k: "home" }; render(); window.scrollTo(0, 0); }),
       el("div", { class: "t" }, [el("b", { text: fname(f0) }), el("span", { text: c.folders.map(function (f) { return KIND_L[f.kind]; }).join(" · ") })])
     ]));
-    if (guide || kol || dow) {
+    if (guide || kol || dow || tre) {
       var seg = el("div", { class: "seg wide", role: "group", "aria-label": Ln("Widok przedmiotu") });
       var kor = isKorki(c);
-      [guide && ["guide", Ln("Przewodnik")], kol && ["kol", kor ? Ln("Powtórka") : Ln("Kolokwia")], dow && ["dow", Ln("Dowody")], ["days", kor ? Ln("Notatki") : Ln("Zajęcia")]].filter(Boolean).forEach(function (o) {
+      [guide && ["guide", Ln("Przewodnik")], kol && ["kol", kor ? Ln("Powtórka") : Ln("Kolokwia")], tre && ["tre", Ln("Trening")], dow && ["dow", Ln("Dowody")], ["days", kor ? Ln("Notatki") : Ln("Zajęcia")]].filter(Boolean).forEach(function (o) {
         var b = btn("", o[1], function () { if (o[0] === "days" && view.t === "days") view.dz = null; view.t = o[0]; render(); window.scrollTo(0, 0); }); b.setAttribute("aria-pressed", view.t === o[0] ? "true" : "false"); seg.appendChild(b);
       });
       paneN.appendChild(seg);
@@ -4451,6 +4747,7 @@ html.rec-open { overflow: hidden; }
     if (view.t === "guide") return drawGuide(c, guide);
     if (view.t === "kol") return drawKol(kol);
     if (view.t === "dow") return drawDow(dow);
+    if (view.t === "tre") return drawTrening(tre, c.course);
     drawDays(c);
   }
   function drawDow(src) {   // dowody do ułożenia (kolokwia/<przedmiot>.dowody.md z ~/SimpleAGH/tools/dowody.py): spis z ✓ i bloki ```dowod
