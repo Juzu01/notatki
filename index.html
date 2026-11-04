@@ -755,6 +755,18 @@ html.ask-open { overflow: hidden; }
 .ask-h .new { appearance: none; border: 0; background: none; color: var(--accent); font-weight: 600; font-size: 0.86rem; padding: 8px 4px; cursor: pointer; flex: none; }
 .ask-h .x { appearance: none; border: 0; background: var(--surface); width: 34px; height: 34px; border-radius: 50%; font-size: 1.35rem; line-height: 1; color: var(--muted); cursor: pointer; flex: none; }
 .pk { height: auto; max-height: 86vh; }
+.ps { height: auto; max-height: 86vh; }
+.ps-log { gap: 8px; padding-bottom: 26px; }
+.ps-log .pick { margin-bottom: 6px; }
+.ps-week { font-size: 0.8rem; font-weight: 700; color: var(--muted); margin-top: 10px; }
+.ps-row { appearance: none; font: inherit; color: var(--ink); text-align: left; cursor: pointer; width: 100%; display: grid; gap: 2px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 11px 13px; }
+.ps-row.sug { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.ps-top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.ps-top b { font-weight: 700; }
+.ps-tag { flex: none; font-size: 0.78rem; font-weight: 700; color: var(--accent); }
+.ps-sub { font-size: 0.84rem; color: var(--muted); overflow-wrap: anywhere; }
+.ps-other { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; }
+.ps-other .pick { margin: 0; min-width: 0; }
 .pk .pk-log { padding-bottom: 28px; }
 .pk .pk-log > .md { gap: 14px; }
 .pk .mat-img { width: 100%; height: auto; display: block; border-radius: 8px; border: 1px solid var(--line); background: #fff; cursor: zoom-in; }
@@ -909,6 +921,12 @@ html.rec-open { overflow: hidden; }
   <div class="ask-grip" aria-hidden="true"></div>
   <div class="ask-h"><div class="t"><b id="pk-title"></b><span class="ctx" id="pk-ctx"></span></div><button type="button" class="new" id="pk-go" hidden>Otwórz w notatce</button><button type="button" class="x" id="pk-x" aria-label="Zamknij">×</button></div>
   <div class="ask-log pk-log" id="pk-log"></div>
+</div>
+<div class="ask-back" id="ps-back" hidden></div>
+<div class="ask ps" id="ps" role="dialog" aria-labelledby="ps-title" hidden>
+  <div class="ask-grip" aria-hidden="true"></div>
+  <div class="ask-h"><div class="t"><b id="ps-title"></b><span class="ctx" id="ps-ctx"></span></div><button type="button" class="x" id="ps-x" aria-label="Zamknij">×</button></div>
+  <div class="ask-log ps-log" id="ps-log"></div>
 </div>
 <input type="file" class="file" id="cam" accept="image/*" capture="environment" tabindex="-1" aria-hidden="true">
 <input type="file" class="file" id="gal" accept="image/*" multiple tabindex="-1" aria-hidden="true">
@@ -1073,7 +1091,7 @@ html.rec-open { overflow: hidden; }
       "Wszystko wysłane. Claude układa ostateczną notatkę – zwykle kilka minut.": "Everything sent. Claude is putting together the final note – usually a few minutes.", "Wybierz zajęcia…": "Choose a class…", "Wyczyść": "Clear",
       "Wyjście": "Output", "Wysyłam ostatni tekst…": "Sending the last text…", "Wysyłam tekst z nagrania…": "Sending text from the recording…", "Wysyłam…": "Sending…", "Wysyłam… ": "Sending… ",
       "Wytłumacz najtrudniejszą rzecz z tej notatki": "Explain the hardest thing in this note", "Wytłumacz to prościej": "Explain it more simply", "Wytłumacz: ": "Explain: ", "Wyślij": "Send", "Wznów": "Resume",
-      "Włącz powiadomienia": "Turn on notifications", "Włączam mikrofon…": "Turning on the microphone…", "Włączam…": "Turning on…", "Z galerii": "From gallery", "Zacznij nagrywać": "Start recording", "Zadanie": "Exercise",
+      "Włącz powiadomienia": "Turn on notifications", "Włączam mikrofon…": "Turning on the microphone…", "Włączam…": "Turning on…", "Z galerii": "From gallery", "Z których zajęć są te zdjęcia?": "Which class are these photos from?", "Tydzień ": "Week ", "proponowane": "suggested", "poza planem": "not in the timetable", "jeszcze bez notatki": "no note yet", "Inny dzień": "Another day", "Dodaj": "Add", "Na razie nie ma tu zajęć. Wybierz dzień niżej.": "No classes here yet. Pick a day below.", "Zacznij nagrywać": "Start recording", "Zadanie": "Exercise",
       "Zakończ": "Finish", "Zalogować komputer tym samym kluczem co ten telefon? Na ekranie komputera powinien być kod ": "Sign in the computer with the same key as this phone? The computer screen should show the code ",
       "Zapisuję notatkę…": "Saving the note…", "Zapisz klucz": "Save key", "Zapytaj": "Ask", "Zapytaj Claude'a": "Ask Claude", "Zapytaj o cokolwiek…": "Ask anything…", "Zapytaj o to": "Ask about this", "Zdjęcia": "Photos",
       "Zdjęcia rób przyciskiem „Zdjęcie” na ekranie nagrywania. Telefon przełącz na wyciszony, żeby aparat nie pstrykał.": "Take photos with the “Photo” button on the recording screen. Switch the phone to silent so the camera does not click.",
@@ -1381,9 +1399,24 @@ html.rec-open { overflow: hidden; }
     if (isNaN(t) || t > now || now - t > 14 * 864e5) t = now;
     return t;
   }
-  function addFiles(files, fid) {
-    Array.prototype.slice.call(files || []).forEach(function (f) {
-      var t = when(f), day = isoDay(t), name = pad(t.getHours()) + pad(t.getMinutes()) + pad(t.getSeconds()) + "-" + Math.random().toString(36).slice(2, 6);
+  function secName(n) { return pad(Math.floor(n / 3600)) + pad(Math.floor(n / 60) % 60) + pad(n % 60); }
+  function nameSec(n) { return (+n.slice(0, 2)) * 3600 + (+n.slice(2, 4)) * 60 + (+n.slice(4, 6)); }
+  function pickedNames(files, fid, day, start) {   // nazwy zdjęć do wybranego dnia: po wszystkich, które już tam są, bo numery {zN} w notatce idą po posortowanych nazwach
+    var last = -1;
+    photos().concat(local).forEach(function (p) { if (p.folder === fid && p.day === day) last = Math.max(last, nameSec(p.name)); });
+    return files.map(function (f) {
+      var t = f.lastModified ? new Date(f.lastModified) : null;
+      var own = t && !isNaN(t) && isoDay(t) === day ? t.getHours() * 3600 + t.getMinutes() * 60 + t.getSeconds() : start ? mins(start) * 60 : 43200;
+      last = Math.min(Math.max(own, last + 1), 86399);
+      return secName(last) + "-" + Math.random().toString(36).slice(2, 6);
+    });
+  }
+  function addFiles(files, fid, picked) {   // picked = { day, start }: dzień wybrany ręcznie; bez niego dzień wynika z daty zdjęcia
+    files = Array.prototype.slice.call(files || []);
+    if (picked) files = files.map(function (f, i) { return [f, i]; }).sort(function (a, b) { return ((a[0].lastModified || 0) - (b[0].lastModified || 0)) || (a[1] - b[1]); }).map(function (x) { return x[0]; });   // ta sama sekunda: kolejność wyboru
+    var names = picked ? pickedNames(files, fid, picked.day, picked.start) : null;
+    files.forEach(function (f, i) {
+      var t = when(f), day = picked ? picked.day : isoDay(t), name = picked ? names[i] : pad(t.getHours()) + pad(t.getMinutes()) + pad(t.getSeconds()) + "-" + Math.random().toString(36).slice(2, 6);
       var e = { folder: fid, day: day, name: name, path: "photos/" + fid + "/" + day + "/" + name + ".jpg", url: URL.createObjectURL(f), file: f, state: "prep", pct: 0 };
       local.push(e);
       chain = chain.then(function () { return upload(e); });
@@ -5688,9 +5721,77 @@ html.rec-open { overflow: hidden; }
     var p = lbPath; closeLb(); delPhoto(p);
   });
   document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !lb.hidden) closeLb(); });
-  [cam, gal].forEach(function (inp) {
-    inp.addEventListener("change", function () { if (inp.files && inp.files.length && target) addFiles(inp.files, target); inp.value = ""; });
-  });
+  cam.addEventListener("change", function () { if (cam.files && cam.files.length && target) addFiles(cam.files, target); cam.value = ""; });
+  gal.addEventListener("change", function () { if (gal.files && gal.files.length && target) psOpen(Array.prototype.slice.call(gal.files), target); gal.value = ""; });
+
+  /* --- Z galerii: użytkownik wybiera, z których zajęć są zdjęcia (data pliku bywa dniem wrzucenia) --- */
+  var ps = $("ps"), psBack = $("ps-back"), psLog = $("ps-log"), psFiles = null;
+  function mondayOf(iso) { var d = new Date(iso + "T12:00"); d.setDate(d.getDate() - (d.getDay() + 6) % 7); return isoDay(d); }
+  function plusDays(iso, n) { var d = new Date(iso + "T12:00"); d.setDate(d.getDate() + n); return isoDay(d); }
+  function weekNumbers() {   // numer tygodnia zajęć: tygodnie bez zajęć się nie liczą, po długiej przerwie (nowy semestr) liczymy od 1
+    var out = {}, n = 0, prev = null;
+    (CFG.dated || []).map(function (x) { return mondayOf(x.date); }).sort().forEach(function (w) {
+      if (w === prev) return;
+      n = prev && (new Date(w + "T12:00") - new Date(prev + "T12:00")) > 35 * 864e5 ? 1 : n + 1;
+      out[w] = n; prev = w;
+    });
+    return out;
+  }
+  function weekRange(w) {
+    var a = new Date(w + "T12:00"), b = new Date(plusDays(w, 6) + "T12:00");
+    return a.getMonth() === b.getMonth() ? a.getDate() + "–" + b.getDate() + " " + MON_G[b.getMonth()] : a.getDate() + " " + MON_G[a.getMonth()] + " – " + b.getDate() + " " + MON_G[b.getMonth()];
+  }
+  function pastDays(fid) {   // dni tych zajęć do dziś: z planu oraz wszystkie, które już mają zdjęcia albo notatkę (także spoza planu)
+    var now = new Date(), today = isoDay(now), nm = now.getHours() * 60 + now.getMinutes(), by = {};
+    function row(day) { return by[day] || (by[day] = { day: day, plan: null, n: 0, title: "" }); }
+    var plan = CFG.dated && CFG.dated.length ? CFG.dated.filter(function (x) { return x.folder === fid; }) : [];
+    if (!plan.length && !(CFG.dated && CFG.dated.length)) {   // bez planu z datami: stały plan tygodnia, 20 tygodni wstecz
+      for (var i = 0; i < 140; i++) { var d = plusDays(today, -i), wd = DK[new Date(d + "T12:00").getDay()]; (CFG.schedule || []).forEach(function (x) { if (x.folder === fid && x.day === wd) plan.push({ date: d, start: x.start, end: x.end, room: x.room }); }); }
+    }
+    plan.forEach(function (x) { if (x.date < today || (x.date === today && mins(x.start) <= nm)) row(x.date).plan = x; });
+    photos().concat(local).forEach(function (p) { if (p.folder === fid && !(p.path && TREE && TREE[p.path] && !p.status)) row(p.day).n++; });
+    Object.keys(INDEX.notes || {}).forEach(function (k) { var e = INDEX.notes[k]; if (e.folder === fid) row(e.day).title = e.title; });
+    return Object.keys(by).sort().reverse().map(function (k) { return by[k]; });
+  }
+  function psChoose(fid, day, start) {
+    var files = psFiles; psClose();
+    if (files) addFiles(files, fid, { day: day, start: start || null });
+  }
+  function psDraw(fid) {
+    psLog.textContent = "";
+    var sel = el("select", { class: "pick", "aria-label": Ln("Zajęcia") });
+    (CFG.folders || []).forEach(function (f) { var o = el("option", { value: f.id, text: fname(f) + " – " + KIND_L[f.kind] }); if (f.id === fid) o.selected = true; sel.appendChild(o); });
+    sel.addEventListener("change", function () { psDraw(sel.value); psLog.scrollTop = 0; });
+    psLog.appendChild(sel);
+    var rows = pastDays(fid), weeks = weekNumbers(), prev = null;
+    var fileDay = isoDay(when(psFiles[0])), sug = rows.filter(function (r) { return r.day <= fileDay; })[0];   // ostatni dzień tych zajęć przed datą pliku (także spoza planu: tam może już leżeć notatka z tego wykładu)
+    if (!rows.length) psLog.appendChild(el("p", { class: "hint", text: Ln("Na razie nie ma tu zajęć. Wybierz dzień niżej.") }));
+    rows.forEach(function (r) {
+      var w = mondayOf(r.day);
+      if (w !== prev) { prev = w; psLog.appendChild(el("div", { class: "ps-week", text: (weeks[w] ? Ln("Tydzień ") + weeks[w] + " · " : "") + weekRange(w) })); }
+      var bits = r.plan ? [r.plan.start + "–" + r.plan.end].concat(r.plan.room ? [r.plan.room] : []) : [Ln("poza planem")];
+      if (r.n) bits.push(nPhotos(r.n));
+      var b = btn("ps-row" + (r === sug ? " sug" : ""), null, function () { psChoose(fid, r.day, r.plan && r.plan.start); }, [
+        el("span", { class: "ps-top" }, [el("b", { text: dayLabel(r.day) }), r === sug ? el("span", { class: "ps-tag", text: Ln("proponowane") }) : null]),
+        el("span", { class: "ps-sub", text: bits.join(" · ") }),
+        el("span", { class: "ps-sub", text: r.title || Ln("jeszcze bez notatki") })
+      ]);
+      psLog.appendChild(b);
+    });
+    var inp = el("input", { class: "pick", type: "date", "aria-label": Ln("Inny dzień"), max: isoDay(new Date()) });
+    var add = btn("go alt", Ln("Dodaj"), function () { if (inp.value && inp.value <= isoDay(new Date())) psChoose(fid, inp.value, null); });
+    psLog.appendChild(el("div", { class: "ps-week", text: Ln("Inny dzień") }));
+    psLog.appendChild(el("div", { class: "ps-other" }, [inp, add]));
+  }
+  function psOpen(files, fid) {
+    psFiles = files;
+    $("ps-title").textContent = Ln("Z których zajęć są te zdjęcia?"); $("ps-ctx").textContent = nPhotos(files.length);
+    psDraw(fid);
+    ps.hidden = false; psBack.hidden = false; document.documentElement.classList.add("ask-open"); psLog.scrollTop = 0;
+  }
+  function psClose() { ps.hidden = true; psBack.hidden = true; psFiles = null; if (trs.hidden && pk.hidden) document.documentElement.classList.remove("ask-open"); }
+  $("ps-x").addEventListener("click", psClose); psBack.addEventListener("click", psClose);
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !ps.hidden) psClose(); });
   window.addEventListener("beforeunload", function (e) { if (R || local.some(function (x) { return x.state === "prep" || x.state === "upload"; })) { e.preventDefault(); e.returnValue = ""; } });
 
   /* --- tryb jasny/ciemny: przycisk u góry; powrót do trybu telefonu kasuje wybór, więc strona znów idzie za telefonem --- */
