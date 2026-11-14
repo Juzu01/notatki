@@ -4858,6 +4858,7 @@ html.rec-open { overflow: hidden; }
         el("div", { class: "t" }, [el("b", { text: g.t }), el("span", { text: dzSub(g) })])
       ]));
       list = g.items;
+      if (list.length && list.every(function (e) { return e.f && e.f.manual; })) list = list.slice().reverse();   // kurs wpisany ręcznie (np. Kolokwium 1 krok po kroku): od pierwszego dnia
     }
     list.forEach(function (e, di) {
       var f = e.f, d = e.d, key = f.id + "/" + d, note = (INDEX.notes || {})[key], ps = e.ps;
