@@ -603,6 +603,9 @@ html[lang] .md .zref + .zref::before, html[lang] .md .tref + .tref::before { con
 .md .sbar button.s-done[aria-pressed="true"]::before { content: "✓ "; }
 .md .env.task.done > p:first-child > strong:first-child::before { content: "✓ "; color: var(--accent); }
 .done-cnt { font-family: var(--font); font-size: 0.9rem; color: var(--muted); margin: 0; }
+.md .task + h4, .md .task + h5 { margin-top: 18px; padding-top: 16px; border-top: 2px solid var(--line); }   /* nowy dział po zadaniach: wyraźna kreska */
+.done-h { font-family: var(--font); font-size: 0.8em; font-weight: 600; color: var(--muted); white-space: nowrap; }
+.done-h.all { color: var(--accent); }
 .done-cnt b { color: var(--accent); }
 .md .sbar button:disabled { color: var(--faint); text-decoration: none; cursor: default; }
 .legend-n { font-size: 0.78rem; color: var(--faint); border-top: 1px solid var(--line); padding-top: 8px; }
@@ -5005,11 +5008,22 @@ html.rec-open { overflow: hidden; }
     if (ts.length >= 3) {   // licznik nad spisem treści (jeśli jest), inaczej na górze notatki
       var c = el("p", { class: "done-cnt" }), toc = box.previousElementSibling;
       if (toc && toc.classList.contains("toc")) toc.parentNode.insertBefore(c, toc); else box.insertBefore(c, box.firstChild);
-      box._dc = c; doneCount(box);
+      box._dc = c;
     }
+    box._dh = [];   // przy nagłówku działu z ≥2 zadaniami: „3/13 ✓” – ile z jego zadań zrobione
+    Array.prototype.forEach.call(box.querySelectorAll(":scope > h4, :scope > h5"), function (h) {
+      var ts2 = [], x = h.nextElementSibling;
+      for (; x && !/^H[456]$/.test(x.tagName); x = x.nextElementSibling) if (x.classList.contains("task") && x.querySelector(".s-done[data-k]")) ts2.push(x);
+      if (ts2.length >= 2) { var sp = el("span", { class: "done-h" }); h.appendChild(sp); box._dh.push({ sp: sp, ts: ts2 }); }
+    });
+    doneCount(box);
   }
   function doneShow(t, on) { t.classList.toggle("done", on); t.querySelector(".s-done").setAttribute("aria-pressed", on ? "true" : "false"); }
   function doneCount(box) {
+    (box._dh || []).forEach(function (d) {
+      var k = d.ts.filter(function (t) { return t.classList.contains("done"); }).length;
+      d.sp.textContent = " " + k + "/" + d.ts.length + (k === d.ts.length ? " ✓" : ""); d.sp.classList.toggle("all", k === d.ts.length);
+    });
     var c = box._dc; if (!c) return;
     var all = box.querySelectorAll(".env.task .s-done[data-k]").length, n = box.querySelectorAll(".env.task.done").length;
     c.innerHTML = Lf("Zrobione: {a} z {b} zadań", "<b>" + n + "</b>", all);
