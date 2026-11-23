@@ -597,6 +597,13 @@ html[lang] .md .zref + .zref::before, html[lang] .md .tref + .tref::before { con
 .md .sbar { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; font-family: var(--font); }
 .md .sbar button { appearance: none; border: 0; background: none; padding: 2px 0; font-weight: 600; font-size: 0.9rem; color: var(--accent); text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; cursor: pointer; }
 .md .sbar button.s-all { color: var(--muted); font-weight: 500; }
+.md .sbar button.s-done { margin-left: auto; color: var(--muted); font-weight: 500; text-decoration: none; border: 1px solid var(--line); border-radius: 999px; padding: 3px 12px; }
+.md .sbar button.s-done::before { content: "○ "; }
+.md .sbar button.s-done[aria-pressed="true"] { color: var(--accent); background: var(--accent-soft); border-color: var(--accent); font-weight: 700; }
+.md .sbar button.s-done[aria-pressed="true"]::before { content: "✓ "; }
+.md .env.task.done > p:first-child > strong:first-child::before { content: "✓ "; color: var(--accent); }
+.done-cnt { font-family: var(--font); font-size: 0.9rem; color: var(--muted); margin: 0; }
+.done-cnt b { color: var(--accent); }
 .md .sbar button:disabled { color: var(--faint); text-decoration: none; cursor: default; }
 .legend-n { font-size: 0.78rem; color: var(--faint); border-top: 1px solid var(--line); padding-top: 8px; }
 .toc { display: grid; gap: 2px; padding: 2px 0 4px; border-bottom: 1px solid var(--line); }
@@ -982,7 +989,7 @@ html.rec-open { overflow: hidden; }
       "Następny zestaw": "Next set", "Jeszcze raz": "Again",
       "Ułóż dowód": "Build the proof", "Krok {a} z {b}": "Step {a} of {b}", "DOWÓD": "PROOF", "Dowód gotowy.": "Proof complete.", "Pomyłki po drodze: {a}. Przeczytaj teraz cały dowód od góry – tak go zapiszesz na kolokwium.": "Mistakes on the way: {a}. Now read the whole proof from the top – this is how you write it on a test.",
       "Bez ani jednej pomyłki.": "Not a single mistake.", "Następny dowód": "Next proof", "Ułóż jeszcze raz": "Build it again", "Zakończ dowód": "Finish the proof",
-      "od razu całe": "show all", "Następny krok ({a} z {b})": "Next step ({a} of {b})", "To całe rozwiązanie": "That is the whole solution",
+      "od razu całe": "show all", "zrobione": "done", "Zrobione: {a} z {b} zadań": "Done: {a} of {b} exercises", "Następny krok ({a} z {b})": "Next step ({a} of {b})", "To całe rozwiązanie": "That is the whole solution",
       "Otwórz w notatce": "Open in note", "Nowa wersja notatek – pokaż": "New version of the notes – show", "Tej notatki jeszcze nie ma.": "This note does not exist yet.", "Notatka": "Note", "Materiał": "Material", "Wczytuję…": "Loading…", "Tego materiału nie ma w repo.": "This material is not available.",
       " · strona {a} z {b}": " · page {a} of {b}", "Cały plik na UPeL-u": "Whole file on UPeL", "Nie udało się wczytać materiału.": "Could not load the material.", "Zamknij": "Close",
       "Brak połączenia z GitHubem. Spróbuję jeszcze raz za chwilę.": "No connection. I will try again in a moment.",
@@ -1119,7 +1126,7 @@ html.rec-open { overflow: hidden; }
       "Następny zestaw": "Sonraki set", "Jeszcze raz": "Tekrar", "Od początku": "Baştan", "Krok wstecz": "Geri", "Dotknij wykresu, żeby odczytać wartości.": "Değerleri okumak için grafiğe dokun.", "nie istnieje": "tanımsız",
       "Ułóż dowód": "İspatı kur", "Krok {a} z {b}": "Adım {a} / {b}", "DOWÓD": "İSPAT", "Dowód gotowy.": "İspat tamam.", "Pomyłki po drodze: {a}. Przeczytaj teraz cały dowód od góry – tak go zapiszesz na kolokwium.": "Yoldaki hatalar: {a}. Şimdi tüm ispatı baştan oku – sınavda böyle yazacaksın.",
       "Bez ani jednej pomyłki.": "Hiç hata yok.", "Następny dowód": "Sonraki ispat", "Ułóż jeszcze raz": "Tekrar kur", "Zakończ dowód": "İspatı bitir",
-      "od razu całe": "hepsini göster", "Następny krok ({a} z {b})": "Sonraki adım ({a} / {b})", "To całe rozwiązanie": "Çözümün tamamı bu",
+      "od razu całe": "hepsini göster", "zrobione": "yapıldı", "Zrobione: {a} z {b} zadań": "Yapıldı: {a} / {b} alıştırma", "Następny krok ({a} z {b})": "Sonraki adım ({a} / {b})", "To całe rozwiązanie": "Çözümün tamamı bu",
       "Otwórz w notatce": "Notta aç", "Nowa wersja notatek – pokaż": "Notların yeni sürümü – göster", "Tej notatki jeszcze nie ma.": "Bu not henüz yok.", "Notatka": "Not", "Materiał": "Materyal", "Wczytuję…": "Yükleniyor…", "Tego materiału nie ma w repo.": "Bu materyal mevcut değil.",
       " · strona {a} z {b}": " · sayfa {a} / {b}", "Cały plik na UPeL-u": "UPeL'deki dosyanın tamamı", "Nie udało się wczytać materiału.": "Materyal yüklenemedi.", "Zamknij": "Kapat",
       "Brak połączenia z GitHubem. Spróbuję jeszcze raz za chwilę.": "Bağlantı yok. Birazdan tekrar deneyeceğim.",
@@ -1578,7 +1585,7 @@ html.rec-open { overflow: hidden; }
   }
   function task(statementHtml, solLines) {
     return '<div class="env task">' + statementHtml + '<div class="sol" hidden>' + md(solLines.join("\n")) +
-      '</div><div class="sbar"><button type="button" class="s-next">' + Ln("Pokaż rozwiązanie") + '</button><button type="button" class="s-all">' + Ln("od razu całe") + '</button></div></div>';
+      '</div><div class="sbar"><button type="button" class="s-next">' + Ln("Pokaż rozwiązanie") + '</button><button type="button" class="s-all">' + Ln("od razu całe") + '</button><button type="button" class="s-done" aria-pressed="false" hidden>' + Ln("zrobione") + '</button></div></div>';
   }
   function env(lines) {  // **Definicja 1** … do pustej linii
     var kind = ENV_K[ENV.exec(lines[0])[1]] || "rem";
@@ -4631,7 +4638,7 @@ html.rec-open { overflow: hidden; }
     if (!note) { pkLog.appendChild(el("p", { class: "hint", text: Ln("Tej notatki jeszcze nie ma.") })); return; }
     if (!src) src = noTitle(note.md);   // całej sekcji nie znaleziono: cała notatka
     pkKey = key;
-    var box = el("div", { class: "md", html: md(src) }); pkLog.appendChild(box);
+    var box = el("div", { class: "md", html: md(src) }); pkLog.appendChild(box); markDone(box, key); markDone(box, key);
     loadFigs(box);
   }
   function peekMat(id, label) {
@@ -4898,6 +4905,7 @@ html.rec-open { overflow: hidden; }
           var mdBox = el("div", { class: "md", html: md(noTitle(note.md || "")) }), hs = mdBox.querySelectorAll(":scope > h4");
           if (hs.length >= 3) card.appendChild(el("nav", { class: "toc", "aria-label": Ln("Spis") }, Array.prototype.map.call(hs, tocBtn)));
           card.appendChild(mdBox);
+          markDone(mdBox, key);
           loadFigs(mdBox);
           if (mdBox.querySelector(".dag, .mn, .zref, .tref")) card.appendChild(el("p", { class: "legend-n", text: Ln("† dopisane przez Claude'a, nie było na zajęciach · zdj. N – zdjęcie, z którego to pochodzi") + (mdBox.querySelector(".tref") ? Ln(" · nagr. 09:47 – co mówił wtedy prowadzący") : "") + Ln(" (dotknij, żeby otworzyć)") }));
           var copyB = btn("", Ln("Kopiuj"), function () {
@@ -4981,6 +4989,37 @@ html.rec-open { overflow: hidden; }
       else { var h = steps.filter(function (x) { return x.classList.contains("hid"); })[0]; if (h) { h.classList.remove("hid"); h.classList.add("shown"); var hp = solPb(h); if (hp) pbGo(hp, 0); } }
     }
     taskSync(task);
+  });
+  /* --- „zrobione” przy zadaniach: zaznaczane ręcznie, trzymane w localStorage (osobno na każdym telefonie) ---
+     klucz: <folder>/<dzień>#<numer zadania>, np. mathematical-analysis_test1/2026-11-22#4.5.7 */
+  var LS_DONE = "notatki-zrobione-v1";
+  function doneMap() { try { return JSON.parse(lsGet(LS_DONE) || "{}") || {}; } catch (e) { return {}; } }
+  function markDone(box, key) {
+    var dm = doneMap(), ts = box.querySelectorAll(".env.task"), seen = {};
+    Array.prototype.forEach.call(ts, function (t) {
+      var b = t.querySelector(".s-done"), h = t.querySelector("strong"), m = h && /(\d+(?:\.\d+)*)/.exec(h.textContent);
+      if (!b || !m) return;
+      var k = key + "#" + m[1]; if (seen[k]) k += "~" + (seen[k]++); else seen[k] = 1;   // ten sam numer drugi raz w notatce
+      b.setAttribute("data-k", k); b.hidden = false; doneShow(t, !!dm[k]);
+    });
+    if (ts.length >= 3) {   // licznik nad spisem treści (jeśli jest), inaczej na górze notatki
+      var c = el("p", { class: "done-cnt" }), toc = box.previousElementSibling;
+      if (toc && toc.classList.contains("toc")) toc.parentNode.insertBefore(c, toc); else box.insertBefore(c, box.firstChild);
+      box._dc = c; doneCount(box);
+    }
+  }
+  function doneShow(t, on) { t.classList.toggle("done", on); t.querySelector(".s-done").setAttribute("aria-pressed", on ? "true" : "false"); }
+  function doneCount(box) {
+    var c = box._dc; if (!c) return;
+    var all = box.querySelectorAll(".env.task .s-done[data-k]").length, n = box.querySelectorAll(".env.task.done").length;
+    c.innerHTML = Lf("Zrobione: {a} z {b} zadań", "<b>" + n + "</b>", all);
+  }
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest && e.target.closest(".s-done"); if (!b || !b.getAttribute("data-k")) return;
+    var k = b.getAttribute("data-k"), dm = doneMap(), t = b.closest(".task"), on = !dm[k];
+    if (on) dm[k] = Date.now(); else delete dm[k];
+    lsSet(LS_DONE, JSON.stringify(dm));
+    document.querySelectorAll('.s-done[data-k="' + k.replace(/"/g, '\\"') + '"]').forEach(function (x) { doneShow(x.closest(".task"), on); var bx = x.closest(".md"); if (bx) doneCount(bx); });
   });
   function solPb(x) { return x.classList.contains("pb") ? x : x.querySelector(".pb"); }
   function taskSync(task) {   // napis na przycisku: każda klatka przebiegu liczy się jak krok
